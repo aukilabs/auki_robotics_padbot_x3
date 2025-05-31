@@ -167,6 +167,17 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.1'
     implementation files('libs/slamware_sdk_android.jar')
+    implementation files('libs/padbot/RobotBasicLib-3.0.2.jar')
+    
+    // EventBus for RobotBasicClientService
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    
+    // Additional dependencies that might be needed
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    
+    // Gson for JSON parsing
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
 
 project.ext.vectoricons = [

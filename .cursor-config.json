@@ -1,14 +1,19 @@
 {
     "project_info": {
-        "name": "auki_padbot_w3",
+        "name": "X3 Robot",
         "description": "Robot GUI project with Cactus and GoTu variants"
     },
     "build_instructions": {
         "android": {
-            "command": "cd RobotGUI/android && ./gradlew clean && ./gradlew assembleRelease",
+            "command": "cd RobotGUI/android && ./gradlew clean && ./gradlew assembleGotuRelease",
             "output_paths": {
                 "cactus": "RobotGUI/android/app/build/outputs/apk/cactus/release/Cactus.apk",
                 "gotu": "RobotGUI/android/app/build/outputs/apk/gotu/release/GoTu.apk"
+            },
+            "adb_steps": {
+                "connect": "adb connect 192.168.9.253",
+                "install": "adb install -r app/build/outputs/apk/gotu/release/GoTu.apk",
+                "debug_log": "adb shell \"cat /storage/emulated/0/Download/GoTu/debug_log.txt\""
             }
         }
     },
@@ -53,7 +58,7 @@
         }
     },
     "logging": {
-        "debug_log": "debug_log.txt",
+        "debug_log": "/storage/emulated/0/Download/GoTu/debug_log.txt",
         "log_utils": "RobotGUI/src/utils/LogUtils.ts"
     },
     "robot_control": {

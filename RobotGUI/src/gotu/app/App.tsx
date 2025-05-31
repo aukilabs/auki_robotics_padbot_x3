@@ -10,6 +10,7 @@ import { View, StyleSheet } from 'react-native';
 import SplashScreen from '../screens/SplashScreen';
 import MainScreen from '../screens/MainScreen';
 import ConfigScreen from '../screens/ConfigScreen';
+import { RobotProvider } from '../../contexts/RobotContext';
 
 enum AppScreen {
   SPLASH,
@@ -69,9 +70,11 @@ const App = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {renderScreen()}
-    </View>
+    <RobotProvider>
+      <View style={styles.container}>
+        {renderScreen()}
+      </View>
+    </RobotProvider>
   );
 };
 

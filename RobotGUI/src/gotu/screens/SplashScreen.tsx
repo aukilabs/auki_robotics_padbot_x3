@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { LogUtils } from '../utils/logging';
 import DeviceStorage from '../../utils/deviceStorage';
-import { useRobot } from '../../contexts/RobotContext';
+import PadbotUtils from '../utils/PadbotUtils';
 
 interface SplashScreenProps {
   onFinish: (products: any[], options?: { goToConfig?: boolean }) => void;
@@ -22,7 +22,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
   const [loadingText, setLoadingText] = useState('Initializing...');
   const [showDockDialog, setShowDockDialog] = useState(false);
   const [isDocked, setIsDocked] = useState(false);
-  const { initialize: initializeRobot } = useRobot();
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -95,16 +94,19 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         await LogUtils.initializeLogging();
         await LogUtils.writeDebugToFile('Starting app initialization...');
 
-        // Initialize robot
+        // Initialize Padbot first - this is the central initialization point
         if (isMounted) {
-          setLoadingText('Initializing robot...');
+          setLoadingText('Initializing Padbot...');
           await LogUtils.writeDebugToFile('Initializing PadbotModule...');
         }
         
         try {
-          const robotInitialized = await initializeRobot();
+          const robotInitialized = await PadbotUtils.initialize();
           if (robotInitialized) {
             await LogUtils.writeDebugToFile('PadbotModule initialized successfully');
+            // Get initial battery status
+            const initialBatteryStatus = await PadbotUtils.getBatteryStatus();
+            await LogUtils.writeDebugToFile(`Initial battery status: ${JSON.stringify(initialBatteryStatus)}`);
           } else {
             await LogUtils.writeDebugToFile('Failed to initialize PadbotModule');
             throw new Error('Robot initialization failed');
@@ -201,6 +203,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         }
 
         // Update map
+        /*
         try {
           if (isMounted) {
             setLoadingText('Updating map...');
@@ -228,8 +231,10 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }
+        */
 
         // Load and validate waypoints
+        /*
         try {
           if (isMounted) {
             setLoadingText('Validating waypoints...');
@@ -310,6 +315,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             await new Promise(resolve => setTimeout(resolve, 5000));
           }
         }
+        */
          
         // Load items from Gotu endpoint
         if (isMounted) {
@@ -378,7 +384,11 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       }
     };
 
-    waitForDock();
+    // Comment out waitForDock since we don't need to check docking status
+    // waitForDock();
+
+    // Start initialization immediately
+    initialize();
 
     timeoutId = setTimeout(() => {
       if (isMounted) {
@@ -394,12 +404,48 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       }
     }, 30000);
 
+    // DEBUG: Log all available PadbotUtils and PadbotModule methods at startup
+    (async () => {
+      try {
+        const initResult = await PadbotUtils.initialize();
+        // Add a small delay after initialization
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        const isCharging = await PadbotUtils.isCharging();
+        
+        console.log('[PadbotUtils] initialize:', initResult);
+        console.log('[PadbotUtils] getBatteryStatus:', batteryStatus);
+        console.log('[PadbotUtils] isCharging:', isCharging);
+        LogUtils.writeDebugToFile(`[PadbotUtils] initialize: ${JSON.stringify(initResult)}`);
+        LogUtils.writeDebugToFile(`[PadbotUtils] getBatteryStatus: ${JSON.stringify(batteryStatus)}`);
+        LogUtils.writeDebugToFile(`[PadbotUtils] isCharging: ${JSON.stringify(isCharging)}`);
+        
+        // Try to enumerate and call any extra methods on PadbotModule
+        const padbotModule = NativeModules.PadbotModule;
+        if (padbotModule) {
+          Object.keys(padbotModule).forEach(async (key) => {
+            try {
+              const result = typeof padbotModule[key] === 'function' ? await padbotModule[key]() : padbotModule[key];
+              console.log(`[PadbotModule] ${key}:`, result);
+              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: ${JSON.stringify(result)}`);
+            } catch (e) {
+              console.log(`[PadbotModule] ${key}: error`, e);
+              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: error ${e}`);
+            }
+          });
+        }
+      } catch (e) {
+        console.log('[PadbotUtils] Debug block error:', e);
+        LogUtils.writeDebugToFile(`[PadbotUtils] Debug block error: ${e}`);
+      }
+    })();
+
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [opacity, onFinish, initializeRobot]);
+  }, [opacity, onFinish]);
 
   return (
     <View style={styles.background}>

@@ -10,6 +10,7 @@ import {
   NativeModules,
 } from 'react-native';
 import { LogUtils } from '../utils/LogUtils';
+import BatteryStatus from '../components/BatteryStatus';
 
 // Access the global object in a way that works in React Native
 const globalAny: any = global;
@@ -29,6 +30,12 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
     isConnected: false,
     message: 'Checking connection...',
   });
+
+  const [sdkConnectionStatus, setSdkConnectionStatus] = useState<ConnectionStatus>({
+    isConnected: false,
+    message: 'Checking SDK connection...',
+  });
+
   const [lastHealthCheckResponse, setLastHealthCheckResponse] = useState<any>(null);
 
   const [email, setEmail] = useState('');
@@ -43,6 +50,7 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
     const loadInitialData = async () => {
       await Promise.all([
         checkConnection(),
+        checkSdkConnection(),
         loadStoredCredentials()
       ]);
     };
@@ -50,7 +58,10 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
     loadInitialData();
 
     // Set up an interval to check connection periodically
-    const connectionInterval = setInterval(checkConnection, 5000);
+    const connectionInterval = setInterval(() => {
+      checkConnection();
+      checkSdkConnection();
+    }, 5000);
 
     return () => {
       clearInterval(connectionInterval);
@@ -161,6 +172,21 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
       setConnectionStatus({ 
         isConnected: false, 
         message: 'Health Check Failed'
+      });
+    }
+  };
+
+  const checkSdkConnection = async () => {
+    try {
+      const details = await NativeModules.SlamtecUtils.checkConnectionSdk();
+      setSdkConnectionStatus({
+        isConnected: details.slamApiAvailable,
+        message: details.status + ' (SDK)',
+      });
+    } catch (error) {
+      setSdkConnectionStatus({
+        isConnected: false,
+        message: 'SDK Connection error',
       });
     }
   };
@@ -299,7 +325,7 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeButtonText}>✕</Text>
@@ -312,18 +338,26 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
       >
         <View style={styles.content}>
           <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>Connection Status</Text>
+            <Text style={styles.statusText}>Connection Status (REST API)</Text>
             <View style={[
               styles.statusIndicator,
               { backgroundColor: connectionStatus.isConnected ? '#4CAF50' : '#F44336' }
             ]} />
             <Text style={styles.statusMessage}>{connectionStatus.message}</Text>
-            <TouchableOpacity 
-              style={styles.detailsButton}
-              onPress={showHealthCheckDetails}
-            >
-              <Text style={styles.detailsButtonText}>Details</Text>
-            </TouchableOpacity>
+          </View>
+
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>Connection Status (SDK)</Text>
+            <View style={[
+              styles.statusIndicator,
+              { backgroundColor: sdkConnectionStatus.isConnected ? '#4CAF50' : '#F44336' }
+            ]} />
+            <Text style={styles.statusMessage}>{sdkConnectionStatus.message}</Text>
+          </View>
+
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>Robot Status</Text>
+            <BatteryStatus />
           </View>
 
           <View style={styles.section}>
@@ -728,7 +762,7 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
           </View>
         </View>
       </ScrollView>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -846,6 +880,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '500',
+  },
+  statusLabel: {
+    fontSize: 16,
+    marginRight: 10,
+  },
+  statusValue: {
+    fontSize: 16,
   },
 });
 

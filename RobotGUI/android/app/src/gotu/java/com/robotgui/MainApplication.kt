@@ -13,6 +13,7 @@ import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import com.robotgui.BuildConfig
 import com.robotgui.BatteryMonitorPackage
+import com.robotgui.PadbotPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -28,6 +29,7 @@ class MainApplication : Application(), ReactApplication {
             packages.add(ConfigManagerPackage())
             packages.add(AppInfoPackage())
             packages.add(BatteryMonitorPackage())
+            packages.add(PadbotPackage())
             return packages
         }
 

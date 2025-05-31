@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import cn.inbot.basiclib.RobotBasicClient
 import android.util.Log
 
 class MainActivity : ReactActivity() {
@@ -20,7 +19,7 @@ class MainActivity : ReactActivity() {
      * Returns the name of the main component registered from JavaScript. This is used to schedule
      * rendering of the component.
      */
-    override fun getMainComponentName(): String = "RobotGUI"
+    override fun getMainComponentName(): String = "gotu"
 
     /**
      * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
@@ -35,15 +34,7 @@ class MainActivity : ReactActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        try {
-            // Initialize the robot SDK
-            Log.d(TAG, "Initializing robot SDK...")
-            RobotBasicClient.getInstance().connect(applicationContext, "GoTu")
-            Log.d(TAG, "Robot SDK initialized successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error initializing robot SDK: ${e.message}", e)
-        }
+        Log.d(TAG, "MainActivity onCreate")
     }
 
     override fun onRequestPermissionsResult(
