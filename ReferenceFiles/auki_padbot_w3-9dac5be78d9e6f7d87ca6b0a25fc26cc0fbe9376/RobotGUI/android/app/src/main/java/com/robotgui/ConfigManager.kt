@@ -1,0 +1,61 @@
+package com.robotgui
+
+import android.content.Context
+import org.yaml.snakeyaml.Yaml
+import java.io.InputStreamReader
+
+object ConfigManager {
+    private var config: Map<String, Any> = mapOf()
+
+    fun init(context: Context) {
+        try {
+            val inputStream = context.assets.open("config.yaml")
+            val yaml = Yaml()
+            @Suppress("UNCHECKED_CAST")
+            config = yaml.load(InputStreamReader(inputStream)) as Map<String, Any>
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun getString(key: String, defaultValue: String = ""): String {
+        return config[key]?.toString() ?: defaultValue
+    }
+
+    fun getInt(key: String, defaultValue: Int = 0): Int {
+        return config[key]?.toString()?.toIntOrNull() ?: defaultValue
+    }
+
+    fun getNestedString(path: String, defaultValue: String = ""): String {
+        return getNestedValue(path)?.toString() ?: defaultValue
+    }
+
+    fun getDoubleArray(key: String): DoubleArray? {
+        val value = getNestedValue(key)
+        return (value as? List<*>)?.mapNotNull { 
+            (it as? Number)?.toDouble() 
+        }?.toDoubleArray()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun getNestedValue(path: String): Any? {
+        val keys = path.split(".")
+        var current: Any? = config
+
+        for (key in keys) {
+            current = (current as? Map<String, Any>)?.get(key)
+            if (current == null) return null
+        }
+
+        return current
+    }
+
+    // This method would be used for saving config values in the future
+    // Currently just a placeholder as writing to config.yaml in assets isn't supported directly
+    fun saveNestedValue(path: String, value: Any): Boolean {
+        // Placeholder for future implementation
+        return false
+    }
+
+    // Add more getters as needed
+} 

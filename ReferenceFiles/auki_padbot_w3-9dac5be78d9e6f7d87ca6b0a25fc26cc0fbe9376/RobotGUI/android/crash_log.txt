@@ -1,0 +1,714 @@
+--------- beginning of main
+05-13 12:05:02.872  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:03.027  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.028  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.028  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:03.028  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.029  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.029  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.029  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.030  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.030  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:03.030  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.030  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.030  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.030  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.031  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.033  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:03.033  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.033  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.033  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.033  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.033  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.033  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.034  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.035  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.035  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.035  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.035  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.035  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:03.036  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.037  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:03.037  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:03.037  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.038  1207  1207 D PBAutoLaunchService: check auto launcher
+05-13 12:05:03.045  1207  1207 I PBConfigPropertiesTool: {robot_auto_launch=["cn.inbot.padbott2"]}
+05-13 12:05:03.045  1207  1207 D PBAutoLaunchService:  start: cn.inbot.padbott2
+05-13 12:05:03.046  1207  1207 W System.err: android.content.pm.PackageManager$NameNotFoundException: cn.inbot.padbott2
+05-13 12:05:03.047  1207  1207 W System.err: 	at android.app.ApplicationPackageManager.getPackageInfoAsUser(ApplicationPackageManager.java:174)
+05-13 12:05:03.047  1207  1207 W System.err: 	at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:145)
+05-13 12:05:03.047  1207  1207 W System.err: 	at cn.inbot.padbotlauncher.service.PBAutoLaunchService.checkPackInfo(PBAutoLaunchService.java:172)
+05-13 12:05:03.047  1207  1207 W System.err: 	at cn.inbot.padbotlauncher.service.PBAutoLaunchService.startAutoLaunchApp(PBAutoLaunchService.java:154)
+05-13 12:05:03.047  1207  1207 W System.err: 	at cn.inbot.padbotlauncher.service.PBAutoLaunchService.startAppIfNeed(PBAutoLaunchService.java:100)
+05-13 12:05:03.047  1207  1207 W System.err: 	at cn.inbot.padbotlauncher.service.PBAutoLaunchService.access$000(PBAutoLaunchService.java:52)
+05-13 12:05:03.047  1207  1207 W System.err: 	at cn.inbot.padbotlauncher.service.PBAutoLaunchService$1.accept(PBAutoLaunchService.java:85)
+05-13 12:05:03.048  1207  1207 W System.err: 	at cn.inbot.padbotlauncher.service.PBAutoLaunchService$1.accept(PBAutoLaunchService.java:81)
+05-13 12:05:03.048  1207  1207 W System.err: 	at io.reactivex.internal.observers.LambdaObserver.onNext(LambdaObserver.java:63)
+05-13 12:05:03.048  1207  1207 W System.err: 	at io.reactivex.internal.operators.observable.ObservableObserveOn$ObserveOnObserver.drainNormal(ObservableObserveOn.java:200)
+05-13 12:05:03.048  1207  1207 W System.err: 	at io.reactivex.internal.operators.observable.ObservableObserveOn$ObserveOnObserver.run(ObservableObserveOn.java:252)
+05-13 12:05:03.048  1207  1207 W System.err: 	at io.reactivex.android.schedulers.HandlerScheduler$ScheduledRunnable.run(HandlerScheduler.java:109)
+05-13 12:05:03.048  1207  1207 W System.err: 	at android.os.Handler.handleCallback(Handler.java:790)
+05-13 12:05:03.048  1207  1207 W System.err: 	at android.os.Handler.dispatchMessage(Handler.java:99)
+05-13 12:05:03.048  1207  1207 W System.err: 	at android.os.Looper.loop(Looper.java:164)
+05-13 12:05:03.048  1207  1207 W System.err: 	at android.app.ActivityThread.main(ActivityThread.java:6494)
+05-13 12:05:03.048  1207  1207 W System.err: 	at java.lang.reflect.Method.invoke(Native Method)
+05-13 12:05:03.049  1207  1207 W System.err: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:438)
+05-13 12:05:03.049  1207  1207 W System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:807)
+05-13 12:05:03.049  1207  1207 D PBAutoLaunchService: 自启动应用未安装
+05-13 12:05:03.049  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:03.049  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:03.049  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.555  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.556  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.556  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:03.557  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.557  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.557  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.557  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.558  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.558  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:03.558  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.558  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.558  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.558  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.559  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.561  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:03.561  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.561  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.561  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.561  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.561  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.561  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.562  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:03.562  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:03.562  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.562  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:03.563  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.563  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:03.563  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.565  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:03.566  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:03.566  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:03.886  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:03.927  2522  2522 D EventBus: No subscribers registered for event class cn.inbot.padbotapplauncher.event.OnUnLockRobotEvent
+05-13 12:05:03.928  2522  2522 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:04.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:04.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.083  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.084  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.084  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:04.084  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.084  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.084  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.085  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.085  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.086  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:04.086  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.086  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.086  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.086  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.087  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.088  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:04.089  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.089  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.089  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.089  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.089  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.089  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.091  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.091  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.091  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.091  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.091  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.092  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:04.092  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.093  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:04.094  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:04.094  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.382  2222  2508 D PadBotNavigation: 机器人静止, static:true, nv-status:null, allow:true, df:56035
+05-13 12:05:04.579  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.580  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.580  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:04.580  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.580  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.581  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.581  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.581  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.582  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:04.582  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.582  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.582  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.582  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.583  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.584  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.585  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:04.585  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.585  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.585  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.585  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.585  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.586  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:04.586  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:04.586  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.586  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:04.586  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.587  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:04.587  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:04.589  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:04.589  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:04.589  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:05.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:05.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.067  1535 23908 D RPCStreamObserver: onNext:# com.padbot.sdk.grpc.common.RPCCommonEventReply@90090598
+05-13 12:05:05.067  1535 23908 D RPCStreamObserver: message_code: "10000"
+05-13 12:05:05.068  1535 23908 D RPCStreamObserver: messageCode:10000
+05-13 12:05:05.068  1535 23908 D RPCStreamObserver: onCompleted
+05-13 12:05:05.139  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.140  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.140  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:05.140  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.141  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.141  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.141  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.142  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.142  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:05.142  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.142  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.142  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.142  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.143  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.144  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.144  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:05.145  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.145  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.145  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.145  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.145  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.146  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.146  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.146  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.146  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.146  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.147  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:05.147  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.149  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:05.149  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:05.149  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.374  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:05.507  1304  1401 D #SerialPort: port1,in hex:4D411A030151266C6CB6FB0500000A5500000500006D520000BD
+05-13 12:05:05.508  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D411A030151266C6CB6FB0500000A5500000500006D520000BD
+05-13 12:05:05.508  2522  2535 D #base_sdk___r: 接收到电池数据, 电量百分比:81%
+05-13 12:05:05.508  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveBatteryInfoEvent
+05-13 12:05:05.508  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.509  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D411A030151266C6CB6FB0500000A5500000500006D520000BD
+05-13 12:05:05.510  2133  2173 D #base_sdk___r: 接收到电池数据, 电量百分比:81%
+05-13 12:05:05.510  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveBatteryInfoEvent
+05-13 12:05:05.510  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.511  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D411A030151266C6CB6FB0500000A5500000500006D520000BD
+05-13 12:05:05.511  1614  1907 D #base_sdk___r: 接收到电池数据, 电量百分比:81%
+05-13 12:05:05.512  1614  1907 D #RobotBasic: 电池数据->电量百分比:89%|电量:18688mAh|电压:27830mV|电流:-1275mA|充电电流:0mA |温度:26.449999.C |状态:放电(0) |警告:正常(0) |类型:XLD25.9V(5) |充放电次数:0 |AD电池电压:27986 |容量:20000mAh |充电电流范围:0
+05-13 12:05:05.512  1614  1907 I #RobotBasic: 接收到机器人电量, percent:89
+05-13 12:05:05.513  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D411A030151266C6CB6FB0500000A5500000500006D520000BD
+05-13 12:05:05.514  1407  1627 D #base_sdk___r: 接收到电池数据, 电量百分比:81%
+05-13 12:05:05.514  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveBatteryInfoEvent
+05-13 12:05:05.514  2222 10640 D PadBotNavigation: --电池状态:0, status:DISCHARGING
+05-13 12:05:05.514  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.515  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D411A030151266C6CB6FB0500000A5500000500006D520000BD
+05-13 12:05:05.515  1207  1221 D #base_sdk___r: 接收到电池数据, 电量百分比:81%
+05-13 12:05:05.516  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveBatteryInfoEvent
+05-13 12:05:05.516  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.517  1535  1535 D #PadBotRobot: 电池数据, 电量百分比:89|电量:9836|电压:27830|电流:-1275|充电电流:0|温度:26.449999|状态:DISCHARGING|警告:NORMAL|类型:XLD_25_9
+05-13 12:05:05.518  1535  1535 D PRPadBotApplication: 实际电量89
+05-13 12:05:05.519  1614  1907 I #RobotBasic: AIDL 请求, flag:Brain, type:1103, data:null
+05-13 12:05:05.520  1535  1535 D PRPadBotApplication: 计算电量:89
+05-13 12:05:05.521  1614  1907 I #RobotBasic: AIDL 请求, flag:Brain, type:1103, data:null
+05-13 12:05:05.522  1535  1535 I 发送指令: 发送信息给胸前屏幕, message:04%%89
+05-13 12:05:05.522  1535  1535 I 发送指令: 准备向胸前扩展屏发送消息
+05-13 12:05:05.524  1614  1907 I #RobotBasic: AIDL 请求, flag:Brain, type:4000, data:{"data":"04%%89"}
+05-13 12:05:05.524  1614  1907 D #base_sdk___s: 向下蓝牙透传, message:04%%89
+05-13 12:05:05.524  1614  1907 D #base_sdk___s: 3rd 向下蓝牙透传, message:04%%89*
+05-13 12:05:05.525  1614  1907 D #base_sdk_binary_s: 串口1发送指令hex:414D120A007463733A3034252538392A23B5
+05-13 12:05:05.526  1535  1535 I zxw     : 发送信息给胸前屏幕, message:04%%89
+05-13 12:05:05.526  1535  1535 I zxw     : 准备向胸前扩展屏发送消息
+05-13 12:05:05.527  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.speech.event.RobotVoltageEvent
+05-13 12:05:05.527  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.550  1304  1400 I #SerialPort: port1,out hex:414D120A007463733A3034252538392A23B5
+05-13 12:05:05.554  1535 32725 D NetworkUtils: ping ip:192.168.11.242
+05-13 12:05:05.558  1535 32725 D -ExtensionManager: 连接服务192.168.11.242:50001
+05-13 12:05:05.558  1535 32725 D -ExtensionManager: 服务已连接192.168.11.242:50001
+05-13 12:05:05.603  1304  1401 D #SerialPort: port1,in hex:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.604  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.605  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveCommandEvent
+05-13 12:05:05.605  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.606  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.606  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveCommandEvent
+05-13 12:05:05.606  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.607  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.607  1614  1907 D #RobotBasic: 下位机接收指令-> 返回数据:4D41180701414D120A007463733A3034252538392A23B512, 发送:414D120A007463733A3034252538392A23B5
+05-13 12:05:05.608  1614  1907 I #RobotBasic: 下位机收到指令:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.608  2222 10640 I PadBotNavigation: 下位机收到指令:4D41180701414D120A007463733A3034252538392A23B512, 414D120A007463733A3034252538392A23B5
+05-13 12:05:05.609  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.609  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveCommandEvent
+05-13 12:05:05.609  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.610  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41180701414D120A007463733A3034252538392A23B512
+05-13 12:05:05.610  1535  1744 D #PadBotRobot: 下位机收到的指令:414D120A007463733A3034252538392A23B5
+05-13 12:05:05.610  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveCommandEvent
+05-13 12:05:05.611  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.641  1535  2393 I zxw     : 发送指令 : 04%%89 , queue length : 0
+05-13 12:05:05.642  2133  2173 D x2communication_log: not find device
+05-13 12:05:05.699  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.700  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.700  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:05.700  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.701  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.701  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.701  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.702  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.702  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:05.702  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.702  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.702  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.702  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.703  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.705  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.705  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:05.705  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.705  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.705  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.705  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.705  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.706  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:05.706  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:05.707  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.707  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:05.707  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.708  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:05.708  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:05.710  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:05.710  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:05.710  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:06.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:06.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.259  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.260  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.260  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:06.260  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.260  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.261  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.261  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.262  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.262  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:06.262  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.262  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.262  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.262  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.263  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.264  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.265  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:06.265  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.265  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.265  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.265  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.265  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.266  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.266  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.266  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.266  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.266  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.267  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:06.267  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.269  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:06.269  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:06.269  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.374  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:06.787  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.788  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.788  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:06.788  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.788  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.788  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.789  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.789  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.789  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:06.790  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.790  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.790  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.790  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.791  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.792  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.792  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:06.793  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.793  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.793  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.793  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.793  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.794  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:06.794  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:06.794  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.794  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:06.794  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.795  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:06.795  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.797  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:06.797  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:06.797  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:06.927  2522  2522 D EventBus: No subscribers registered for event class cn.inbot.padbotapplauncher.event.OnUnLockRobotEvent
+05-13 12:05:06.928  2522  2522 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:07.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:07.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.363  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.364  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.364  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:07.364  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.364  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.364  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.364  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.365  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.365  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:07.365  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.366  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.366  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.366  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.366  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.368  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.368  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:07.368  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.368  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.368  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.368  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.369  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.370  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.370  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.370  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.370  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.370  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.371  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:07.371  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.373  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:07.373  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:07.373  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.379  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:07.380  1614  1614 I #RobotBasic: 准备上报急停按钮状态, emergencyStop:0
+05-13 12:05:07.381  1614  1614 I #RobotBasic: push, 上报:robot-open/4740742883/pub, type:1104
+05-13 12:05:07.381  1614  1614 I #RobotBasic: message >> {"id":"d1d1bc721ec74032b9f9261cbb4350b4","m":"{\"es\":0,\"ws\":0}","t":"1104","sn":"PX9717"}
+05-13 12:05:07.382  1614  1930 I #PushManager: >> 发送消息, topic:robot-open/4740742883/pub, data:{"id":"d1d1bc721ec74032b9f9261cbb4350b4","m":"{\"es\":0,\"ws\":0}","t":"1104","sn":"PX9717"}
+05-13 12:05:07.923  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.924  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.924  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:07.924  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.924  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.924  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.924  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.925  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.925  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:07.926  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.926  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.926  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.926  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.927  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.929  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.929  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:07.929  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.929  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.929  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.929  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.929  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.930  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:07.930  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:07.930  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.930  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:07.930  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.932  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:07.932  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:07.934  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:07.934  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:07.934  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:08.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:08.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.390  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:08.451  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:08.452  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:08.452  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:08.452  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:08.452  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.452  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:08.452  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.454  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:08.454  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:08.454  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:08.454  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.454  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:08.454  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.455  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:08.457  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:08.457  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:08.457  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.457  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:08.457  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.457  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:08.457  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.458  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:08.459  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:08.459  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.459  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:08.459  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.460  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:08.461  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:08.463  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:08.463  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:08.463  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.027  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.028  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.028  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:09.028  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.028  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.028  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.028  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.029  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.030  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:09.030  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.030  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.030  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.030  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.031  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.033  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.033  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:09.033  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.033  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.033  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.033  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.033  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.035  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.035  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.035  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.035  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.035  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.035  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:09.035  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.037  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:09.037  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:09.037  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.042  1535  2419 I PBTimerManager: 定时执行：心跳任务
+05-13 12:05:09.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:09.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:09.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.387  1614  1614 D AlarmPingSender: Sending Ping at:1747109109387
+05-13 12:05:09.389  1614  1614 D AlarmPingSender: Schedule next alarm at 1747109137384
+05-13 12:05:09.389  1614  1614 D AlarmPingSender: Alarm scheule using setExactAndAllowWhileIdle, next: 27995
+05-13 12:05:09.554  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.555  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.555  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:09.556  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.556  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.556  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.556  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.557  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.557  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:09.557  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.557  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.558  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.558  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.558  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.560  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:09.560  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.562  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.562  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.562  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.562  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.562  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.564  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:09.564  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:09.564  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.564  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:09.564  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.565  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:09.565  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.566  1535 32725 D -ExtensionManager: 接收到扩展机Event: heart_beat
+05-13 12:05:09.566  1535 32725 D ExtensionCommunicateService: onEvent:heart_beat detail:{"wifiIp":"192.168.22.252","port":50001,"ethernetIp":"192.168.11.242"}
+05-13 12:05:09.567  1535 32725 D -ExtensionManager: 接收到心跳事件: {"wifiIp":"192.168.22.252","port":50001,"ethernetIp":"192.168.11.242"}
+05-13 12:05:09.567  1535 32725 D NetworkUtils: ping ip:192.168.22.252
+05-13 12:05:09.570  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:09.570  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:09.571  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:09.883  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:09.927  2522  2522 D EventBus: No subscribers registered for event class cn.inbot.padbotapplauncher.event.OnUnLockRobotEvent
+05-13 12:05:09.928  2522  2522 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:10.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:10.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.130  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.131  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.131  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:10.132  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.132  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.132  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.132  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.133  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.133  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:10.133  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.133  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.133  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.133  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.134  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.136  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:10.136  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.136  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.136  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.136  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.136  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.136  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.137  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.137  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.138  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.138  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.138  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.138  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:10.138  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.140  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:10.140  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:10.141  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.385  2222  2508 D PadBotNavigation: 机器人静止, static:true, nv-status:null, allow:true, df:62038
+05-13 12:05:10.443  2222  2443 D PadBotNavigation: Ping 192.168.11.101
+05-13 12:05:10.446  2222  2443 D PadBotNavigation: 192.168.11.101 可以访问
+05-13 12:05:10.659  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.660  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.660  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:10.660  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.660  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.660  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.660  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.661  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.661  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:10.661  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.661  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.662  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.662  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.662  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.664  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.664  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:10.664  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.664  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.664  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.664  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.665  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.665  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:10.666  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:10.666  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.666  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:10.666  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.667  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:10.667  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.668  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:10.669  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:10.669  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:10.906  2522  2549 D PadBotAppLauncher: sendLockBroadcast
+05-13 12:05:10.909  1207  1207 D PBExportBroadcast: PBExportBroadcastReceiver onReceive action:padbot.action.lock_server_check
+05-13 12:05:10.910  1207  1207 D LockRobotService: LockRobotService running
+05-13 12:05:11.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:11.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:11.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.187  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.188  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.188  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:11.188  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.188  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.188  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.188  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.189  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.189  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:11.189  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.189  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.190  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.190  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.190  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.192  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:11.192  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.192  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.193  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.193  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.193  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.193  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.194  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.194  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.194  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.194  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.194  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.195  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:11.195  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.197  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:11.197  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:11.197  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.384  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155
+05-13 12:05:11.422  1535  1535 D PBAppHeartbeatManager: acitivitynum :1  lifeCount:0
+05-13 12:05:11.422  1535  1535 D PBAppHeartbeatManager: cn.inbot.padbotrobot not running
+05-13 12:05:11.699  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.699  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.700  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:11.700  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.700  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.700  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.700  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.701  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.701  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:11.701  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.701  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.701  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.701  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.702  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.704  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.704  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:11.704  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.704  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.704  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.704  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.704  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.705  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:11.705  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:11.705  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.705  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:11.706  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.706  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:11.707  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:11.708  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:11.709  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:11.709  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.046  1207  1207 D LockRobotService: lock status:2
+05-13 12:05:12.047  1207  1207 D EventBus: No subscribers registered for event class cn.inbot.padbotlauncher.event.OnUnLockRobotEvent
+05-13 12:05:12.047  1207  1207 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.291  1304  1401 D #SerialPort: port1,in hex:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:12.291  2522  2535 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:12.291  2522  2535 D #base_sdk___r: 接收到测距数据
+05-13 12:05:12.292  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:12.292  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.292  2522  2535 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:12.292  2522  2535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.293  2133  2173 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:12.293  2133  2173 D #base_sdk___r: 接收到测距数据
+05-13 12:05:12.293  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:12.293  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.293  2133  2173 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:12.293  2133  2173 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.294  1614  1907 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:12.296  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.ReceiveRangingDataEvent
+05-13 12:05:12.296  1407  1627 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:12.296  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.296  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:12.296  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.297  1407  1627 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:12.297  1407  1627 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.298  1207  1221 D #base_sdk_binary_r: 接收到hex数据:4D41140300FDFF4A4A4A4A080CFEFEFEFE0101EE
+05-13 12:05:12.298  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.ReceiveRangingDataEvent
+05-13 12:05:12.298  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.298  1207  1221 D EventBus: No subscribers registered for event class cn.inbot.padbotbasesdk.event.Receive2ndRangingDataEvent
+05-13 12:05:12.298  1207  1221 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.299  2222 10640 D EventBus: No subscribers registered for event class cn.inbot.basiclib.event.Receive2ndRangingDataEvent
+05-13 12:05:12.299  2222 10640 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.300  1535  1535 D __padbot_receive: 测距数据, 底左:74|地:12|底右:74|底后:74|头前:253
+05-13 12:05:12.301  1535  1535 D EventBus: No subscribers registered for event class cn.inbot.padbotrobot.event.InfraEvent
+05-13 12:05:12.301  1535  1535 D EventBus: No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent
+05-13 12:05:12.383  2222  2508 D PadBotNavigation: 机器人当前位置:worldGoord=(-6.436654567718506,-15.153412818908691,-1.445302963256836),gridCoord=(21,189,-82), mileage:6155

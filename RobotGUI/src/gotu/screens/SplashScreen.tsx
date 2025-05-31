@@ -352,7 +352,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       }
     };
 
-    waitForDock();
+    // waitForDock();
 
     timeoutId = setTimeout(() => {
       if (isMounted) {

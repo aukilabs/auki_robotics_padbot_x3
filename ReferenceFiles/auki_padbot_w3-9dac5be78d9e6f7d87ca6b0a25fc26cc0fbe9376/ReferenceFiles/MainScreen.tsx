@@ -17,8 +17,6 @@ import {
   Platform,
   AppState,
   AppStateStatus,
-  Keyboard,
-  Modal,
 } from 'react-native';
 import { LogUtils } from '../utils/logging';
 import { 
@@ -26,7 +24,7 @@ import {
   startInactivityTimer, 
   resetInactivityTimer 
 } from '../utils/inactivityTimer';
-import DeviceStorage from '../../utils/deviceStorage';
+import DeviceStorage from '../utils/deviceStorage';
 
 // Access the global object in a way that works in React Native
 const globalAny: any = global;
@@ -37,19 +35,6 @@ const SPEEDS = {
   productSearch: 0.7, // Default product search speed if config not available
   default: 0.5      // Default speed for other operations
 };
-
-// Define robot base error types
-const RobotBaseErrorTypes = {
-  NAVIGATION_TIMEOUT: 'navigation_timeout',
-  PATH_BLOCKED: 'path_blocked',
-  HARDWARE_FAILURE: 'hardware_failure',
-  LOCALIZATION_LOST: 'localization_lost',
-  COMMUNICATION_ERROR: 'communication_error',
-  UNKNOWN_ERROR: 'unknown_error'
-};
-
-// Maximum recovery attempts
-const MAX_RECOVERY_ATTEMPTS = 3;
 
 // Load speeds from config
 const loadSpeeds = async () => {
@@ -87,8 +72,13 @@ let navigatingToConfig = false; // Add flag to track if we're navigating to conf
 globalAny.clearInactivityTimer = null;
 globalAny.restartPromotion = null;
 
-// Define patrol points as a state variable instead of a constant
-let patrolPoints: Array<{name: string, x: number, y: number, yaw: number}> = [];
+// Define patrol points globally
+const patrolPoints = [
+  { name: "Patrol Point 1", x: -1.14, y: 2.21, yaw: 3.14 },
+  { name: "Patrol Point 2", x: -6.11, y: 2.35, yaw: -1.57 },
+  { name: "Patrol Point 3", x: -6.08, y: 0.05, yaw: 0 },
+  { name: "Patrol Point 4", x: -1.03, y: 0.01, yaw: 1.57 }
+];
 
 // Add token refresh interval (55 minutes to refresh before expiration)
 const TOKEN_REFRESH_INTERVAL = 55 * 60 * 1000;
@@ -224,142 +214,12 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   // Add a ref to track current navigation status for use in polling
   const currentNavigationStatusRef = useRef(NavigationStatus.IDLE);
   
-  // Add new state variables for error handling
-  const [robotBaseStatus, setRobotBaseStatus] = useState<string>('ok');
-  const [recoveryAttempts, setRecoveryAttempts] = useState<number>(0);
-  
-  // Add these near the top of the file with other state declarations
-  const [robotSpeed, setRobotSpeed] = useState(SPEEDS.default);
-  const defaultSpeed = SPEEDS.default;
-  
-  // Add battery monitoring state
-  const [batteryLevel, setBatteryLevel] = useState<number>(100);
-  const [isLowBatteryAlertShown, setIsLowBatteryAlertShown] = useState(false);
-  const [isReturningToCharger, setIsReturningToCharger] = useState(false);
-  const returnToChargerAlertRef = useRef<{ dismiss: () => void } | null>(null);
-  const [showPatrolDialog, setShowPatrolDialog] = useState(false);
-  const batteryMonitoringInitializedRef = useRef(false);
-  
-  // Function to handle battery status updates
-  const handleBatteryStatusUpdate = async (event: any) => {
-    await LogUtils.writeDebugToFile(`[BATTERY] Battery status update event received`);
-
-    // Get power status first as it's our source of truth
-    try {
-      const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-      await LogUtils.writeDebugToFile(`[BATTERY] Power status response: ${JSON.stringify(powerStatus)}`);
-      
-      // Set battery level from power status immediately
-      setBatteryLevel(powerStatus.batteryPercentage);
-      await LogUtils.writeDebugToFile(`[BATTERY] Battery level updated to: ${powerStatus.batteryPercentage}%`);
-      
-      // Only proceed if not on dock AND battery is low
-      if (powerStatus.dockingStatus !== 'on_dock' && powerStatus.batteryPercentage <= 20 && !isReturningToCharger) {
-        setIsReturningToCharger(true);
-        LogUtils.writeDebugToFile('Initiating return to charger due to low battery');
-        
-        // Cancel any ongoing patrol
-        if (isPatrolling) {
-          LogUtils.writeDebugToFile('Cancelling ongoing patrol due to low battery');
-          await cancelPatrol('battery_return');
-        }
-
-        // Reset navigation status and start going home
-        setNavigationStatus(NavigationStatus.NAVIGATING);
-        await NativeModules.SlamtecUtils.goHome();
-        
-        // Wait for arrival at dock
-        const checkDockStatus = async () => {
-          try {
-            const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-            LogUtils.writeDebugToFile('Checking dock status: ' + JSON.stringify(powerStatus));
-            
-            if (powerStatus.dockingStatus === 'on_dock') {
-              setIsReturningToCharger(false);
-              setNavigationStatus(NavigationStatus.IDLE);
-              LogUtils.writeDebugToFile('Robot docked successfully');
-            } else {
-              // Check again in 5 seconds
-              setTimeout(checkDockStatus, 5000);
-            }
-          } catch (error) {
-            console.error('Error checking dock status:', error);
-            LogUtils.writeDebugToFile('Error checking dock status: ' + error);
-          }
-        };
-        
-        // Start checking dock status
-        checkDockStatus();
-      }
-    } catch (error) {
-      console.error('Error checking power status:', error);
-      LogUtils.writeDebugToFile('Error checking power status: ' + error);
-    }
-  };
-
-  // Add effect to start battery monitoring
-  useEffect(() => {
-    const initializeBatteryMonitoring = async () => {
-      // Skip if already initialized
-      if (batteryMonitoringInitializedRef.current) {
-        await LogUtils.writeDebugToFile('Battery monitoring already initialized, skipping');
-        return;
-      }
-
-      try {
-        // Check if BatteryMonitor module exists
-        if (!NativeModules.BatteryMonitor) {
-          await LogUtils.writeDebugToFile('BatteryMonitor module not found');
-          return;
-        }
-
-        // Start battery monitoring
-        await LogUtils.writeDebugToFile('Starting battery monitoring...');
-        NativeModules.BatteryMonitor.startMonitoring();
-        
-        // Add event listener for battery updates
-        const eventEmitter = new NativeEventEmitter(NativeModules.BatteryMonitor);
-        const subscription = eventEmitter.addListener('BatteryStatusUpdate', handleBatteryStatusUpdate);
-        
-        await LogUtils.writeDebugToFile('Battery monitoring initialized successfully');
-        batteryMonitoringInitializedRef.current = true;
-        
-        // Return cleanup function
-        return () => {
-          // Clean up
-          if (NativeModules.BatteryMonitor) {
-            NativeModules.BatteryMonitor.stopMonitoring();
-          }
-          subscription.remove();
-          LogUtils.writeDebugToFile('Battery monitoring stopped');
-          batteryMonitoringInitializedRef.current = false;
-        };
-      } catch (error: any) {
-        await LogUtils.writeDebugToFile(`Error initializing battery monitoring: ${error.message}`);
-      }
-    };
-
-    // Call initializeBatteryMonitoring and store the cleanup function
-    const cleanup = initializeBatteryMonitoring();
-    
-    // Return cleanup function from useEffect
-    return () => {
-      if (cleanup) {
-        cleanup.then(cleanupFn => {
-          if (cleanupFn) cleanupFn();
-        });
-      }
-    };
-  }, []);
-  
   // Function to clear the inactivity timer
   const clearInactivityTimer = () => {
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
       inactivityTimerRef.current = null;
       LogUtils.writeDebugToFile('Inactivity timer cleared');
-    } else {
-      LogUtils.writeDebugToFile('Inactivity timer clear called, but no timer was running');
     }
   };
   
@@ -368,10 +228,17 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   
   // Function to start the inactivity timer
   const startInactivityTimer = () => {
+    // Clear any existing timer first
     clearInactivityTimer();
     
+    // Log that we're starting the timer
+    LogUtils.writeDebugToFile(`Starting inactivity timer (${INACTIVITY_TIMEOUT/1000} seconds)`);
+    
+    // Set a new timer
     inactivityTimerRef.current = setTimeout(() => {
-      if (promotionActive && !promotionCancelled && isMountedRef.current) {
+      // Only restart promotion if we're not in config screen and not already in promotion
+      if (!isPatrollingRef.current && isMountedRef.current) {
+        LogUtils.writeDebugToFile('Inactivity timer expired, restarting promotion');
         restartPromotion();
       }
     }, INACTIVITY_TIMEOUT);
@@ -380,14 +247,13 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   // Function to restart the promotion
   const restartPromotion = async () => {
     try {
-      LogUtils.writeDebugToFile('restartPromotion called');
       // Only restart if we're not already in promotion mode
       if (!isPatrollingRef.current && isMountedRef.current) {
         await LogUtils.writeDebugToFile('Auto-restarting promotion after inactivity');
         
         // Use the same logic as the global startPromotion function
         promotionCancelled = false;
-        // Don't reset currentPointIndex, preserve it for resuming patrol
+        currentPointIndex = 0;
         promotionActive = true;
         
         // Set patrol state to active
@@ -411,7 +277,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         // Start navigation with a small delay to ensure UI has updated
         setTimeout(() => {
           if (isMountedRef.current && !navigationCancelledRef.current) {
-            LogUtils.writeDebugToFile(`Starting navigation to waypoint ${currentPointIndex + 1} after auto-restart`);
+            LogUtils.writeDebugToFile('Starting navigation to first waypoint after auto-restart');
             // Ensure patrol state is still active
             isPatrollingRef.current = true;
             navigateToNextPoint();
@@ -419,8 +285,6 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
             LogUtils.writeDebugToFile(`Navigation not starting after auto-restart: isMounted=${isMountedRef.current}, navigationCancelled=${navigationCancelledRef.current}`);
           }
         }, 1000); // Increased delay to 1 second for more reliable startup
-      } else {
-        await LogUtils.writeDebugToFile(`restartPromotion: Not restarting because isPatrolling=${isPatrollingRef.current}, isMounted=${isMountedRef.current}`);
       }
     } catch (error: any) {
       await LogUtils.writeDebugToFile(`Error auto-restarting promotion: ${error.message}`);
@@ -438,14 +302,6 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     // Don't continue if patrol has been cancelled or component unmounted
     if (!isPatrollingRef.current || !isMountedRef.current || navigationCancelledRef.current || promotionCancelled) {
       await LogUtils.writeDebugToFile('Waypoint sequence cancelled or component unmounted, stopping sequence');
-      return;
-    }
-    
-    // Check if patrol points are loaded
-    if (patrolPoints.length === 0) {
-      await LogUtils.writeDebugToFile('No patrol points loaded, stopping patrol');
-      setNavigationStatus(NavigationStatus.ERROR);
-      setNavigationError('No patrol points configured');
       return;
     }
     
@@ -582,32 +438,41 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
           LogUtils.writeDebugToFile(`Navigation not starting: isMounted=${isMountedRef.current}, navigationCancelled=${navigationCancelledRef.current}`);
         }
       }, 500);
+    } else {
+      if (remountFromConfig) {
+        LogUtils.writeDebugToFile('Remounting after config screen, not starting promotion automatically');
+        // Reset the flag after we've checked it
+        remountFromConfig = false;
+      } else {
+        LogUtils.writeDebugToFile('No active promotion detected on mount');
+      }
     }
-
+    
+    // Clean up on unmount
     return () => {
-      isMountedRef.current = false;
       promotionMounted = false;
-    };
-  }, []);
-
-  // Effect to handle automatic closing of ARRIVED screen
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    if (navigationStatus === NavigationStatus.ARRIVED) {
-      timeoutId = setTimeout(() => {
-        if (isMountedRef.current) {
-          handleReturnToList();
-        }
-      }, 5000); // 5 seconds
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      isMountedRef.current = false;
+      
+      // Set a flag to indicate we're coming from config screen if that's where we're going
+      if (navigatingToConfig) {
+        remountFromConfig = true;
+        navigatingToConfig = false;
+        LogUtils.writeDebugToFile('Setting remountFromConfig flag to true');
+      }
+      
+      LogUtils.writeDebugToFile('Component unmounted, waypoint sequence cancelled');
+      
+      // Clear inactivity timer on unmount
+      clearInactivityTimer();
+      
+      // Also clear pose polling interval
+      if (posePollingRef.current) {
+        clearInterval(posePollingRef.current);
+        posePollingRef.current = null;
+        LogUtils.writeDebugToFile('Robot pose polling stopped on component unmount');
       }
     };
-  }, [navigationStatus]);
+  }, []);
   
   // Filter products when search text changes
   useEffect(() => {
@@ -624,7 +489,6 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   
   // Add proactive token validation function
   const validateToken = async (force = false): Promise<boolean> => {
-    LogUtils.writeDebugToFile(`validateToken called (force=${force})`);
     // Skip validation if already in progress or if not enough time has passed
     if (AuthState.validationInProgress) {
       await LogUtils.writeDebugToFile('Token validation already in progress, skipping');
@@ -786,16 +650,13 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     // Clear any inactivity timer when starting new navigation
     clearInactivityTimer();
     
-    // Reset recovery attempts counter when starting new navigation
-    setRecoveryAttempts(0);
-    
     // Clear the search text immediately when a product is selected
     setSearchText('');
     
     // Cancel any ongoing patrol
     setIsPatrolling(false);
-    //promotionActive = false;
-    //promotionCancelled = true;
+    promotionActive = false;
+    promotionCancelled = true;
     await LogUtils.writeDebugToFile('Waypoint sequence cancelled due to product selection');
     
     // Reset navigation cancelled flag
@@ -890,6 +751,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
           
           await LogUtils.writeDebugToFile('Navigation command completed');
           await LogUtils.writeDebugToFile('Setting navigation status to ARRIVED');
+          setNavigationStatus(NavigationStatus.ARRIVED);
           
           // Only start the inactivity timer if auto-promotion is enabled in the configuration
           // This prevents promotion from automatically starting after a user-initiated navigation
@@ -905,24 +767,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
             // Default to not starting promotion if we can't check the config
             await LogUtils.writeDebugToFile('Error checking auto-promotion config, defaulting to not starting timer');
           }
-          
-          // Add a small delay to ensure state updates are processed
-          await new Promise(resolve => setTimeout(resolve, 100));
-          
-          if (!navigationCancelledRef.current) {
-            await LogUtils.writeDebugToFile('Navigation completed, showing arrival screen');
-            setNavigationStatus(NavigationStatus.ARRIVED);
-          }
         } catch (error: any) {
-          // Check if navigation was cancelled
-          if (navigationCancelledRef.current) {
-            await LogUtils.writeDebugToFile('Navigation was cancelled, not processing error');
-            return;
-          }
-          
-          // Classify error type
-          const errorType = classifyErrorType(error.message || 'Unknown error');
-          
           // Check if error is due to token expiration
           if (error.message?.includes('token') || error.message?.includes('unauthorized') || error.message?.includes('401')) {
             await LogUtils.writeDebugToFile('Token expired, attempting to refresh');
@@ -955,19 +800,15 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
             return;
           }
           
-          // Handle robot base error with automatic recovery
-          await handleRobotBaseError(error.message || 'Navigation failed', errorType);
+          // Handle other errors as before
+          if (!navigationCancelledRef.current) {
+            const errorMsg = error.message || 'Navigation failed. Please try again.';
+            await LogUtils.writeDebugToFile(`Error: ${errorMsg}`);
+            setNavigationStatus(NavigationStatus.ERROR);
+            setNavigationError(errorMsg);
+          }
         }
       } catch (error: any) {
-        // Check if navigation was cancelled
-        if (navigationCancelledRef.current) {
-          await LogUtils.writeDebugToFile('Navigation was cancelled, not processing outer error');
-          return;
-        }
-        
-        // Classify error type
-        const errorType = classifyErrorType(error.message || 'Unknown error');
-        
         // Check if error is due to token expiration
         if (error.message?.includes('token') || error.message?.includes('unauthorized') || error.message?.includes('401')) {
           await LogUtils.writeDebugToFile('Token expired, attempting to refresh');
@@ -1000,8 +841,13 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
           return;
         }
         
-        // Handle robot base error with automatic recovery
-        await handleRobotBaseError(error.message || 'Navigation preparation failed', errorType);
+        // Handle other errors as before
+        if (!navigationCancelledRef.current) {
+          const errorMsg = error.message || 'Navigation failed. Please try again.';
+          await LogUtils.writeDebugToFile(`Error: ${errorMsg}`);
+          setNavigationStatus(NavigationStatus.ERROR);
+          setNavigationError(errorMsg);
+        }
       }
     };
     
@@ -1034,14 +880,8 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     try {
       // Mark navigation as cancelled
       navigationCancelledRef.current = true;
-      //promotionCancelled = true;
-      //promotionActive = false;  // Don't force this to false as we might not be in patrol mode
-      
-      // Stop heartbeat checks
-      // stopHeartbeatCheck();
-      
-      // Reset recovery attempts counter
-      setRecoveryAttempts(0);
+      promotionCancelled = true;
+      promotionActive = false;
       
       // Cancel patrol sequence
       setIsPatrolling(false);
@@ -1062,17 +902,23 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         // Will be reset in the useEffect
       }
       
-      // Only start inactivity timer if promotion is active and not cancelled
-      if (promotionActive && !promotionCancelled) {
-        await LogUtils.writeDebugToFile('Promotion active, starting inactivity timer after returning to list');
-        startInactivityTimer();
-      } else {
-        await LogUtils.writeDebugToFile('Promotion inactive or cancelled, not starting inactivity timer');
+      // Only start inactivity timer if auto-promotion is enabled
+      try {
+        const autoPromotionEnabled = await NativeModules.ConfigManagerModule.getAutoPromotionEnabled();
+        if (autoPromotionEnabled) {
+          await LogUtils.writeDebugToFile('Auto-promotion enabled, starting inactivity timer after returning to list');
+          startInactivityTimer();
+        } else {
+          await LogUtils.writeDebugToFile('Auto-promotion disabled, not starting inactivity timer');
+        }
+      } catch (error) {
+        // Default to not starting promotion if we can't check the config
+        await LogUtils.writeDebugToFile('Error checking auto-promotion config, defaulting to not starting timer');
       }
     } catch (error) {
       // Even if stopping fails, still cancel patrol and return to list
       navigationCancelledRef.current = true;
-      //promotionCancelled = true;
+      promotionCancelled = true;
       promotionActive = false;
       setIsPatrolling(false);
       isPatrollingRef.current = false;
@@ -1080,11 +926,64 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       setNavigationStatus(NavigationStatus.IDLE);
       
       // Only start inactivity timer if auto-promotion is enabled
-      if (promotionActive && !promotionCancelled) {
-        await LogUtils.writeDebugToFile('Promotion active, starting inactivity timer after error');
-        startInactivityTimer();
-      } else {
-        await LogUtils.writeDebugToFile('Promotion inactive or cancelled, not starting inactivity timer after error');
+      try {
+        const autoPromotionEnabled = await NativeModules.ConfigManagerModule.getAutoPromotionEnabled();
+        if (autoPromotionEnabled) {
+          await LogUtils.writeDebugToFile('Auto-promotion enabled, starting inactivity timer after error');
+          startInactivityTimer();
+        } else {
+          await LogUtils.writeDebugToFile('Auto-promotion disabled, not starting inactivity timer after error');
+        }
+      } catch (error) {
+        // Default to not starting promotion if we can't check the config
+        await LogUtils.writeDebugToFile('Error checking auto-promotion config, defaulting to not starting timer');
+      }
+    }
+  };
+  
+  const handleGoHome = async () => {
+    // Cancel any ongoing patrol unless it's the final step of patrol
+    setIsPatrolling(false);
+    promotionActive = false;
+    promotionCancelled = true;
+    await LogUtils.writeDebugToFile('Waypoint sequence cancelled due to manual Go Home');
+    
+    // Reset navigation cancelled flag
+    navigationCancelledRef.current = false;
+    
+    // Set navigation status to NAVIGATING immediately
+    setNavigationStatus(NavigationStatus.NAVIGATING);
+    setSelectedProduct(null);
+    
+    // Reset robot speed to default
+    try {
+      await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.default.toString());
+      await LogUtils.writeDebugToFile(`Reset robot speed to default: ${SPEEDS.default} m/s`);
+    } catch (error: any) {
+      await LogUtils.writeDebugToFile(`Failed to reset robot speed: ${error.message}`);
+    }
+    
+    try {
+      // Directly call goHome without showing a confirmation dialog
+      await LogUtils.writeDebugToFile('Starting navigation to home');
+      await NativeModules.SlamtecUtils.goHome();
+      
+      // Only update state if navigation wasn't cancelled
+      if (!navigationCancelledRef.current) {
+        // When going home, we skip ARRIVED state and go directly to IDLE
+        // This ensures no "We have arrived" dialog is shown
+        await LogUtils.writeDebugToFile('Robot arrived home, transitioning directly to IDLE state');
+        
+        // Go directly to IDLE state (not ARRIVED) to close any dialogs
+        setNavigationStatus(NavigationStatus.IDLE);
+      }
+    } catch (error: any) {
+      // Only update error state if navigation wasn't cancelled
+      if (!navigationCancelledRef.current) {
+        const errorMsg = error.message || 'Navigation to home failed. Please try again.';
+        await LogUtils.writeDebugToFile(`Go Home error: ${errorMsg}`);
+        setNavigationStatus(NavigationStatus.ERROR);
+        setNavigationError(errorMsg);
       }
     }
   };
@@ -1221,7 +1120,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     if (navigationStatus === NavigationStatus.IDLE) {
       // Check if we just finished handling a robot call
       if (lastRobotCallHandled) {
-        // Start cooldown timer for 1 minute before restarting robot call polling
+        // Start cooldown timer for 1 minute before restarting polling
         LogUtils.writeDebugToFile('Starting 60-second cooldown before restarting robot call polling');
         
         robotCallCooldownRef.current = setTimeout(() => {
@@ -1270,251 +1169,297 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   
   // Modify the renderContent function to remove the robot call button
   const renderContent = () => {
-    return (
-      <>
-        <Modal
-          visible={isReturningToCharger}
-          transparent={true}
-          animationType="fade"
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Returning to Charger</Text>
-              <Text style={styles.modalText}>The robot is returning to the charging dock.</Text>
+    switch (navigationStatus) {
+      case NavigationStatus.IDLE:
+        return (
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search for a person or place..."
+              placeholderTextColor="#999"
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+            
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#2670F8" />
+            ) : (
+              <>
+                <FlatList
+                  data={filteredProducts}
+                  renderItem={renderProductItem}
+                  keyExtractor={item => item.eslCode}
+                  style={styles.productList}
+                  contentContainerStyle={[styles.productListContent, { paddingBottom: 100 }]}
+                  keyboardShouldPersistTaps="handled"
+                />
+                <View style={styles.homeButtonContainer}>
+                  <TouchableOpacity
+                    style={styles.homeButton}
+                    onPress={handleGoHome}
+                  >
+                    <Text style={styles.homeButtonText}>Go Home</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        );
+        
+      case NavigationStatus.PATROL:
+        // Full-screen image for patrol mode with tap instruction
+        return (
+          <TouchableOpacity 
+            style={styles.fullScreenContainer}
+            onPress={handleReturnToList}
+            activeOpacity={1}
+          >
+            <Image 
+              source={require('../assets/test_image.jpg')} 
+              style={styles.fullScreenImage}
+              resizeMode="cover"
+            />
+            <View style={styles.tapInstructionContainer}>
+              <Text style={styles.tapInstructionText}>Tap anywhere for help finding products</Text>
+            </View>
+          </TouchableOpacity>
+        );
+        
+      case NavigationStatus.NAVIGATING:
+        return (
+          <View style={styles.navigationContainer}>
+            <View style={styles.navigationDialog}>
+              <Text style={styles.navigationTitle}>Navigating to:</Text>
+              <Text style={styles.navigationProductName}>
+                {selectedProduct ? selectedProduct.name : "Home"}
+              </Text>
+              <ActivityIndicator size="large" color="#2670F8" style={styles.navigationSpinner} />
+              
+              <TouchableOpacity 
+                style={[styles.navigationButton, styles.cancelButton, { marginTop: 30 }]}
+                onPress={handleReturnToList}
+              >
+                <Text style={styles.navigationButtonText}>Cancel Navigation</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-
-        {(() => {
-          switch (navigationStatus) {
-            case NavigationStatus.IDLE:
-              return (
-                <View style={styles.searchContainer}>
-                  <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search products..."
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    onFocus={() => setIsInputFocused(true)}
-                    onBlur={() => setIsInputFocused(false)}
-                  />
-                  {filteredProducts.length > 0 ? (
-                    <FlatList
-                      data={filteredProducts}
-                      renderItem={renderProductItem}
-                      keyExtractor={(item) => item.eslCode}
-                      style={styles.productList}
-                    />
-                  ) : (
-                    <Text style={styles.noProductsText}>No products found</Text>
-                  )}
-                </View>
-              );
+        );
+        
+      case NavigationStatus.ARRIVED:
+        return (
+          <View style={styles.navigationContainer}>
+            <View style={styles.navigationDialog}>
+              <Text style={styles.navigationTitle}>We have arrived!</Text>
+              <Text style={styles.navigationProductName}>{selectedProduct?.name}</Text>
               
-            case NavigationStatus.PATROL:
-              // Full-screen image for patrol mode, no text or banner
-              return (
+              <View style={styles.navigationButtonContainer}>
                 <TouchableOpacity 
-                  style={styles.fullScreenContainer}
+                  style={styles.navigationButton}
                   onPress={handleReturnToList}
-                  activeOpacity={1}
                 >
-                  <Image 
-                    source={require('../assets/GotuAdLandscape.png')} 
-                    style={styles.fullScreenImage}
-                    resizeMode="cover"
-                  />
+                  <Text style={styles.navigationButtonText}>Back to List</Text>
                 </TouchableOpacity>
-              );
+              </View>
+            </View>
+          </View>
+        );
+        
+      case NavigationStatus.ERROR:
+        return (
+          <View style={styles.navigationContainer}>
+            <View style={styles.navigationDialog}>
+              <Text style={styles.navigationTitle}>Navigation Error</Text>
+              <Text style={styles.navigationErrorText}>{navigationError}</Text>
               
-            case NavigationStatus.NAVIGATING:
-              return (
-                <View style={styles.navigationContainer}>
-                  <View style={styles.navigationDialog}>
-                    <Text style={styles.navigationTitle}>Navigating to:</Text>
-                    <Text style={styles.navigationProductName}>
-                      {selectedProduct ? selectedProduct.name : "Home"}
-                    </Text>
-                    <ActivityIndicator size="large" color="#2670F8" style={styles.navigationSpinner} />
-                    
-                    <TouchableOpacity 
-                      style={[styles.navigationButton, styles.cancelButton, { marginTop: 30 }]}
-                      onPress={handleReturnToList}
-                    >
-                      <Text style={styles.navigationButtonText}>Cancel Navigation</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-              
-            case NavigationStatus.ARRIVED:
-              return (
-                <View style={styles.navigationContainer}>
-                  <View style={styles.navigationDialog}>
-                    <Text style={styles.navigationTitle}>We have arrived!</Text>
-                    <Text style={styles.navigationProductName}>{selectedProduct?.name}</Text>
-                    
-                    <View style={styles.navigationButtonContainer}>
-                      <TouchableOpacity 
-                        style={styles.navigationButton}
-                        onPress={handleReturnToList}
-                      >
-                        <Text style={styles.navigationButtonText}>Back to List</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              );
-              
-            case NavigationStatus.ERROR:
-              return (
-                <View style={styles.navigationContainer}>
-                  <View style={styles.navigationDialog}>
-                    <Text style={styles.navigationTitle}>Navigation Error</Text>
-                    <Text style={styles.navigationErrorText}>{navigationError}</Text>
-                    
-                    <TouchableOpacity 
-                      style={styles.navigationButton}
-                      onPress={handleReturnToList}
-                    >
-                      <Text style={styles.navigationButtonText}>Back to List</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-          }
-        })()}
-      </>
-    );
+              <TouchableOpacity 
+                style={styles.navigationButton}
+                onPress={handleReturnToList}
+              >
+                <Text style={styles.navigationButtonText}>Back to List</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+    }
   };
   
   // Function to reset the inactivity timer
   const resetInactivityTimer = async () => {
     clearInactivityTimer();
     
-    // Log the state of promotion flags
-    await LogUtils.writeDebugToFile(`resetInactivityTimer - promotionActive: ${promotionActive}, promotionCancelled: ${promotionCancelled}, isPatrolling: ${isPatrollingRef.current}`);
-    
-    // Only start inactivity timer if promotion is active and not cancelled
-    if (promotionActive && !promotionCancelled) {
-      await LogUtils.writeDebugToFile('Starting inactivity timer - promotion is active and not cancelled');
-      startInactivityTimer();
-    } else {
-      await LogUtils.writeDebugToFile('Not starting inactivity timer - promotion is inactive or cancelled');
-    }
-  };
-
-  // Add a counter and flag for pose polling debug
-  let posePollingActiveCount = 0;
-  let posePollingInProgress = false;
-
-  // Refactor pose polling to use a wait-for-completion loop
-  let posePollingShouldRun = false;
-
-  const startPosePolling = async () => {
-    await stopPosePolling();
-    posePollingShouldRun = true;
-    await LogUtils.writeDebugToFile('[POSE POLLING] Wait-for-completion polling started');
-    pollPoseLoop();
-  };
-
-  const stopPosePolling = async () => {
-    posePollingShouldRun = false;
-    await LogUtils.writeDebugToFile('[POSE POLLING] Wait-for-completion polling stopped');
-    return true;
-  };
-
-  const pollPoseLoop = async () => {
-    while (posePollingShouldRun) {
-      await readRobotPose();
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1s between polls
-    }
-    await LogUtils.writeDebugToFile('[POSE POLLING] Polling loop exited');
-  };
-
-  const readRobotPose = async () => {
-    if (posePollingInProgress) {
-      await LogUtils.writeDebugToFile('[POSE POLLING] Overlapping readRobotPose call detected!');
-    }
-    posePollingInProgress = true;
-    // await LogUtils.writeDebugToFile('[POSE POLLING] readRobotPose started');
+    // Only start inactivity timer if auto-promotion is enabled
     try {
+      const autoPromotionEnabled = await NativeModules.ConfigManagerModule.getAutoPromotionEnabled();
+      if (autoPromotionEnabled) {
+        await LogUtils.writeDebugToFile('Auto-promotion enabled, starting inactivity timer after reset');
+        startInactivityTimer();
+      } else {
+        await LogUtils.writeDebugToFile('Auto-promotion disabled, not starting inactivity timer after reset');
+      }
+    } catch (error) {
+      // Default to not starting promotion if we can't check the config
+      await LogUtils.writeDebugToFile('Error checking auto-promotion config, defaulting to not starting timer after reset');
+    }
+  };
+
+  // Add a dedicated function to stop pose polling
+  const stopPosePolling = async () => {
+    if (posePollingRef.current) {
+      clearInterval(posePollingRef.current);
+      posePollingRef.current = null;
+      await LogUtils.writeDebugToFile('Robot pose polling stopped explicitly');
+      return true;
+    }
+    return false;
+  };
+
+  // Helper function to convert from yaw to quaternion (assuming pitch and roll are 0)
+  const yawToQuaternion = (yaw: number) => {
+    const halfYaw = yaw / 2;
+    return {
+      w: Math.cos(halfYaw),
+      x: 0,
+      y: 0,
+      z: Math.sin(halfYaw)
+    };
+  };
+  
+  // Helper function to transform coordinates from robot system to our coordinate system
+  const transformCoordinates = (x: number, y: number, yaw: number) => {
+    // In the new system:
+    // x remains the same
+    // y becomes 0 (ground plane)
+    // z becomes the old y, but inverted
+    const z = -y; // Invert y to get z
+    
+    // Convert yaw to quaternion
+    const quaternion = yawToQuaternion(yaw);
+    
+    return {
+      x,
+      y: 0,
+      z,
+      quaternion,
+      // Keep the original values for reference
+      originalX: x,
+      originalY: y,
+      originalYaw: yaw
+    };
+  };
+
+  // Function to read the pose and log it
+  const readRobotPose = async () => {
+    try {
+      // Only continue polling if we're in NAVIGATING or PATROL states
       if (currentNavigationStatusRef.current !== NavigationStatus.NAVIGATING && 
           currentNavigationStatusRef.current !== NavigationStatus.PATROL) {
         await stopPosePolling();
-        await LogUtils.writeDebugToFile(`[POSE POLLING] Auto-stopped polling - not in NAVIGATING/PATROL state`);
-        posePollingInProgress = false;
+        await LogUtils.writeDebugToFile(`Auto-stopped polling - not in NAVIGATING/PATROL state`);
         return;
       }
-      if (poseReportingCooldownRef.current) {
-        posePollingInProgress = false;
-        return;
-      }
-      if (poseUploadInProgress) {
-        await LogUtils.writeDebugToFile('[POSE POLLING] Skipping pose upload: previous upload still in progress');
-        posePollingInProgress = false;
-        return;
-      }
-      poseUploadInProgress = true;
+      
       const pose = await NativeModules.SlamtecUtils.getCurrentPose();
       if (pose) {
         const timestamp = Date.now();
+        
+        // Transform coordinates and add quaternion
         const transformedPose = transformCoordinates(pose.x, pose.y, pose.yaw);
         
-        // Create JSON payload
+        // Create formatted log string with the transformed pose including quaternion
+        const logString = 
+          `ROBOT_POSE: ${timestamp} - ` +
+          `pos=[${transformedPose.x.toFixed(4)}, ${transformedPose.y.toFixed(4)}, ${transformedPose.z.toFixed(4)}], ` +
+          `quat=[${transformedPose.quaternion.w.toFixed(4)}, ${transformedPose.quaternion.x.toFixed(4)}, ` +
+          `${transformedPose.quaternion.y.toFixed(4)}, ${transformedPose.quaternion.z.toFixed(4)}], ` +
+          `original=[${transformedPose.originalX.toFixed(4)}, ${transformedPose.originalY.toFixed(4)}, ${transformedPose.originalYaw.toFixed(4)}]`;
+          
+        await LogUtils.writeDebugToFile(logString);
+        
+        // Create JSON payload in the requested format
+        // Convert millisecond timestamp to nanoseconds by multiplying by 1,000,000
         const timestampNano = BigInt(timestamp) * BigInt(1000000);
+        
+        // Get device identifiers from global storage
         const identifiers = DeviceStorage.getIdentifiers();
         
         // If identifiers are not in global storage, log an error
         if (!DeviceStorage.hasIdentifiers()) {
-          await LogUtils.writeDebugToFile("[POSE] Error: Device identifiers not found in global storage!");
+          await LogUtils.writeDebugToFile("Error: Device identifiers not found in global storage!");
         }
         
         const poseData = {
           name: "PadBot",
           device_id: identifiers.deviceId || "unknown_device_id",
-          device_type: "padbot-robot-x3",
+          device_type: "padbot-robot-w3",
           timestamp: timestampNano.toString(),
           pose: {
             px: transformedPose.x,
             py: transformedPose.y,
             pz: transformedPose.z,
             rx: transformedPose.quaternion.x,
-            ry: transformedPose.quaternion.z,
-            rz: transformedPose.quaternion.y,
+            ry: transformedPose.quaternion.y,
+            rz: transformedPose.quaternion.z,
             rw: transformedPose.quaternion.w
           },
           mac_address: identifiers.macAddress || "unknown_mac_address"
         };
+        
+        // Log the JSON format to debug
+        await LogUtils.writeDebugToFile(JSON.stringify(poseData));
 
-        // Send the pose data to the domain without logging
+        // Send the pose data to the domain
         try {
+          // Always use PUT when a data ID exists, otherwise use POST to create one
           const robotPoseDataId = DeviceStorage.getIdentifiers().robotPoseDataId;
+          
           if (robotPoseDataId) {
-            await NativeModules.DomainUtils.writeRobotPose(JSON.stringify(poseData), "PUT", robotPoseDataId);
+            // If we have a stored data ID, use PUT
+            await LogUtils.writeDebugToFile(`Using PUT with existing data ID: ${robotPoseDataId}`);
+            const result = await NativeModules.DomainUtils.writeRobotPose(JSON.stringify(poseData), "PUT", robotPoseDataId);
+            await LogUtils.writeDebugToFile(`Pose data sent successfully with PUT: ${JSON.stringify(result)}`);
           } else {
+            // If no data ID yet, use POST to create one
+            await LogUtils.writeDebugToFile(`Using POST to create new robot pose data`);
             const result = await NativeModules.DomainUtils.writeRobotPose(JSON.stringify(poseData), "POST", null);
+            await LogUtils.writeDebugToFile(`Pose data sent successfully with POST: ${JSON.stringify(result)}`);
+            
+            // If this was a POST and we got a data ID back, store it for future updates
             if (result.dataId) {
               DeviceStorage.setRobotPoseDataId(result.dataId);
+              await LogUtils.writeDebugToFile(`Stored new robot pose data ID: ${result.dataId}`);
             }
           }
         } catch (error: any) {
-          if (!poseReportingCooldownRef.current) {
-            poseReportingCooldownRef.current = true;
-            setTimeout(() => {
-              poseReportingCooldownRef.current = false;
-            }, 10000); // Back to 10 seconds
-            await LogUtils.writeDebugToFile(`[POSE POLLING] Error sending pose data: ${error.message}`);
-          }
+          await LogUtils.writeDebugToFile(`Error sending pose data: ${error.message}`);
         }
       }
-      poseUploadInProgress = false;
     } catch (error: any) {
-      await LogUtils.writeDebugToFile(`[POSE POLLING] Error in readRobotPose: ${error.message}`);
-      poseUploadInProgress = false;
+      await LogUtils.writeDebugToFile(`Error getting robot pose: ${error.message}`);
     }
-    // await LogUtils.writeDebugToFile('[POSE POLLING] readRobotPose finished');
-    posePollingInProgress = false;
+  };
+
+  // Define startPosePolling outside the useEffect so it can be called from multiple places
+  const startPosePolling = async () => {
+    try {
+      // ALWAYS clear any existing interval first to prevent duplicates
+      await stopPosePolling();
+      
+      await LogUtils.writeDebugToFile('Starting robot pose polling at 2 times per second');
+      
+      // Call once immediately
+      await readRobotPose();
+      
+      // Only set up interval if we're in NAVIGATING or PATROL states
+      if (currentNavigationStatusRef.current === NavigationStatus.NAVIGATING || 
+          currentNavigationStatusRef.current === NavigationStatus.PATROL) {
+        posePollingRef.current = setInterval(readRobotPose, 500);
+        await LogUtils.writeDebugToFile('Robot pose polling started successfully');
+      } else {
+        await LogUtils.writeDebugToFile(`Not starting polling interval - not in NAVIGATING/PATROL state`);
+      }
+    } catch (error: any) {
+      await LogUtils.writeDebugToFile(`Error starting pose polling: ${error.message}`);
+    }
   };
 
   // Watch for navigation status changes and manage polling based on NavigationStatus
@@ -1557,507 +1502,16 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     LogUtils.writeDebugToFile(`Navigation status updated to: ${NavigationStatus[navigationStatus]}`);
   }, [navigationStatus]);
 
-  // Function to classify error types based on error message
-  const classifyErrorType = (errorMessage: string): string => {
-    const lowerCaseError = errorMessage.toLowerCase();
-    
-    if (lowerCaseError.includes('timeout') || lowerCaseError.includes('timed out')) {
-      return RobotBaseErrorTypes.NAVIGATION_TIMEOUT;
-    } else if (lowerCaseError.includes('obstacle') || lowerCaseError.includes('blocked') || 
-               lowerCaseError.includes('path') || lowerCaseError.includes('cannot find path')) {
-      return RobotBaseErrorTypes.PATH_BLOCKED;
-    } else if (lowerCaseError.includes('hardware') || lowerCaseError.includes('motor') || 
-               lowerCaseError.includes('wheel') || lowerCaseError.includes('lidar')) {
-      return RobotBaseErrorTypes.HARDWARE_FAILURE;
-    } else if (lowerCaseError.includes('localization') || lowerCaseError.includes('lost') || 
-               lowerCaseError.includes('position')) {
-      return RobotBaseErrorTypes.LOCALIZATION_LOST;
-    } else if (lowerCaseError.includes('communication') || lowerCaseError.includes('connection') || 
-               lowerCaseError.includes('disconnected')) {
-      return RobotBaseErrorTypes.COMMUNICATION_ERROR;
-    } else {
-      return RobotBaseErrorTypes.UNKNOWN_ERROR;
-    }
-  };
-  
-  // Function to check robot base health
-  const checkRobotBaseHealth = async (): Promise<boolean> => {
-    try {
-      if (NativeModules.SlamtecUtils && typeof NativeModules.SlamtecUtils.checkConnection === 'function') {
-        const details = await NativeModules.SlamtecUtils.checkConnection();
-        await LogUtils.writeDebugToFile(`Health check - Robot status: ${JSON.stringify(details)}`);
-        
-        setRobotBaseStatus(details.status || 'unknown');
-        return details.slamApiAvailable === true;
-      } else {
-        await LogUtils.writeDebugToFile(`Health check skipped - checkConnection method not available`);
-        setRobotBaseStatus('unknown');
-        return true;
-      }
-    } catch (error: any) {
-      await LogUtils.writeDebugToFile(`Health check failed: ${error.message}`);
-      setRobotBaseStatus('error');
-      return false;
-    }
-  };
-  
-  // Function to handle robot base errors with automatic recovery
-  const handleRobotBaseError = async (errorMessage: string, errorType: string = RobotBaseErrorTypes.UNKNOWN_ERROR) => {
-    // Log detailed information about the error state
-    await LogUtils.writeDebugToFile(`Robot base error: ${errorMessage} (Type: ${errorType})`);
-    await LogUtils.writeDebugToFile(`Current navigation status: ${NavigationStatus[currentNavigationStatusRef.current]}`);
-    await LogUtils.writeDebugToFile(`Recovery attempts: ${recoveryAttempts}`);
-    
-    // Collect additional diagnostic information
-    try {
-      const pose = await NativeModules.SlamtecUtils.getCurrentPose();
-      await LogUtils.writeDebugToFile(`Robot pose at error: ${JSON.stringify(pose)}`);
-      
-      // Use checkConnection instead of getRobotStatus
-      const details = await NativeModules.SlamtecUtils.checkConnection();
-      await LogUtils.writeDebugToFile(`Robot status at error: ${JSON.stringify(details)}`);
-      
-      // Get battery status if available
-      if (NativeModules.SlamtecUtils.getBatteryInfo) {
-        const battery = await NativeModules.SlamtecUtils.getBatteryInfo();
-        await LogUtils.writeDebugToFile(`Battery info at error: ${JSON.stringify(battery)}`);
-      }
-    } catch (diagError: any) {
-      await LogUtils.writeDebugToFile(`Error collecting diagnostic info: ${diagError.message}`);
-    }
-    
-    // Decide whether to attempt recovery based on error type and previous attempts
-    if (recoveryAttempts < MAX_RECOVERY_ATTEMPTS) {
-      // Attempt recovery based on error type
-      await LogUtils.writeDebugToFile(`Attempting recovery (attempt ${recoveryAttempts + 1}/${MAX_RECOVERY_ATTEMPTS})`);
-      
-      // Increment recovery attempts
-      setRecoveryAttempts(prev => prev + 1);
-      
-      try {
-        // First stop the current navigation
-        await NativeModules.SlamtecUtils.stopNavigation();
-        await LogUtils.writeDebugToFile('Stopped current navigation for recovery');
-        
-        let recoveryStrategy = '';
-        
-        switch (errorType) {
-          case RobotBaseErrorTypes.PATH_BLOCKED:
-            // For blocked paths, wait a moment then try again
-            recoveryStrategy = 'Wait and retry navigation';
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            
-            // If we have a selected product, retry navigation
-            if (selectedProduct) {
-              await LogUtils.writeDebugToFile('Retrying navigation after path blocked');
-              handleProductSelect(selectedProduct);
-            } else {
-              handleReturnToList();
-            }
-            break;
-            
-          case RobotBaseErrorTypes.LOCALIZATION_LOST:
-            // For localization issues, try to relocalize
-            recoveryStrategy = 'Attempt relocalization';
-            if (NativeModules.SlamtecUtils.relocalize) {
-              await LogUtils.writeDebugToFile('Attempting relocalization');
-              await NativeModules.SlamtecUtils.relocalize();
-              
-              // Wait for relocalization to complete
-              await new Promise(resolve => setTimeout(resolve, 3000));
-              
-              // If we have a selected product, retry navigation
-              if (selectedProduct) {
-                await LogUtils.writeDebugToFile('Retrying navigation after relocalization');
-                handleProductSelect(selectedProduct);
-              } else {
-                handleReturnToList();
-              }
-            } else {
-              // If relocalization not available, return to list
-              handleReturnToList();
-            }
-            break;
-            
-          case RobotBaseErrorTypes.NAVIGATION_TIMEOUT:
-          case RobotBaseErrorTypes.COMMUNICATION_ERROR:
-            // For timeouts and communication errors, try resetting the robot connection
-            recoveryStrategy = 'Reset robot connection';
-            if (NativeModules.SlamtecUtils.resetConnection) {
-              await LogUtils.writeDebugToFile('Resetting robot connection');
-              await NativeModules.SlamtecUtils.resetConnection();
-              
-              // Wait for connection reset to complete
-              await new Promise(resolve => setTimeout(resolve, 5000));
-              
-              // If we have a selected product, retry navigation
-              if (selectedProduct) {
-                await LogUtils.writeDebugToFile('Retrying navigation after connection reset');
-                handleProductSelect(selectedProduct);
-              } else {
-                handleReturnToList();
-              }
-            } else {
-              // If reset not available, return to list
-              handleReturnToList();
-            }
-            break;
-            
-          default:
-            // For unknown errors, just return to list
-            recoveryStrategy = 'Return to list';
-            handleReturnToList();
-            break;
-        }
-        
-        await LogUtils.writeDebugToFile(`Applied recovery strategy: ${recoveryStrategy}`);
-      } catch (recoveryError: any) {
-        await LogUtils.writeDebugToFile(`Recovery attempt failed: ${recoveryError.message}`);
-        
-        // If recovery fails, update UI to show error
-        setNavigationStatus(NavigationStatus.ERROR);
-        setNavigationError(`Navigation failed: ${errorMessage}. Recovery failed.`);
-      }
-    } else {
-      // Max recovery attempts reached, update UI to show error
-      await LogUtils.writeDebugToFile('Maximum recovery attempts reached, showing error to user');
-      setNavigationStatus(NavigationStatus.ERROR);
-      setNavigationError(`Navigation failed: ${errorMessage}. Please try again.`);
-      
-      // Reset recovery attempts counter when showing error to user
-      setRecoveryAttempts(0);
-    }
-  };
-
-  // Effect to clean up resources when component unmounts
-  useEffect(() => {
-    return () => {
-      // Clear heartbeat check
-      // stopHeartbeatCheck();
-      
-      // ... existing cleanup code ...
-    };
-  }, []);
-
-  const navigateToProduct = async (product: Product) => {
-    try {
-      await LogUtils.writeDebugToFile(`Navigating to product: ${product.name}`);
-
-      // Reset for new navigation
-      setNavigationStatus(NavigationStatus.NAVIGATING);
-      setRecoveryAttempts(0);
-      navigationCancelledRef.current = false;
-      await LogUtils.writeDebugToFile(`Navigation status set to NAVIGATING`);
-      
-      // Start heartbeat monitoring
-      // startHeartbeatCheck();
-      
-      // Start pose polling for this navigation
-      await startPosePolling();
-
-      const productHasYaw = product.pose.yaw !== undefined;
-      const yaw = productHasYaw ? product.pose.yaw : 0;
-      
-      await LogUtils.writeDebugToFile(`Using product coordinates - X: ${product.pose.x}, Y: ${product.pose.y}, Yaw: ${yaw}`);
-      
-      // Call the native module to navigate
-      await NativeModules.SlamtecUtils.navigateProduct(
-        product.pose.x,
-        product.pose.y,
-        yaw,
-      );
-    } catch (error: any) {
-      // Handle any errors that occur during navigation
-      await LogUtils.writeDebugToFile(`Navigation error: ${error.message}`);
-      setNavigationStatus(NavigationStatus.ERROR);
-      setNavigationError(`Failed to navigate to ${product.name}`);
-      
-      // Stop heartbeat monitoring on error
-      // stopHeartbeatCheck();
-    }
-  };
-
-  // Effect to start heartbeat check when component mounts
-  useEffect(() => {
-    // Start heartbeat check immediately
-    // startHeartbeatCheck();
-    
-    return () => {
-      // Clear heartbeat check on unmount
-      // stopHeartbeatCheck();
-    };
-  }, []);
-
-  // Initial health check
-  useEffect(() => {
-    const performInitialHealthCheck = async () => {
-      try {
-        LogUtils.writeDebugToFile('Performing initial health check in MainScreen...');
-        const response = await NativeModules.SlamtecUtils.checkConnection();
-        LogUtils.writeDebugToFile('Initial health check response: ' + JSON.stringify(response, null, 2));
-
-        // Parse the response string if it exists
-        let parsedResponse;
-        if (response.response) {
-          try {
-            parsedResponse = JSON.parse(response.response);
-            LogUtils.writeDebugToFile('Parsed health check response: ' + JSON.stringify(parsedResponse, null, 2));
-          } catch (parseError: any) {
-            LogUtils.writeDebugToFile('Failed to parse health check response: ' + parseError.message);
-            throw new Error('Invalid health check response format');
-          }
-        }
-
-        // Check for health check failures
-        if (response.hasError || response.hasFatal || response.hasSystemEmergencyStop || 
-            response.hasLidarDisconnected || response.hasDepthCameraDisconnected || response.hasSdpDisconnected ||
-            (parsedResponse && (parsedResponse.hasFatal || parsedResponse.hasError || 
-             (parsedResponse.baseError && parsedResponse.baseError.length > 0)))) {
-          throw new Error('Health check failed: ' + JSON.stringify(response));
-        }
-
-        LogUtils.writeDebugToFile('Initial health check successful');
-      } catch (error) {
-        LogUtils.writeDebugToFile('Initial health check failed: ' + (error instanceof Error ? error.message : String(error)));
-        
-        // Show error dialog with more detailed information
-        Alert.alert(
-          'Connection Error',
-          'There was an issue detected, please restart the app. If the error persists please reboot the robot.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                LogUtils.writeDebugToFile('User dismissed base error alert');
-              },
-            },
-          ],
-          { 
-            cancelable: true,
-            onDismiss: () => {
-              LogUtils.writeDebugToFile('User dismissed base error alert by tapping outside');
-            }
-          }
-        );
-      }
-    };
-
-    // Perform the initial health check
-    performInitialHealthCheck();
-  }, []);
-
-  useEffect(() => {
-    // Set up app state change listener
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-    // Start pose polling
-    startPosePolling();
-
-    // Set up token refresh interval
-    const tokenRefreshInterval = setInterval(refreshToken, TOKEN_REFRESH_INTERVAL);
-
-    // Set up token validation interval
-    const tokenValidationInterval = setInterval(() => validateToken(false), TOKEN_VALIDATION_INTERVAL);
-
-    // Clean up function
-    return () => {
-      subscription.remove();
-      stopPosePolling();
-      clearInterval(tokenRefreshInterval);
-      clearInterval(tokenValidationInterval);
-      if (inactivityTimerRef.current) {
-        clearTimeout(inactivityTimerRef.current);
-      }
-    };
-  }, []);
-
-  // Add new ref for cancellation state
-  const isCancellingRef = useRef(false);
-
-  // Update initialization effect
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        // Perform health check first
-        LogUtils.writeDebugToFile('Performing initial health check in MainScreen...');
-        const healthCheck = await NativeModules.SlamtecUtils.checkConnection();
-        LogUtils.writeDebugToFile('Initial health check response: ' + JSON.stringify(healthCheck, null, 2));
-
-        if (!healthCheck.slamApiAvailable) {
-          throw new Error('Robot not ready');
-        }
-
-        // Only proceed with token validation if health check passes
-        await validateToken();
-
-        // Then proceed with map operations
-        LogUtils.writeDebugToFile('Initial health check successful');
-      } catch (error) {
-        LogUtils.writeDebugToFile('Initial health check failed: ' + (error instanceof Error ? error.message : String(error)));
-        
-        Alert.alert(
-          'Connection Error',
-          'Please wait for the robot to be ready before proceeding.',
-          [{ text: 'OK' }]
-        );
-      }
-    };
-
-    initializeApp();
-  }, []);
-
-  const [isInputFocused, setIsInputFocused] = useState(false);
-
-  // Add this function before handleGoHome
-  const cancelPatrol = async (reason = 'unknown') => {
-    LogUtils.writeDebugToFile(`Cancelling patrol - Reason: ${reason}`);
-    LogUtils.writeDebugToFile(`Current navigation status: ${navigationStatus}`);
-    LogUtils.writeDebugToFile(`Is patrolling: ${isPatrolling}`);
-    LogUtils.writeDebugToFile(`Is returning to charger: ${isReturningToCharger}`);
-    LogUtils.writeDebugToFile(`Current promotion state - Active: ${promotionActive}, Cancelled: ${promotionCancelled}`);
-    
-    setIsPatrolling(false);
-    promotionActive = false;
-    promotionCancelled = true;
-    await LogUtils.writeDebugToFile(`Waypoint sequence cancelled (reason: ${reason})`);
-    
-    LogUtils.writeDebugToFile('Patrol cancelled - Flags updated');
-    LogUtils.writeDebugToFile(`New promotion state - Active: ${promotionActive}, Cancelled: ${promotionCancelled}`);
-  };
-
-  // Add a ref to track pose reporting cooldown
-  const poseReportingCooldownRef = useRef(false);
-
-  // Helper function to convert from yaw to quaternion (assuming pitch and roll are 0)
-  const yawToQuaternion = (yaw: number) => {
-    const halfYaw = yaw / 2;
-    return {
-      w: Math.cos(halfYaw),
-      x: 0,
-      y: 0,
-      z: Math.sin(halfYaw)
-    };
-  };
-
-  // Helper function to transform coordinates from robot system to our coordinate system
-  const transformCoordinates = (x: number, y: number, yaw: number) => {
-    // In the new system:
-    // x remains the same
-    // y becomes 0 (ground plane)
-    // z becomes the old y, but inverted
-    const z = -y; // Invert y to get z
-    // Convert yaw to quaternion
-    const quaternion = yawToQuaternion(yaw);
-    return {
-      x,
-      y: 0,
-      z,
-      quaternion,
-      // Keep the original values for reference
-      originalX: x,
-      originalY: y,
-      originalYaw: yaw
-    };
-  };
-
-  // Add effect to load patrol points on mount
-  useEffect(() => {
-    const loadPatrolPoints = async () => {
-      try {
-        const patrolPointsContent = await NativeModules.FileUtils.readFile('patrol_points.json');
-        if (patrolPointsContent) {
-          const parsedPoints = JSON.parse(patrolPointsContent);
-          patrolPoints = parsedPoints.patrol_points.map((point: any) => ({
-            yaw: point.yaw,
-            y: point.y,
-            x: point.x,
-            name: point.name
-          }));
-          await LogUtils.writeDebugToFile(`Loaded patrol points: ${JSON.stringify(patrolPoints)}`);
-
-          // Validate against POIs
-          let pois = await NativeModules.SlamtecUtils.getPOIs();
-          await LogUtils.writeDebugToFile(`Initial POIs fetch: ${JSON.stringify(pois)}`);
-          
-          // If POIs is empty, wait a moment and try again as they might be initializing
-          if (Array.isArray(pois) && pois.length === 0) {
-            await LogUtils.writeDebugToFile('No POIs found, waiting for initialization...');
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for POIs to initialize
-            pois = await NativeModules.SlamtecUtils.getPOIs();
-            await LogUtils.writeDebugToFile(`POIs after initialization: ${JSON.stringify(pois)}`);
-          }
-          
-          // POIs response is an array of POI objects with metadata.display_name
-          const poiNames = Array.isArray(pois) ? pois.map((poi: any) => poi.metadata?.display_name?.trim()) : [];
-          await LogUtils.writeDebugToFile(`Found POI names: ${JSON.stringify(poiNames)}`);
-          
-          // Filter out any undefined or empty names
-          const validPoiNames = poiNames.filter((name): name is string => 
-            typeof name === 'string' && name.length > 0
-          );
-          await LogUtils.writeDebugToFile(`Valid POI names: ${JSON.stringify(validPoiNames)}`);
-          
-          // Check for mismatches
-          const extraPOIs = validPoiNames.filter((name: string) => 
-            !patrolPoints.find((cp: { name: string }) => cp.name === name)
-          );
-          const missingPoints = patrolPoints.filter((cp: { name: string }) => 
-            !validPoiNames.includes(cp.name)
-          );
-          
-          if (extraPOIs.length > 0 || missingPoints.length > 0) {
-            let errorMsg = '';
-            if (extraPOIs.length > 0) {
-              errorMsg += `Unexpected POIs found: ${extraPOIs.join(', ')}\n`;
-            }
-            if (missingPoints.length > 0) {
-              errorMsg += `Missing waypoints: ${missingPoints.map((p: { name: string }) => p.name).join(', ')}`;
-            }
-            await LogUtils.writeDebugToFile(`POI validation error: ${errorMsg}`);
-            
-            // Clear and reinitialize POIs
-            await LogUtils.writeDebugToFile('Clearing and reinitializing POIs...');
-            await NativeModules.SlamtecUtils.clearAndInitializePOIs();
-            await LogUtils.writeDebugToFile('POIs have been reset and reinitialized');
-            
-            // Verify the POIs again
-            pois = await NativeModules.SlamtecUtils.getPOIs();
-            await LogUtils.writeDebugToFile(`POIs after reset: ${JSON.stringify(pois)}`);
-          } else {
-            await LogUtils.writeDebugToFile('POI validation successful - all points match config');
-          }
-        } else {
-          await LogUtils.writeDebugToFile('No patrol points configuration found');
-        }
-      } catch (error: any) {
-        await LogUtils.writeDebugToFile(`Error loading patrol points: ${error.message}`);
-      }
-    };
-
-    loadPatrolPoints();
-  }, []);
-
-  // Add with other refs at the top of the component:
-  const isTouchDebouncedRef = useRef(false);
-
-  // Add a flag to prevent overlapping pose uploads
-  let poseUploadInProgress = false;
-
   return (
     <SafeAreaView 
       style={styles.container}
-      onTouchStart={async () => {
-        // Debounce touch events to prevent rapid firing
-        if (isTouchDebouncedRef.current) return;
-        isTouchDebouncedRef.current = true;
-        setTimeout(() => { isTouchDebouncedRef.current = false; }, 1000);
-
-        // Only log essential information
+      onTouchStart={() => {
+        // Only reset timer if we're not in promotion mode
         if (!isPatrollingRef.current && navigationStatus !== NavigationStatus.PATROL) {
+          // We can't use await in the onTouchStart handler, so we handle it with a promise
           resetInactivityTimer()
-            .catch(err => console.error('Error resetting inactivity timer:', err));
-        } else if (isPatrollingRef.current && navigationStatus === NavigationStatus.PATROL) {
-          startInactivityTimer();
+            .then(() => LogUtils.writeDebugToFile('Touch detected, reset inactivity timer processed'))
+            .catch(err => LogUtils.writeDebugToFile(`Error resetting inactivity timer: ${err.message || err}`));
         }
       }}
     >
@@ -2303,6 +1757,27 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'DM Sans',
   },
+  homeButtonContainer: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: 'transparent',
+    zIndex: 10,
+    elevation: 5,
+  },
+  homeButton: {
+    backgroundColor: '#2670F8',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  homeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '500',
+    fontFamily: 'DM Sans',
+  },
   productImageContainer: {
     width: 100,
     height: 100,
@@ -2329,39 +1804,6 @@ const styles = StyleSheet.create({
   },
   actionButtonContainer: {
     marginBottom: 10,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  noProductsText: {
-    fontSize: 20,
-    color: '#555',
-    textAlign: 'center',
-    marginVertical: 16,
-    fontFamily: 'DM Sans',
   },
 });
 
