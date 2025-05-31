@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { LogUtils } from '../utils/logging';
 import DeviceStorage from '../../utils/deviceStorage';
+import { useRobot } from '../../contexts/RobotContext';
 
 interface SplashScreenProps {
   onFinish: (products: any[], options?: { goToConfig?: boolean }) => void;
@@ -21,6 +22,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
   const [loadingText, setLoadingText] = useState('Initializing...');
   const [showDockDialog, setShowDockDialog] = useState(false);
   const [isDocked, setIsDocked] = useState(false);
+  const { initialize: initializeRobot } = useRobot();
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -64,11 +66,15 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
 
     const waitForDock = async () => {
       setLoadingText('Checking docking status...');
+      await LogUtils.writeDebugToFile('Checking robot docking status...');
+      
       let docked = await checkDockStatus();
       if (!docked) {
+        await LogUtils.writeDebugToFile('Robot not docked, waiting for docking...');
         pollInterval = setInterval(async () => {
           docked = await checkDockStatus();
           if (docked) {
+            await LogUtils.writeDebugToFile('Robot successfully docked');
             clearInterval(pollInterval);
             // After docked, check credentials
             const credsOk = await checkCredentials();
@@ -76,6 +82,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           }
         }, 5000);
       } else {
+        await LogUtils.writeDebugToFile('Robot already docked');
         // After docked, check credentials
         const credsOk = await checkCredentials();
         if (credsOk) initialize();
@@ -87,6 +94,25 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         // Initialize logging first
         await LogUtils.initializeLogging();
         await LogUtils.writeDebugToFile('Starting app initialization...');
+
+        // Initialize robot
+        if (isMounted) {
+          setLoadingText('Initializing robot...');
+          await LogUtils.writeDebugToFile('Initializing PadbotModule...');
+        }
+        
+        try {
+          const robotInitialized = await initializeRobot();
+          if (robotInitialized) {
+            await LogUtils.writeDebugToFile('PadbotModule initialized successfully');
+          } else {
+            await LogUtils.writeDebugToFile('Failed to initialize PadbotModule');
+            throw new Error('Robot initialization failed');
+          }
+        } catch (robotError: any) {
+          await LogUtils.writeDebugToFile(`Error initializing robot: ${robotError.message}`);
+          throw robotError;
+        }
 
         // Get device identifiers early and store them globally
         try {
@@ -352,7 +378,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       }
     };
 
-    // waitForDock();
+    waitForDock();
 
     timeoutId = setTimeout(() => {
       if (isMounted) {
@@ -373,7 +399,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       clearTimeout(timeoutId);
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [opacity, onFinish]);
+  }, [opacity, onFinish, initializeRobot]);
 
   return (
     <View style={styles.background}>

@@ -10,6 +10,7 @@ import { View, StyleSheet } from 'react-native';
 import SplashScreen from './src/screens/SplashScreen';
 import MainScreen from './src/screens/MainScreen';
 import ConfigScreen from './src/screens/ConfigScreen';
+import { RobotProvider, useRobot } from './src/contexts/RobotContext';
 
 enum AppScreen {
   SPLASH,
@@ -27,13 +28,21 @@ interface Product {
   };
 }
 
-const App = () => {
+const AppContent = () => {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.SPLASH);
   const [products, setProducts] = useState<Product[]>([]);
+  const { initialize } = useRobot();
 
-  const handleSplashFinish = (loadedProducts: Product[]) => {
-    setProducts(loadedProducts);
-    setCurrentScreen(AppScreen.MAIN);
+  const handleSplashFinish = async (loadedProducts: Product[]) => {
+    // Initialize robot as part of splash screen completion
+    const robotInitialized = await initialize();
+    if (robotInitialized) {
+      setProducts(loadedProducts);
+      setCurrentScreen(AppScreen.MAIN);
+    } else {
+      // Handle initialization failure - you might want to show an error screen
+      console.error('Failed to initialize robot, staying on splash screen');
+    }
   };
 
   const handleConfigPress = () => {
@@ -59,6 +68,14 @@ const App = () => {
     <View style={styles.container}>
       {renderScreen()}
     </View>
+  );
+};
+
+const App = () => {
+  return (
+    <RobotProvider>
+      <AppContent />
+    </RobotProvider>
   );
 };
 
