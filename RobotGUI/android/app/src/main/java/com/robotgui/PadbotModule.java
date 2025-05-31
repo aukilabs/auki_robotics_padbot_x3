@@ -15,7 +15,6 @@ import cn.inbot.basiclib.event.ReceiveBatteryInfoEvent;
 import cn.inbot.basiclib.event.ReceiveAutoChargingStatusEvent;
 import cn.inbot.basiclib.util.EventBusUtils;
 import cn.inbot.basiclib.constant.AutoChargeStatus;
-import cn.inbot.basiclib.util.LogUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,35 +51,28 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     public void initialize(Promise promise) {
         try {
             Log.d(TAG, "Initializing PadbotModule...");
-            LogUtils.writeDebugToFile("Initializing PadbotModule...");
             
             // Only register once
             if (!isInitialized) {
                 // Register with EventBus
                 EventBusUtils.register(this);
-                LogUtils.writeDebugToFile("Registered with EventBus");
                 
                 // Connect to RobotBasicClient
                 RobotBasicClient.getInstance().connect(reactContext.getApplicationContext(), FLAG);
-                LogUtils.writeDebugToFile("Connected to RobotBasicClient");
                 
                 isInitialized = true;
                 Log.d(TAG, "PadbotModule initialized successfully");
-                LogUtils.writeDebugToFile("PadbotModule initialized successfully");
                 
                 // We can't check initial charging status programmatically
                 // We'll have to rely on events
                 Log.d(TAG, "Initial charging status will be determined by events");
-                LogUtils.writeDebugToFile("Initial charging status will be determined by events");
             } else {
                 Log.d(TAG, "PadbotModule already initialized");
-                LogUtils.writeDebugToFile("PadbotModule already initialized");
             }
             
             promise.resolve(true);
         } catch (Exception e) {
             Log.e(TAG, "Error initializing PadbotModule: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error initializing PadbotModule: " + e.getMessage());
             promise.reject("PADBOT_INIT_ERROR", "Error initializing PadbotModule: " + e.getMessage());
         }
     }
@@ -90,17 +82,14 @@ public class PadbotModule extends ReactContextBaseJavaModule {
         try {
             if (!isInitialized) {
                 Log.w(TAG, "PadbotModule not initialized, initializing now...");
-                LogUtils.writeDebugToFile("PadbotModule not initialized, initializing now...");
                 try {
                     // Initialize directly
                     EventBusUtils.register(this);
                     RobotBasicClient.getInstance().connect(reactContext.getApplicationContext(), FLAG);
                     isInitialized = true;
                     Log.d(TAG, "PadbotModule initialized successfully");
-                    LogUtils.writeDebugToFile("PadbotModule initialized successfully");
                 } catch (Exception e) {
                     Log.e(TAG, "Error initializing in getBatteryStatus: " + e.getMessage(), e);
-                    LogUtils.writeDebugToFile("Error initializing in getBatteryStatus: " + e.getMessage());
                 }
             }
             
@@ -108,7 +97,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
             sendCachedBatteryInfo(promise);
         } catch (Exception e) {
             Log.e(TAG, "Error getting battery status: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error getting battery status: " + e.getMessage());
             promise.reject("PADBOT_BATTERY_ERROR", "Error getting battery status: " + e.getMessage());
         }
     }
@@ -119,7 +107,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
         batteryInfo.putBoolean("charging", lastChargingState);
         batteryInfo.putBoolean("isInitialValue", lastBatteryPercentage == -1);
         
-        LogUtils.writeDebugToFile("Sending cached battery info: " + lastBatteryPercentage + "%" + (lastChargingState ? " (charging)" : ""));
         promise.resolve(batteryInfo);
     }
 
@@ -128,16 +115,13 @@ public class PadbotModule extends ReactContextBaseJavaModule {
         try {
             if (isInitialized) {
                 Log.d(TAG, "Cleaning up PadbotModule...");
-                LogUtils.writeDebugToFile("Cleaning up PadbotModule...");
                 EventBusUtils.unregister(this);
                 // Don't disconnect RobotBasicClient as other components might be using it
                 isInitialized = false;
                 Log.d(TAG, "PadbotModule cleaned up successfully");
-                LogUtils.writeDebugToFile("PadbotModule cleaned up successfully");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error during PadbotModule cleanup: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error during PadbotModule cleanup: " + e.getMessage());
         }
     }
 
@@ -148,7 +132,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     public void onEvent(ReceiveBatteryInfoEvent event) {
         try {
             Log.d(TAG, "Received battery event: " + event.getPercentage() + "%");
-            LogUtils.writeDebugToFile("Received battery event: " + event.getPercentage() + "%");
             
             // Extract battery information
             int powerPercentage = event.getPercentage();
@@ -170,7 +153,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
             sendEvent("batteryUpdate", params);
         } catch (Exception e) {
             Log.e(TAG, "Error processing battery event: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error processing battery event: " + e.getMessage());
         }
     }
     
@@ -180,7 +162,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(OnRobotBasicClientConnectedEvent event) {
         Log.d(TAG, "Robot client connected");
-        LogUtils.writeDebugToFile("Robot client connected");
         
         try {
             robotBasicClient = RobotBasicClient.getInstance();
@@ -191,7 +172,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
             sendEvent("robotConnectionUpdate", params);
         } catch (Exception e) {
             Log.e(TAG, "Error handling connection event: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error handling connection event: " + e.getMessage());
         }
     }
     
@@ -201,7 +181,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(OnRobotBasicClientDisconnectedEvent event) {
         Log.d(TAG, "Robot client disconnected");
-        LogUtils.writeDebugToFile("Robot client disconnected");
         
         // Notify React Native
         WritableMap params = Arguments.createMap();
@@ -216,7 +195,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     public void onEvent(ReceiveAutoChargingStatusEvent event) {
         try {
             Log.d(TAG, "Received charging status event: " + event.getStatus());
-            LogUtils.writeDebugToFile("Received charging status event: " + event.getStatus());
             
             // Update charging state based on status
             isCharging = event.getStatus() == AutoChargeStatus.CHARGING;
@@ -229,7 +207,6 @@ public class PadbotModule extends ReactContextBaseJavaModule {
             sendEvent("chargingUpdate", params);
         } catch (Exception e) {
             Log.e(TAG, "Error processing charging status: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error processing charging status: " + e.getMessage());
         }
     }
     
@@ -243,14 +220,12 @@ public class PadbotModule extends ReactContextBaseJavaModule {
                 .emit(eventName, params);
         } catch (Exception e) {
             Log.e(TAG, "Error sending event to React Native: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error sending event to React Native: " + e.getMessage());
         }
     }
 
     @ReactMethod
     public void isCharging(Promise promise) {
         // Return the cached value from events
-        LogUtils.writeDebugToFile("Checking charging status: " + (isCharging ? "charging" : "not charging"));
         promise.resolve(isCharging);
     }
     
@@ -262,29 +237,24 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     public void startAutoCharging(Promise promise) {
         try {
             Log.d(TAG, "PadbotModule.startAutoCharging called");
-            LogUtils.writeDebugToFile("Starting auto-charging process...");
             
             // Get an instance of RobotControlManager
             cn.inbot.basiclib.RobotControlManager controlManager = cn.inbot.basiclib.RobotControlManager.getInstance();
             if (controlManager != null) {
                 Log.d(TAG, "Calling RobotControlManager.startAutoCharging()");
-                LogUtils.writeDebugToFile("Calling RobotControlManager.startAutoCharging()");
                 
                 // Call the method
                 controlManager.startAutoCharging();
                 Log.d(TAG, "Auto-charging started successfully");
-                LogUtils.writeDebugToFile("Auto-charging started successfully");
                 
                 // Resolve the promise
                 promise.resolve(true);
             } else {
                 Log.e(TAG, "RobotControlManager is null, cannot start auto-charging");
-                LogUtils.writeDebugToFile("RobotControlManager is null, cannot start auto-charging");
                 promise.reject("AUTO_CHARGING_ERROR", "RobotControlManager is null");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error starting auto-charging: " + e.getMessage(), e);
-            LogUtils.writeDebugToFile("Error starting auto-charging: " + e.getMessage());
             promise.reject("AUTO_CHARGING_ERROR", "Failed to start auto-charging: " + e.getMessage(), e);
         }
     }
