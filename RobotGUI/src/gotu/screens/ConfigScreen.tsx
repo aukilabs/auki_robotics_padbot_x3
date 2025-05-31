@@ -26,17 +26,10 @@ interface ConnectionStatus {
 }
 
 function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Element {
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
-    isConnected: false,
-    message: 'Checking connection...',
-  });
-
   const [sdkConnectionStatus, setSdkConnectionStatus] = useState<ConnectionStatus>({
     isConnected: false,
     message: 'Checking SDK connection...',
   });
-
-  const [lastHealthCheckResponse, setLastHealthCheckResponse] = useState<any>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,7 +42,6 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
   useEffect(() => {
     const loadInitialData = async () => {
       await Promise.all([
-        checkConnection(),
         checkSdkConnection(),
         loadStoredCredentials()
       ]);
@@ -59,7 +51,6 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
 
     // Set up an interval to check connection periodically
     const connectionInterval = setInterval(() => {
-      checkConnection();
       checkSdkConnection();
     }, 5000);
 
@@ -67,114 +58,6 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
       clearInterval(connectionInterval);
     };
   }, []);
-
-  const checkConnection = async () => {
-    try {
-      LogUtils.writeDebugToFile('Starting health check...');
-      const response = await NativeModules.SlamtecUtils.checkConnection();
-      LogUtils.writeDebugToFile('Health check response: ' + JSON.stringify(response, null, 2));
-      setLastHealthCheckResponse(response);
-
-      // Parse the response string if it exists
-      let parsedResponse;
-      if (response.response) {
-        try {
-          parsedResponse = JSON.parse(response.response);
-          LogUtils.writeDebugToFile('Parsed health check response: ' + JSON.stringify(parsedResponse, null, 2));
-        } catch (parseError) {
-          LogUtils.writeDebugToFile('Failed to parse health check response: ' + parseError.message);
-          throw new Error('Invalid health check response format');
-        }
-      }
-
-      // Build detailed status message
-      let statusMessage = '';
-      let isConnected = true;
-
-      // Check base connection status
-      if (response.status) {
-        statusMessage += `Base Status: ${response.status}\n`;
-      }
-
-      // Check SLAM API availability
-      if (response.slamApiAvailable !== undefined) {
-        statusMessage += `SLAM API: ${response.slamApiAvailable ? 'Available' : 'Not Available'}\n`;
-        isConnected = isConnected && response.slamApiAvailable;
-      }
-
-      // Check for specific error conditions
-      if (response.hasError) {
-        statusMessage += 'Error: General error detected\n';
-        isConnected = false;
-      }
-      if (response.hasFatal) {
-        statusMessage += 'Error: Fatal error detected\n';
-        isConnected = false;
-      }
-      if (response.hasSystemEmergencyStop) {
-        statusMessage += 'Error: System emergency stop active\n';
-        isConnected = false;
-      }
-      if (response.hasLidarDisconnected) {
-        statusMessage += 'Error: LiDAR disconnected\n';
-        isConnected = false;
-      }
-      if (response.hasDepthCameraDisconnected) {
-        statusMessage += 'Error: Depth camera disconnected\n';
-        isConnected = false;
-      }
-      if (response.hasSdpDisconnected) {
-        statusMessage += 'Error: SDP disconnected\n';
-        isConnected = false;
-      }
-
-      // Check parsed response for additional errors
-      if (parsedResponse) {
-        if (parsedResponse.hasFatal) {
-          statusMessage += 'Error: Fatal error in parsed response\n';
-          isConnected = false;
-        }
-        if (parsedResponse.hasError) {
-          statusMessage += 'Error: Error in parsed response\n';
-          isConnected = false;
-        }
-        if (parsedResponse.baseError && parsedResponse.baseError.length > 0) {
-          // Check for specific magnetic sensor errors
-          const magneticErrors = parsedResponse.baseError.filter((error: number) => 
-            error === 67372544 || error === 67372545
-          );
-          
-          if (magneticErrors.length > 0) {
-            statusMessage += 'FATAL: Magnetic sensor communication error\n';
-            statusMessage += 'Recommended actions:\n';
-            statusMessage += '1. Check if the connection cable is reliably connected\n';
-            statusMessage += '2. Check if the sensor is damaged\n';
-            statusMessage += '3. Manually clear the error\n';
-            statusMessage += '4. Restart the chassis if necessary\n';
-          } else {
-            statusMessage += `Base Errors: ${parsedResponse.baseError.join(', ')}\n`;
-          }
-          isConnected = false;
-        }
-      }
-
-      // If no specific issues were found, add a success message
-      if (isConnected) {
-        statusMessage = 'Health Check OK';
-      } else {
-        statusMessage = 'Health Check Failed';
-      }
-
-      LogUtils.writeDebugToFile('Connection status: ' + (isConnected ? 'Health Check OK' : 'Health Check Failed') + ', Message: ' + statusMessage);
-      setConnectionStatus({ isConnected, message: statusMessage });
-    } catch (error) {
-      LogUtils.writeDebugToFile('Connection error: ' + (error instanceof Error ? error.message : String(error)));
-      setConnectionStatus({ 
-        isConnected: false, 
-        message: 'Health Check Failed'
-      });
-    }
-  };
 
   const checkSdkConnection = async () => {
     try {
@@ -288,21 +171,7 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
   };
 
   const showHealthCheckDetails = () => {
-    if (lastHealthCheckResponse) {
-      Alert.alert(
-        'Health Check Details',
-        JSON.stringify(lastHealthCheckResponse, null, 2),
-        [{ text: 'Close', style: 'cancel' }],
-        { cancelable: true }
-      );
-    } else {
-      Alert.alert(
-        'Health Check Details',
-        'No health check data available yet.',
-        [{ text: 'Close', style: 'cancel' }],
-        { cancelable: true }
-      );
-    }
+    // Implementation of showHealthCheckDetails function
   };
 
   const handleTestSeries = async () => {
@@ -337,15 +206,6 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
-          <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>Connection Status (REST API)</Text>
-            <View style={[
-              styles.statusIndicator,
-              { backgroundColor: connectionStatus.isConnected ? '#4CAF50' : '#F44336' }
-            ]} />
-            <Text style={styles.statusMessage}>{connectionStatus.message}</Text>
-          </View>
-
           <View style={styles.statusContainer}>
             <Text style={styles.statusText}>Connection Status (SDK)</Text>
             <View style={[

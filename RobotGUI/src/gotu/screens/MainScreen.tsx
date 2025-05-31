@@ -2090,7 +2090,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
           }}
           delayLongPress={3000}
         >
-          {/* Config button is now invisible but still functional with long press */}
+          <Text style={{fontSize: 28, color: '#2670F8'}}>⚙️</Text>
         </TouchableOpacity>
       </View>
       
