@@ -17,6 +17,15 @@ import android.graphics.BitmapFactory;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.robotgui.FileUtilsModule;
 import android.os.Environment;
+import com.slamtec.slamware.sdp.SlamwareSdpPlatform;
+import com.slamtec.slamware.robot.HealthInfo;
+import com.slamtec.slamware.sdp.CompositeMapHelper;
+import com.slamtec.slamware.robot.CompositeMap;
+import com.slamtec.slamware.robot.Pose;
+import com.slamtec.slamware.robot.Location;
+import com.slamtec.slamware.robot.MoveOption;
+import com.slamtec.slamware.action.IMoveAction;
+import cn.inbot.basiclib.RobotControlManager;
 
 public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     private static final String TAG = "SlamtecUtilsModule";
@@ -1724,6 +1733,777 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                         Log.e(TAG, "Error disconnecting: " + e.getMessage());
                     }
                 }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void checkConnectionSdk(Promise promise) {
+        executorService.execute(() -> {
+            try {
+                WritableMap response = Arguments.createMap();
+                
+                try {
+                    // Add detailed debug logging
+                    Log.d(TAG, "SDK Health Check: Starting connection to " + SLAM_IP + ":" + SLAM_PORT);
+                    logToFile("SDK Health Check: Starting connection to " + SLAM_IP + ":" + SLAM_PORT);
+                    
+                    // Connect to the Slamtec platform using SDK
+                    Log.d(TAG, "SDK Health Check: Calling SlamwareSdpPlatform.connect()");
+                    SlamwareSdpPlatform platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                    
+                    if (platform != null) {
+                        Log.d(TAG, "SDK Health Check: Connection successful");
+                        logToFile("SDK Health Check: Connection successful");
+                        
+                        // Get robot health status
+                        Log.d(TAG, "SDK Health Check: Getting robot health");
+                        HealthInfo health = platform.getRobotHealth();
+                        Log.d(TAG, "SDK Health Check: Health info - Error: " + health.isError() + 
+                               ", Warning: " + health.isWarning() + 
+                               ", Fatal: " + health.isFatal());
+                        logToFile("SDK Health Check: Health info - Error: " + health.isError() + 
+                                 ", Warning: " + health.isWarning() + 
+                                 ", Fatal: " + health.isFatal());
+                        
+                        // Fill the response object similar to REST API
+                        response.putInt("responseCode", HttpURLConnection.HTTP_OK);
+                        response.putString("status", !health.isError() ? 
+                            "Robot health check successful" : "Robot has errors");
+                        response.putBoolean("slamApiAvailable", !health.isError());
+                        
+                        // Prepare JSON response for compatibility
+                        JSONObject healthJson = new JSONObject();
+                        healthJson.put("hasError", health.isError());
+                        healthJson.put("hasWarning", health.isWarning());
+                        healthJson.put("hasFatal", health.isFatal());
+                        response.putString("response", healthJson.toString());
+                        Log.d(TAG, "SDK Health Check: Complete health response: " + healthJson.toString());
+                    } else {
+                        Log.e(TAG, "SDK Health Check: Platform connection failed (null return)");
+                        logToFile("SDK Health Check: Platform connection failed (null return)");
+                        throw new Exception("Platform connection returned null");
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "SDK Health Check: Connection error: " + e.getMessage(), e);
+                    logToFile("SDK Health Check: Connection error: " + e.getMessage());
+                    response.putString("error", "Connection error: " + e.getMessage());
+                    response.putString("status", "Cannot connect to robot");
+                    response.putBoolean("slamApiAvailable", false);
+                } finally {
+                    // Disconnect from platform if connected
+                    if (platform != null) {
+                        try {
+                            Log.d(TAG, "SDK Health Check: Disconnecting from platform");
+                            platform.disconnect();
+                            Log.d(TAG, "SDK Health Check: Disconnected successfully");
+                        } catch (Exception e) {
+                            Log.e(TAG, "SDK Health Check: Error disconnecting: " + e.getMessage(), e);
+                        }
+                    }
+                }
+
+                // Fixed: Only use the slamApiAvailable property directly, don't try to access it first
+                boolean isAvailable = false;
+                if (response.hasKey("slamApiAvailable")) {
+                    isAvailable = response.getBoolean("slamApiAvailable");
+                }
+                response.putBoolean("deviceFound", isAvailable);
+                
+                Log.d(TAG, "SDK Health Check: Final result - deviceFound: " + isAvailable);
+                logToFile("SDK Health Check: Final result - deviceFound: " + isAvailable);
+                mainHandler.post(() -> promise.resolve(response));
+                
+            } catch (Exception e) {
+                Log.e(TAG, "SDK Health Check: Fatal error: " + e.getMessage(), e);
+                logToFile("SDK Health Check: Fatal error: " + e.getMessage());
+                mainHandler.post(() -> promise.reject("SLAM_ERROR", "Fatal error: " + e.getMessage()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void navigateWithSdk(double x, double y, double yaw, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                Log.d(TAG, "Navigating with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
+                logToFile("Navigating with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
+                
+                // Connect to the Slamtec platform using SDK
+                SlamwareSdpPlatform platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                
+                if (platform != null) {
+                    // Create a location array for the target
+                    com.slamtec.slamware.robot.Location[] locations = new com.slamtec.slamware.robot.Location[1];
+                    locations[0] = new com.slamtec.slamware.robot.Location();
+                    locations[0].setX((float)x);
+                    locations[0].setY((float)y);
+                    
+                    // Create move options with specific settings
+                    com.slamtec.slamware.robot.MoveOption moveOption = new com.slamtec.slamware.robot.MoveOption();
+                    // Make robot movement precise/accurate
+                    moveOption.setPrecise(true);
+                    // Enable path search/planning functionality
+                    moveOption.setMilestone(true);
+                    // Make robot rotate to the target yaw when it stops
+                    moveOption.setWithYaw(true);
+                    // Don't use virtual tracks
+                    moveOption.setKeyPoints(false);
+                    
+                    // Execute the move
+                    Log.d(TAG, "Calling platform.moveTo with options: precise=true, milestone=true, withYaw=true, keyPoints=false");
+                    com.slamtec.slamware.action.IMoveAction action = platform.moveTo(locations, moveOption, (float)yaw);
+                    
+                    // Wait for a short time to let action start
+                    Log.d(TAG, "Waiting 5 seconds for action to start...");
+                    logToFile("Waiting 5 seconds for action to start...");
+                    Thread.sleep(5000);
+                    Log.d(TAG, "Wait complete, checking action status");
+                    logToFile("Wait complete, checking action status");
+                    
+                    // Monitor action until completion
+                    boolean completed = false;
+                    int retryCount = 0;
+                    int maxRetries = 120; // 60 seconds max (500ms interval)
+                    boolean hasStartedMoving = false;
+                    boolean hasReachedTarget = false;
+                    float targetDistanceThreshold = 0.5f; // Consider target reached if within 0.5 meters
+                    
+                    // Store initial position to detect movement
+                    float initialX = 0;
+                    float initialY = 0;
+                    boolean haveInitialPosition = false;
+                    
+                    try {
+                        com.slamtec.slamware.robot.Pose initialPose = platform.getPose();
+                        initialX = initialPose.getX();
+                        initialY = initialPose.getY();
+                        haveInitialPosition = true;
+                        Log.d(TAG, "Saved initial position: [" + initialX + ", " + initialY + "]");
+                        logToFile("Saved initial position: [" + initialX + ", " + initialY + "]");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error getting initial position: " + e.getMessage(), e);
+                        logToFile("Error getting initial position: " + e.getMessage());
+                    }
+                    
+                    while (!completed && retryCount < maxRetries) {
+                        // Check current action status
+                        try {
+                            com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
+                            
+                            // Check current position to detect movement and target arrival
+                            try {
+                                com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
+                                float currentX = currentPose.getX();
+                                float currentY = currentPose.getY();
+                                
+                                // Log position
+                                Log.d(TAG, "Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
+                                
+                                // Only log to file occasionally to avoid huge log files
+                                if (retryCount % 10 == 0) {
+                                    logToFile("Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
+                                }
+                                
+                                // Check if we've started moving (changed position significantly)
+                                if (haveInitialPosition && !hasStartedMoving) {
+                                    float dx = currentX - initialX;
+                                    float dy = currentY - initialY;
+                                    float distanceMoved = (float)Math.sqrt(dx*dx + dy*dy);
+                                    
+                                    if (distanceMoved > 0.05) { // 5cm movement threshold
+                                        hasStartedMoving = true;
+                                        Log.d(TAG, "Robot has started moving! Distance moved: " + distanceMoved);
+                                        logToFile("Robot has started moving! Distance moved: " + distanceMoved);
+                                    }
+                                }
+                                
+                                // Calculate distance to target
+                                float dx = currentX - (float)x;
+                                float dy = currentY - (float)y;
+                                float distanceToTarget = (float)Math.sqrt(dx*dx + dy*dy);
+                                
+                                if (retryCount % 10 == 0) {
+                                    Log.d(TAG, "Distance to target: " + distanceToTarget + " meters");
+                                }
+                                
+                                // Check if we've reached the target
+                                if (distanceToTarget <= targetDistanceThreshold) {
+                                    hasReachedTarget = true;
+                                    Log.d(TAG, "Target reached! Distance: " + distanceToTarget);
+                                    logToFile("Target reached! Distance: " + distanceToTarget);
+                                    
+                                    // If we've reached the target and action is complete or we're just waiting, 
+                                    // consider navigation complete
+                                    if (currentAction == null) {
+                                        completed = true;
+                                        Log.d(TAG, "Navigation complete - at target with no current action");
+                                        logToFile("Navigation complete - at target with no current action");
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error getting position update: " + e.getMessage());
+                            }
+                            
+                            if (currentAction == null) {
+                                // No current action means movement is complete
+                                if (hasReachedTarget) {
+                                    completed = true;
+                                    Log.d(TAG, "Home navigation completed successfully (no current action and at target)");
+                                    logToFile("Home navigation completed successfully (no current action and at target)");
+                                    
+                                    // We don't need auto-charging in the regular navigate method
+                                    // Only navigateHomeWithSdk should trigger auto-charging
+                                } else if (hasStartedMoving) {
+                                    completed = true;
+                                    Log.d(TAG, "Home navigation completed (no current action, moved but target not reached)");
+                                    logToFile("Home navigation completed (no current action, moved but target not reached)");
+                                } else {
+                                    // If we have no current action but haven't moved, something is wrong
+                                    // Wait a bit more in case robot is just starting
+                                    retryCount++;
+                                    Log.d(TAG, "No current action but no movement detected. Check #" + retryCount);
+                                    
+                                    if (retryCount > 20) { // After 10 seconds, assume something is wrong
+                                        Log.e(TAG, "No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        logToFile("No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        completed = true; // End the loop
+                                    }
+                                }
+                            } else {
+                                // Still moving, log status and wait
+                                retryCount++;
+                                Log.d(TAG, "Robot still moving, check #" + retryCount + " of " + maxRetries);
+                                Thread.sleep(500);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error checking action status: " + e.getMessage(), e);
+                            logToFile("Error checking action status: " + e.getMessage());
+                            // Assume completed if we can't check status
+                            completed = true;
+                        }
+                    }
+                    
+                    if (retryCount >= maxRetries) {
+                        Log.d(TAG, "Navigation timeout - assuming success after " + maxRetries + " checks");
+                    }
+                    
+                    Log.d(TAG, "Navigation completed");
+                    logToFile("Navigation completed");
+                    
+                    // Return success
+                    mainHandler.post(() -> promise.resolve(true));
+                } else {
+                    String errorMsg = "Failed to connect to platform (null return)";
+                    Log.e(TAG, errorMsg);
+                    logToFile(errorMsg);
+                    mainHandler.post(() -> promise.reject("NAVIGATION_ERROR", errorMsg));
+                }
+            } catch (Exception e) {
+                String errorMsg = "Error during SDK navigation: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                logToFile(errorMsg);
+                mainHandler.post(() -> promise.reject("NAVIGATION_ERROR", errorMsg));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void navigateHomeWithSdk(double x, double y, double yaw, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                Log.d(TAG, "Navigating Home with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
+                logToFile("Navigating Home with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
+                
+                // Connect to the Slamtec platform using SDK
+                Log.d(TAG, "Attempting to connect to platform at " + SLAM_IP + ":" + SLAM_PORT);
+                logToFile("Attempting to connect to platform at " + SLAM_IP + ":" + SLAM_PORT);
+                SlamwareSdpPlatform platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                
+                if (platform != null) {
+                    Log.d(TAG, "Successfully connected to platform");
+                    logToFile("Successfully connected to platform");
+                    
+                    // Create a location array for the target
+                    com.slamtec.slamware.robot.Location[] locations = new com.slamtec.slamware.robot.Location[1];
+                    locations[0] = new com.slamtec.slamware.robot.Location();
+                    locations[0].setX((float)x);
+                    locations[0].setY((float)y);
+                    Log.d(TAG, "Created location target: [" + x + ", " + y + "]");
+                    logToFile("Created location target: [" + x + ", " + y + "]");
+                    
+                    // Create move options with specific settings
+                    com.slamtec.slamware.robot.MoveOption moveOption = new com.slamtec.slamware.robot.MoveOption();
+                    // Make robot movement precise/accurate
+                    moveOption.setPrecise(true);
+                    // Enable path search/planning functionality
+                    moveOption.setMilestone(true);
+                    // Make robot rotate to the target yaw when it stops
+                    moveOption.setWithYaw(true);
+                    // Don't use virtual tracks
+                    moveOption.setKeyPoints(false);
+                    Log.d(TAG, "Created move options: precise=true, milestone=true, withYaw=true, keyPoints=false");
+                    logToFile("Created move options: precise=true, milestone=true, withYaw=true, keyPoints=false");
+                    
+                    // Check current position before moving
+                    try {
+                        com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
+                        Log.d(TAG, "Current robot position: [" + currentPose.getX() + ", " + currentPose.getY() + ", yaw=" + currentPose.getYaw() + "]");
+                        logToFile("Current robot position: [" + currentPose.getX() + ", " + currentPose.getY() + ", yaw=" + currentPose.getYaw() + "]");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error getting current position: " + e.getMessage(), e);
+                        logToFile("Error getting current position: " + e.getMessage());
+                    }
+                    
+                    // Execute the move
+                    Log.d(TAG, "Calling platform.moveTo for HOME with options: precise=true, milestone=true, withYaw=true, keyPoints=false");
+                    logToFile("Calling platform.moveTo for HOME...");
+                    com.slamtec.slamware.action.IMoveAction action = platform.moveTo(locations, moveOption, (float)yaw);
+                    Log.d(TAG, "moveTo call completed, action created");
+                    logToFile("moveTo call completed, action created");
+                    
+                    // Wait for a short time to let action start
+                    Log.d(TAG, "Waiting 5 seconds for action to start...");
+                    logToFile("Waiting 5 seconds for action to start...");
+                    Thread.sleep(5000);
+                    Log.d(TAG, "Wait complete, checking action status");
+                    logToFile("Wait complete, checking action status");
+                    
+                    // Monitor action until completion
+                    boolean completed = false;
+                    int retryCount = 0;
+                    int maxRetries = 120; // 60 seconds max (500ms interval)
+                    boolean hasStartedMoving = false;
+                    boolean hasReachedTarget = false;
+                    float targetDistanceThreshold = 0.5f; // Consider target reached if within 0.5 meters
+                    
+                    // Store initial position to detect movement
+                    float initialX = 0;
+                    float initialY = 0;
+                    boolean haveInitialPosition = false;
+                    
+                    try {
+                        com.slamtec.slamware.robot.Pose initialPose = platform.getPose();
+                        initialX = initialPose.getX();
+                        initialY = initialPose.getY();
+                        haveInitialPosition = true;
+                        Log.d(TAG, "Saved initial position: [" + initialX + ", " + initialY + "]");
+                        logToFile("Saved initial position: [" + initialX + ", " + initialY + "]");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error getting initial position: " + e.getMessage(), e);
+                        logToFile("Error getting initial position: " + e.getMessage());
+                    }
+                    
+                    while (!completed && retryCount < maxRetries) {
+                        // Check current action status
+                        try {
+                            com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
+                            
+                            // Check current position to detect movement and target arrival
+                            try {
+                                com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
+                                float currentX = currentPose.getX();
+                                float currentY = currentPose.getY();
+                                
+                                // Log position
+                                Log.d(TAG, "Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
+                                
+                                // Only log to file occasionally to avoid huge log files
+                                if (retryCount % 10 == 0) {
+                                    logToFile("Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
+                                }
+                                
+                                // Check if we've started moving (changed position significantly)
+                                if (haveInitialPosition && !hasStartedMoving) {
+                                    float dx = currentX - initialX;
+                                    float dy = currentY - initialY;
+                                    float distanceMoved = (float)Math.sqrt(dx*dx + dy*dy);
+                                    
+                                    if (distanceMoved > 0.05) { // 5cm movement threshold
+                                        hasStartedMoving = true;
+                                        Log.d(TAG, "Robot has started moving! Distance moved: " + distanceMoved);
+                                        logToFile("Robot has started moving! Distance moved: " + distanceMoved);
+                                    }
+                                }
+                                
+                                // Calculate distance to target
+                                float dx = currentX - (float)x;
+                                float dy = currentY - (float)y;
+                                float distanceToTarget = (float)Math.sqrt(dx*dx + dy*dy);
+                                
+                                if (retryCount % 10 == 0) {
+                                    Log.d(TAG, "Distance to target: " + distanceToTarget + " meters");
+                                }
+                                
+                                // Check if we've reached the target
+                                if (distanceToTarget <= targetDistanceThreshold) {
+                                    hasReachedTarget = true;
+                                    Log.d(TAG, "Target reached! Distance: " + distanceToTarget);
+                                    logToFile("Target reached! Distance: " + distanceToTarget);
+                                    
+                                    // If we've reached the target and action is complete or we're just waiting, 
+                                    // consider navigation complete
+                                    if (currentAction == null) {
+                                        completed = true;
+                                        Log.d(TAG, "Navigation complete - at target with no current action");
+                                        logToFile("Navigation complete - at target with no current action");
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error getting position update: " + e.getMessage());
+                            }
+                            
+                            if (currentAction == null) {
+                                // No current action means movement is complete
+                                if (hasReachedTarget) {
+                                    completed = true;
+                                    Log.d(TAG, "Home navigation completed successfully (no current action and at target)");
+                                    logToFile("Home navigation completed successfully (no current action and at target)");
+                                    
+                                    // We don't need auto-charging in the regular navigate method
+                                    // Only navigateHomeWithSdk should trigger auto-charging
+                                    
+                                    // Start auto-charging when we've reached the home position
+                                    try {
+                                        Log.d(TAG, "Starting auto-charging...");
+                                        logToFile("Starting auto-charging...");
+                                        
+                                        // Use RobotControlManager to start auto-charging
+                                        RobotControlManager controlManager = RobotControlManager.getInstance();
+                                        if (controlManager != null) {
+                                            controlManager.startAutoCharging();
+                                            Log.d(TAG, "Auto-charging started successfully");
+                                            logToFile("Auto-charging started successfully");
+                                        } else {
+                                            Log.e(TAG, "RobotControlManager is null, cannot start auto-charging");
+                                            logToFile("RobotControlManager is null, cannot start auto-charging");
+                                        }
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error starting auto-charging: " + e.getMessage(), e);
+                                        logToFile("Error starting auto-charging: " + e.getMessage());
+                                        // Continue execution even if auto-charging fails
+                                    }
+                                } else if (hasStartedMoving) {
+                                    completed = true;
+                                    Log.d(TAG, "Home navigation completed (no current action, moved but target not reached)");
+                                    logToFile("Home navigation completed (no current action, moved but target not reached)");
+                                } else {
+                                    // If we have no current action but haven't moved, something is wrong
+                                    // Wait a bit more in case robot is just starting
+                                    retryCount++;
+                                    Log.d(TAG, "No current action but no movement detected. Check #" + retryCount);
+                                    
+                                    if (retryCount > 20) { // After 10 seconds, assume something is wrong
+                                        Log.e(TAG, "No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        logToFile("No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        completed = true; // End the loop
+                                    }
+                                }
+                            } else {
+                                // Still moving, log status and wait
+                                retryCount++;
+                                Log.d(TAG, "Robot still moving, check #" + retryCount + " of " + maxRetries);
+                                Thread.sleep(500);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error checking home action status: " + e.getMessage(), e);
+                            logToFile("Error checking home action status: " + e.getMessage());
+                            // Assume completed if we can't check status
+                            completed = true;
+                        }
+                    }
+                    
+                    if (retryCount >= maxRetries) {
+                        Log.d(TAG, "Home navigation timeout - assuming success after " + maxRetries + " checks");
+                    }
+                    
+                    // Check final position
+                    try {
+                        com.slamtec.slamware.robot.Pose finalPose = platform.getPose();
+                        Log.d(TAG, "Final position: [" + finalPose.getX() + ", " + finalPose.getY() + ", yaw=" + finalPose.getYaw() + "]");
+                        logToFile("Final position: [" + finalPose.getX() + ", " + finalPose.getY() + ", yaw=" + finalPose.getYaw() + "]");
+                        
+                        // Calculate distance to target
+                        float dx = finalPose.getX() - (float)x;
+                        float dy = finalPose.getY() - (float)y;
+                        float distance = (float)Math.sqrt(dx*dx + dy*dy);
+                        Log.d(TAG, "Distance to target: " + distance + " meters");
+                        logToFile("Distance to target: " + distance + " meters");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error getting final position: " + e.getMessage(), e);
+                        logToFile("Error getting final position: " + e.getMessage());
+                    }
+                    
+                    Log.d(TAG, "Home navigation completed");
+                    logToFile("Home navigation completed");
+                    
+                    // Return success
+                    mainHandler.post(() -> promise.resolve(true));
+                } else {
+                    String errorMsg = "Failed to connect to platform for home navigation (null return)";
+                    Log.e(TAG, errorMsg);
+                    logToFile(errorMsg);
+                    mainHandler.post(() -> promise.reject("HOME_NAVIGATION_ERROR", errorMsg));
+                }
+            } catch (Exception e) {
+                String errorMsg = "Error during SDK home navigation: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                logToFile(errorMsg);
+                mainHandler.post(() -> promise.reject("HOME_NAVIGATION_ERROR", errorMsg));
+            } finally {
+                // Ensure we disconnect from platform
+                if (platform != null) {
+                    try {
+                        platform.disconnect();
+                        Log.d(TAG, "Disconnected from platform after home navigation");
+                        logToFile("Disconnected from platform after home navigation");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error disconnecting from platform after home navigation: " + e.getMessage(), e);
+                        logToFile("Error disconnecting from platform after home navigation: " + e.getMessage());
+                    }
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void processMapWithSdk(String inputFilePath, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                // Create log messages to track the process
+                Log.d(TAG, "Processing map with SDK: " + inputFilePath);
+                logToFile("Processing map with SDK: " + inputFilePath);
+                
+                // Validate input file exists
+                File inputFile = new File(inputFilePath);
+                if (!inputFile.exists()) {
+                    String errorMsg = "Input STCM file not found: " + inputFilePath;
+                    Log.e(TAG, errorMsg);
+                    logToFile(errorMsg);
+                    throw new Exception(errorMsg);
+                }
+                
+                logToFile("Input file exists: " + inputFile.exists() + ", size: " + inputFile.length() + " bytes");
+                
+                // Use the SDK's CompositeMapHelper to load the map
+                try {
+                    CompositeMapHelper mapHelper = new CompositeMapHelper();
+                    if (mapHelper == null) {
+                        throw new Exception("Failed to create CompositeMapHelper");
+                    }
+                    
+                    // Load the map from file
+                    Log.d(TAG, "Loading map from: " + inputFilePath);
+                    logToFile("Loading map from: " + inputFilePath);
+                    
+                    CompositeMap map = mapHelper.loadFile(inputFilePath);
+                    if (map == null) {
+                        String errorMsg = "Failed to load map from file";
+                        Log.e(TAG, errorMsg);
+                        logToFile(errorMsg);
+                        throw new Exception(errorMsg);
+                    }
+                    
+                    Log.d(TAG, "Map loaded successfully with SDK");
+                    logToFile("Map loaded successfully with SDK");
+                    
+                    // Connect to the robot platform using SDK
+                    Log.d(TAG, "Connecting to robot at " + SLAM_IP + ":" + SLAM_PORT);
+                    logToFile("Connecting to robot at " + SLAM_IP + ":" + SLAM_PORT);
+                    
+                    try {
+                        platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                        
+                        if (platform != null) {
+                            try {
+                                // Clear existing map using SDK
+                                Log.d(TAG, "Clearing existing map using SDK");
+                                logToFile("Clearing existing map using SDK");
+                                platform.clearMap();
+                                Log.d(TAG, "Map cleared successfully with SDK");
+                                logToFile("Map cleared successfully with SDK");
+                                
+                                // Upload the loaded map to the platform - use an empty pose to avoid null issue
+                                Log.d(TAG, "Uploading map to platform");
+                                logToFile("Uploading map to platform");
+                                
+                                // Explicitly create a zero pose to avoid null issues
+                                com.slamtec.slamware.robot.Pose initialPose = null;
+                                try {
+                                    // Get initial_pose from config.yaml
+                                    double[] initialPoseConfig = configManager.getDoubleArray("initial_pose");
+                                    
+                                    if (initialPoseConfig != null && initialPoseConfig.length >= 6) {
+                                        // Create pose from config initial_pose values
+                                        initialPose = new com.slamtec.slamware.robot.Pose();
+                                        initialPose.setX((float)initialPoseConfig[0]);
+                                        initialPose.setY((float)initialPoseConfig[1]);
+                                        initialPose.setZ((float)initialPoseConfig[2]);
+                                        initialPose.setYaw((float)initialPoseConfig[3]);
+                                        initialPose.setPitch((float)initialPoseConfig[4]);
+                                        initialPose.setRoll((float)initialPoseConfig[5]);
+                                        
+                                        Log.d(TAG, "Created initial pose from config: [" + 
+                                              initialPoseConfig[0] + ", " + 
+                                              initialPoseConfig[1] + ", " + 
+                                              initialPoseConfig[2] + ", " + 
+                                              initialPoseConfig[3] + ", " + 
+                                              initialPoseConfig[4] + ", " + 
+                                              initialPoseConfig[5] + "]");
+                                        logToFile("Created initial pose from config: [" + 
+                                                 initialPoseConfig[0] + ", " + 
+                                                 initialPoseConfig[1] + ", " + 
+                                                 initialPoseConfig[2] + ", " + 
+                                                 initialPoseConfig[3] + ", " + 
+                                                 initialPoseConfig[4] + ", " + 
+                                                 initialPoseConfig[5] + "]");
+                                    } else {
+                                        // Fall back to default pose if config values aren't available
+                                        Log.d(TAG, "No valid initial_pose in config, using default zero pose");
+                                        logToFile("No valid initial_pose in config, using default zero pose");
+                                        initialPose = new com.slamtec.slamware.robot.Pose();
+                                    }
+                                    
+                                    Log.d(TAG, "Created initial pose object successfully");
+                                    logToFile("Created initial pose object successfully");
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error creating pose object: " + e.getMessage(), e);
+                                    logToFile("Error creating pose object: " + e.getMessage());
+                                    // Continue with null pose - setCompositeMap should handle it
+                                }
+                                
+                                // Set the map with the pose (which may be null, but the SDK should handle this)
+                                platform.setCompositeMap(map, initialPose);
+                                Log.d(TAG, "Map uploaded successfully to platform");
+                                logToFile("Map uploaded successfully to platform");
+                                
+                                // Return success
+                                WritableMap response = Arguments.createMap();
+                                response.putBoolean("success", true);
+                                response.putString("mapPath", inputFilePath);
+                                mainHandler.post(() -> promise.resolve(response));
+                            } catch (Exception e) {
+                                String errorMsg = "Error during map operations: " + e.getMessage();
+                                Log.e(TAG, errorMsg, e);
+                                logToFile(errorMsg);
+                                throw e;
+                            }
+                        } else {
+                            String errorMsg = "Failed to connect to platform (null return)";
+                            Log.e(TAG, errorMsg);
+                            logToFile(errorMsg);
+                            throw new Exception(errorMsg);
+                        }
+                    } catch (Exception e) {
+                        String errorMsg = "Error connecting to robot: " + e.getMessage();
+                        Log.e(TAG, errorMsg, e);
+                        logToFile(errorMsg);
+                        throw e;
+                    }
+                } catch (Exception e) {
+                    String errorMsg = "Error in map processing: " + e.getMessage();
+                    Log.e(TAG, errorMsg, e);
+                    logToFile(errorMsg);
+                    throw e;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error processing map with SDK: " + e.getMessage(), e);
+                logToFile("Error processing map with SDK: " + e.getMessage());
+                mainHandler.post(() -> promise.reject("MAP_PROCESS_SDK_ERROR", "Error processing map with SDK: " + e.getMessage()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getCurrentPoseSdk(Promise promise) {
+        executorService.execute(() -> {
+            try {
+                SlamwareSdpPlatform platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                if (platform != null) {
+                    Pose pose = platform.getPose();
+                    WritableMap response = Arguments.createMap();
+                    response.putDouble("x", pose.getX());
+                    response.putDouble("y", pose.getY());
+                    response.putDouble("z", pose.getZ());
+                    response.putDouble("yaw", pose.getYaw());
+                    response.putDouble("pitch", pose.getPitch());
+                    response.putDouble("roll", pose.getRoll());
+                    mainHandler.post(() -> promise.resolve(response));
+                } else {
+                    mainHandler.post(() -> promise.reject("POSE_ERROR", "Failed to connect to platform"));
+                }
+            } catch (Exception e) {
+                mainHandler.post(() -> promise.reject("POSE_ERROR", "Error getting pose: " + e.getMessage()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setPoseSdk(double x, double y, double z, double yaw, double pitch, double roll, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                SlamwareSdpPlatform platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                if (platform != null) {
+                    Pose pose = new Pose();
+                    pose.setX((float)x);
+                    pose.setY((float)y);
+                    pose.setZ((float)z);
+                    pose.setYaw((float)yaw);
+                    pose.setPitch((float)pitch);
+                    pose.setRoll((float)roll);
+                    platform.setPose(pose);
+                    mainHandler.post(() -> promise.resolve(true));
+                } else {
+                    mainHandler.post(() -> promise.reject("POSE_ERROR", "Failed to connect to platform"));
+                }
+            } catch (Exception e) {
+                mainHandler.post(() -> promise.reject("POSE_ERROR", "Error setting pose: " + e.getMessage()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void clearMapSdk(Promise promise) {
+        executorService.execute(() -> {
+            try {
+                SlamwareSdpPlatform platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                if (platform != null) {
+                    platform.clearMap();
+                    mainHandler.post(() -> promise.resolve(true));
+                } else {
+                    mainHandler.post(() -> promise.reject("MAP_ERROR", "Failed to connect to platform"));
+                }
+            } catch (Exception e) {
+                mainHandler.post(() -> promise.reject("MAP_ERROR", "Error clearing map: " + e.getMessage()));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void uploadMapSdk(String filePath, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    throw new Exception("Map file does not exist");
+                }
+
+                CompositeMapHelper mapHelper = new CompositeMapHelper();
+                CompositeMap map = mapHelper.loadFile(filePath);
+                if (map == null) {
+                    throw new Exception("Failed to load map from file");
+                }
+
+                platform = SlamwareSdpPlatform.connect(SLAM_IP, SLAM_PORT);
+                if (platform != null) {
+                    platform.clearMap();
+                    platform.setCompositeMap(map, null);
+                    mainHandler.post(() -> promise.resolve(true));
+                } else {
+                    throw new Exception("Failed to connect to platform");
+                }
+            } catch (Exception e) {
+                mainHandler.post(() -> promise.reject("MAP_ERROR", "Error uploading map: " + e.getMessage()));
             }
         });
     }
