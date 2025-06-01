@@ -1,0 +1,149 @@
+2025-06-01T11:59:41.360Z: === New Debug Session Started ===
+2025-06-01T11:59:41.364Z: App Version: unknown
+2025-06-01T11:59:41.368Z: Starting app initialization...
+2025-06-01T11:59:41.372Z: Initializing PadbotModule...
+2025-06-01T11:59:41.390Z: [DEBUG] PadbotUtils.initialize() returned: true
+2025-06-01T11:59:41.395Z: PadbotModule initialized successfully
+2025-06-01T11:59:41.404Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:42.428Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:43.413Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:44.417Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:45.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:46.424Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:47.410Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:48.414Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:49.418Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:50.422Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:51.425Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:52.412Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:53.416Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:54.420Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:55.423Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:56.410Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:57.414Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:58.418Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T11:59:59.422Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:00.408Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:01.412Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:02.416Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:03.420Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:04.424Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:05.409Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:06.414Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:07.418Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:08.423Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:09.427Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:10.412Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:11.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+2025-06-01T12:00:12.673Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:13.417Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:14.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:15.425Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:16.076Z: Starting battery monitoring...
+2025-06-01T12:00:16.077Z: Patrol state changed to: inactive
+2025-06-01T12:00:16.080Z: MainScreen mounted. Promotion state: active=false, cancelled=false, currentPointIndex=0, remountFromConfig=false
+2025-06-01T12:00:16.081Z: Performing initial token validation
+2025-06-01T12:00:16.083Z: Polling for robot call data...
+2025-06-01T12:00:16.084Z: Started robot call polling
+2025-06-01T12:00:16.086Z: Navigation state changed to: IDLE
+2025-06-01T12:00:16.087Z: Navigation status updated to: IDLE
+2025-06-01T12:00:16.088Z: Performing initial health check in MainScreen...
+2025-06-01T12:00:16.089Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-01T12:00:16.090Z: Performing initial health check in MainScreen...
+2025-06-01T12:00:16.094Z: App state changed from active to active
+2025-06-01T12:00:16.095Z: App state changed from active to active
+2025-06-01T12:00:16.097Z: Battery monitoring initialized successfully
+2025-06-01T12:00:16.098Z: validateToken called (force=true)
+2025-06-01T12:00:16.099Z: Proactively validating authentication token
+2025-06-01T12:00:16.114Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-01T12:00:16.115Z: [POSE POLLING] Wait-for-completion polling started
+2025-06-01T12:00:16.122Z: No patrol points configuration found
+2025-06-01T12:00:16.146Z: [BATTERY] Battery status update event received
+2025-06-01T12:00:16.159Z: Polling stopped in IDLE state
+[2025-06-01 20:00:16.179] Starting token validation...
+2025-06-01T12:00:16.163Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-01T12:00:16.184Z: [POSE POLLING] Auto-stopped polling - not in NAVIGATING/PATROL state
+[2025-06-01 20:00:16.187] Domain info from storage: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","created_at":"2024-02-02T00:35:47.24977Z","updated_at":"2025-05-02T06:00:55.444308Z","claimed_by_kazm_id":null,"owner_wallet_address":"","access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOlsiZG9tYWluOnJ3Il0sImRvbWFpbl9pZCI6IjgwOTNmOWJmLWMzNzQtNDE2Mi1hYjc0LWFiNjE5NDk2MjdmMSIsIm9yZyI6ImNiYWM0MGVmLTc0NTItNDA4ZS04MTdiLWFmZDRlOTEzYWQwYyIsInR5cGUiOiJ1c2VyLWFjY2VzcyIsImlzcyI6ImRkcyIsInN1YiI6IjNlMDNlMjk4LWY0NzEtNDk4Ni05YjEwLTgzOTlmMzUzMDYyMCIsImF1ZCI6WyJkZHMiLCJodHRwczovL2RvbWFpbi1zZXJ2ZXItdXMtZWFzdC0xLmF1a2l2ZXJzZS5jb20iXSwiZXhwIjoxNzQ4NzgyNDY1LCJpYXQiOjE3NDg3Nzg4NjV9.ZEsUi4vDCKmKYvtTG8Fe2uwAywDg6CUGOri75Eh0S39_O6kj-6_vyXHSdZHtWamR82iqR8XIRa9Xl0QC_R3Mqw","domain_server":{"id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","organization_id":"00000000-0000-0000-0000-000000000001","name":"node-c1349ff69a9f4d46a6b","url":"https://domain-server-us-east-1.aukiverse.com","version":"v0.5.37","status":"online","created_at":"2024-01-18T09:08:31.358792Z","updated_at":"2025-05-26T09:17:22.865415Z","redirect_url":null,"mode":"public","variants":["auki"],"description":"","staking_status":"Staked","ip":"52.45.94.183","latitude":37.751,"longitude":-97.822,"asn":16509,"h3_cell_index":"8226e7fffffffff","cloud_region":""}}
+[2025-06-01 20:00:16.198] Re-authenticating with email: phil+aukilabs@aukilabs.com, domainId: 8093f9bf-c374-4162-ab74-ab61949627f1
+[2025-06-01 20:00:16.202] Posemesh user login URL: https://api.auki.network/user/login
+2025-06-01T12:00:16.409Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:17.128Z: Initial health check response: {
+  "deviceFound": false,
+  "slamApiAvailable": false,
+  "status": "Cannot connect to robot",
+  "error": "Connection error: timeout"
+}
+2025-06-01T12:00:17.129Z: Initial health check successful
+2025-06-01T12:00:17.135Z: Initial health check response: {
+  "deviceFound": false,
+  "slamApiAvailable": false,
+  "status": "Cannot connect to robot",
+  "error": "Connection error: timeout"
+}
+2025-06-01T12:00:17.135Z: Initial health check failed: Robot not ready
+[2025-06-01 20:00:17.186] Posemesh user login response code: 200
+[2025-06-01 20:00:17.194] Posemesh user login response: {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaXNzIjoiYXBpIiwic3ViIjoiM2UwM2UyOTgtZjQ3MS00OTg2LTliMTAtODM5OWYzNTMwNjIwIiwiYXVkIjpbImFwaSJdLCJleHAiOjE3NDg3ODI4MjIsImlhdC...
+[2025-06-01 20:00:17.201] Posemesh token received (first 10 chars): eyJhbGciOi...
+[2025-06-01 20:00:17.206] DDS authentication URL: https://api.auki.network/service/domains-access-token
+2025-06-01T12:00:17.260Z: [POSE POLLING] Polling loop exited
+2025-06-01T12:00:17.276Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:17.326Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-01T12:00:17.416Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+[2025-06-01 20:00:17.909] DDS authentication response code: 200
+[2025-06-01 20:00:17.922] DDS authentication response: {"access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmciOiJjYmFjNDBlZi03NDUyLTQwOGUtODE3Yi1hZmQ0ZTkxM2FkMGMiLCJ0eXBlIjoidXNlci1hY2Nlc3MiLCJpc3MiOiJhcGkiLCJzdWIiOiIzZTAzZTI5OC1mNDcxLTQ5ODYtOWIxMC04Mzk5ZjM1MzA2MjAiLCJhdWQiOlsiZG9tYWluLXNlcnZpY2UiXSwiZXhwIjoxNzQ4NzgyODIzLCJpYXQiOjE3NDg3NzkyMjMsImp0aSI6IjRmMmZhYzc3LWRjYzUtNDBiNi04OGU3LTg1ZjYwZjg5ZWYyMiJ9.xLcBnEdM3CqY1e4iv05h75tLHLk3tZdjPdnI-EHFa1brQnCE_bjOnLlp5o_o779zDMpbz_7Re0XY4w4ZFSQarA"}
+[2025-06-01 20:00:17.941] DDS token received (first 10 chars): eyJhbGciOi...
+[2025-06-01 20:00:17.957] Domain authentication URL: https://dds.auki.network/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/auth
+2025-06-01T12:00:18.419Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+[2025-06-01 20:00:18.704] Domain authentication response code: 200
+[2025-06-01 20:00:18.718] Domain authentication response: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc...
+[2025-06-01 20:00:18.726] Updated domain info after token validation
+[2025-06-01 20:00:18.735] Token validation successful via re-authentication
+2025-06-01T12:00:18.740Z: Token validation successful: {"message":"Token is valid","valid":true}
+2025-06-01T12:00:19.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:20.408Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:21.089Z: Polling for robot call data...
+2025-06-01T12:00:21.413Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:22.069Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:22.416Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:23.419Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:24.424Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:25.419Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:26.090Z: Polling for robot call data...
+2025-06-01T12:00:26.413Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:26.698Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:27.417Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:28.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:29.426Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:30.411Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:31.091Z: Polling for robot call data...
+2025-06-01T12:00:31.415Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:32.093Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:32.419Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:33.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:34.407Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:35.410Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:36.093Z: Polling for robot call data...
+2025-06-01T12:00:36.417Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:37.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:37.568Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:38.424Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:39.410Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:40.414Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:41.095Z: Polling for robot call data...
+2025-06-01T12:00:41.418Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:42.421Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:42.592Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:43.425Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:44.411Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:45.415Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:46.095Z: Polling for robot call data...
+2025-06-01T12:00:46.177Z: [BATTERY] Battery status update event received
+2025-06-01T12:00:46.419Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:47.042Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-01T12:00:47.213Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-01T12:00:47.423Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:48.409Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T12:00:49.413Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}

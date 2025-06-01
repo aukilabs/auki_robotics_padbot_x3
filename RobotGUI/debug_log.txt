@@ -1,0 +1,50 @@
+2025-06-01T13:16:42.493Z: === New Debug Session Started ===
+2025-06-01T13:16:42.504Z: App Version: unknown
+2025-06-01T13:16:42.520Z: Starting app initialization...
+2025-06-01T13:16:42.525Z: Initializing PadbotModule...
+2025-06-01T13:16:42.564Z: [DEBUG] PadbotUtils.initialize() returned: true
+2025-06-01T13:16:42.580Z: PadbotModule initialized successfully
+2025-06-01T13:16:42.586Z: Waiting for robot to be docked (charging state)...
+2025-06-01T13:16:42.595Z: Showing remove from dock dialog
+2025-06-01T13:17:33.224Z: Received valid battery status: {"charging":false,"percentage":95}
+2025-06-01T13:17:38.717Z: Robot successfully docked (charging state true)
+2025-06-01T13:17:38.829Z: Robot successfully docked (charging state true)
+2025-06-01T13:17:38.878Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":false,"percentage":95}
+2025-06-01T13:17:38.886Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T13:17:38.893Z: [DEBUG] Before Slamtec SDK test
+2025-06-01T13:17:38.901Z: [DEBUG] Testing Slamtec SDK connection...
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+2025-06-01T13:17:38.986Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
+2025-06-01T13:17:38.990Z: [DEBUG] Slamtec SDK connection successful
+2025-06-01T13:17:38.993Z: [DEBUG] After Slamtec SDK test
+[2025-06-01 21:17:39.014] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-01 21:17:39.023] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-01T13:17:39.038Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-01T13:17:39.044Z: Attempting authentication...
+2025-06-01T13:17:39.051Z: Authentication attempt 1/3
+2025-06-01T13:17:41.271Z: Authentication successful
+2025-06-01T13:17:41.278Z: Checking for existing robot pose data ID...
+[2025-06-01 21:17:41.277] Authentication successful, initiating map download...
+[2025-06-01 21:17:41.291] Starting downloadMapAfterAuth process
+[2025-06-01 21:17:41.291] Getting robot pose data ID
+[2025-06-01 21:17:41.303] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-01 21:17:41.310] Checking for existing pose data with deviceId: padbot-50411cf0f5b8
+[2025-06-01 21:17:41.311] Using map endpoint: https://dsc.dev.aukiverse.com/spatial/crosssection
+[2025-06-01 21:17:41.315] Fetching data from: https://domain-server-us-east-1.aukiverse.com/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/data?name=padbot-50411cf0f5b8&data_type=reported_pose_json
+[2025-06-01 21:17:41.319] Sending map request: {"domainId":"8093f9bf-c374-4162-ab74-ab61949627f1","domainServerUrl":"https:\/\/domain-server-us-east-1.aukiverse.com","height":0.1,"fileType":"stcm","pixelsPerMeter":20}
+[2025-06-01 21:17:41.327] Executing map download request
+[2025-06-01 21:17:42.265] Get response: {"data":[{"id":"206555c8-8ca6-4ec0-bdfc-1a8ab18524eb","domain_id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"padbot-50411cf0f5b8","data_type":"reported_pose_json","size":16,"created_at":"2025-05-31T07:58:24.296681Z","updated_at":"2025-05-31T07:58:24.296681Z"}]}
+[2025-06-01 21:17:42.273] Found existing pose data with ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-01T13:17:42.277Z: Found existing robot pose data ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+[2025-06-01 21:17:43.698] Response content type: multipart/form-data; boundary=----5433094953020436500990380502
+[2025-06-01 21:17:43.790] Processing multipart/form-data response
+[2025-06-01 21:17:43.794] Found boundary: ------5433094953020436500990380502
+[2025-06-01 21:17:43.800] Split response into 4 parts
+[2025-06-01 21:17:43.805] Found img part in multipart response
+[2025-06-01 21:17:43.810] Extracted base64 data of length: 459868
+[2025-06-01 21:17:43.840] Successfully decoded 459868 bytes of base64 data to 344901 bytes of binary STCM data
+[2025-06-01 21:17:43.846] STCM map saved to: /storage/emulated/0/Download/GoTu/map.stcm
+[2025-06-01 21:17:43.850] Using SLAM API base URL: http://192.168.11.1:1445
+[2025-06-01 21:17:43.854] Clearing old POIs and map data

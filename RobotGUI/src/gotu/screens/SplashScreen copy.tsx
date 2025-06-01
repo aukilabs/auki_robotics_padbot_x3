@@ -35,6 +35,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let pollInterval: NodeJS.Timeout;
     let isMounted = true;
 
     const checkDockStatus = async () => {
@@ -73,7 +74,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
     };
 
     const waitForCharging = async (): Promise<BatteryStatus> => {
-      setLoadingText('Initialising robot base...');
+      setLoadingText('Waiting for robot to be docked...');
       await LogUtils.writeDebugToFile('Waiting for robot to be docked (charging state)...');
 
       // First show the "Remove from dock" dialog
@@ -94,7 +95,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             setShowDockDialog(true);
             setIsDocked(false);
           }
-        }) as EmitterSubscription;
+        });
 
         chargingSubscription = PadbotUtils.addChargingListener((info: { isCharging: boolean }) => {
           if (info.isCharging) {
@@ -103,7 +104,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             setIsDocked(true);
             LogUtils.writeDebugToFile('Robot successfully docked (charging state true)');
           }
-        }) as EmitterSubscription;
+        });
 
         await new Promise<void>((resolve, reject) => {
           const timeout = setTimeout(() => {
@@ -125,6 +126,31 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       } finally {
         if (batterySubscription) batterySubscription.remove();
         if (chargingSubscription) chargingSubscription.remove();
+      }
+    };
+
+    const waitForDock = async () => {
+      setLoadingText('Checking docking status...');
+      await LogUtils.writeDebugToFile('Checking robot docking status...');
+      
+      let docked = await checkDockStatus();
+      if (!docked) {
+        await LogUtils.writeDebugToFile('Robot not docked, waiting for docking...');
+        pollInterval = setInterval(async () => {
+          docked = await checkDockStatus();
+          if (docked) {
+            await LogUtils.writeDebugToFile('Robot successfully docked');
+            clearInterval(pollInterval);
+            // After docked, check credentials
+            const credsOk = await checkCredentials();
+            if (credsOk) initialize();
+          }
+        }, 5000);
+      } else {
+        await LogUtils.writeDebugToFile('Robot already docked');
+        // After docked, check credentials
+        const credsOk = await checkCredentials();
+        if (credsOk) initialize();
       }
     };
 
@@ -375,213 +401,68 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
               typeof name === 'string' && name.length > 0
             );
             await LogUtils.writeDebugToFile(`Valid POI names: ${JSON.stringify(validPoiNames)}`);
-            
-            // Check for mismatches
-            const extraPOIs = validPoiNames.filter((name: string) => 
-              !formattedPoints.find((cp: { name: string }) => cp.name === name)
-            );
-            const missingPoints = formattedPoints.filter((cp: { name: string }) => 
-              !validPoiNames.includes(cp.name)
-            );
-            
-            if (extraPOIs.length > 0 || missingPoints.length > 0) {
-              let errorMsg = '';
-              if (extraPOIs.length > 0) {
-                errorMsg += `Unexpected POIs found: ${extraPOIs.join(', ')}\n`;
-              }
-              if (missingPoints.length > 0) {
-                errorMsg += `Missing waypoints: ${missingPoints.map((p: { name: string }) => p.name).join(', ')}`;
-              }
-              await LogUtils.writeDebugToFile(`POI validation error: ${errorMsg}`);
-              
-              // Clear and reinitialize POIs
-              await LogUtils.writeDebugToFile('Clearing and reinitializing POIs...');
-              if (isMounted) setLoadingText('Resetting waypoints...');
-              
-              await NativeModules.SlamtecUtils.clearAndInitializePOIs();
-              await LogUtils.writeDebugToFile('POIs have been reset and reinitialized');
-              
-              // Verify the POIs again
-              pois = await NativeModules.SlamtecUtils.getPOIs();
-              await LogUtils.writeDebugToFile(`POIs after reset: ${JSON.stringify(pois)}`);
-            } else {
-              await LogUtils.writeDebugToFile('POI validation successful - all points match config');
-            }
           }
-        } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          await LogUtils.writeDebugToFile(`Waypoint validation error: ${errorMessage}`);
-          if (isMounted) {
-            setLoadingText(`Error validating waypoints: ${errorMessage}`);
-            // Keep error visible for 5 seconds
-            await new Promise(resolve => setTimeout(resolve, 5000));
-          }
+        } catch (waypointError: any) {
+          await LogUtils.writeDebugToFile(`Error validating waypoints: ${waypointError.message}`);
         }
         */
-         
-        // Load items from Gotu endpoint
-        if (isMounted) {
-          setLoadingText('Loading items...');
-          await LogUtils.writeDebugToFile('Loading Gotu items...');
-        }
-        
-        try {
-          const products = await NativeModules.GotuUtils.getItems();
-          const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name));
-          await LogUtils.writeDebugToFile(`Loaded ${products.length} items`);
 
-          if (isMounted) {
-            // Add a short delay before transition
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await LogUtils.writeDebugToFile('Initialization complete, transitioning to main screen...');
-            
-            // Create fade-out animation
-            Animated.timing(opacity, {
-              toValue: 0,
-              duration: 500,
-              easing: Easing.out(Easing.cubic),
-              useNativeDriver: true,
-            }).start(() => {
-              onFinish(sortedProducts);
-            });
-          }
-        } catch (itemsError: any) {
-          await LogUtils.writeDebugToFile(`Error loading items: ${itemsError.message}`);
-          if (isMounted) {
-            setLoadingText('Error loading items. Please restart the application.');
-            setTimeout(() => {
-              if (isMounted) {
-                Animated.timing(opacity, {
-                  toValue: 0,
-                  duration: 500,
-                  easing: Easing.out(Easing.cubic),
-                  useNativeDriver: true,
-                }).start(() => {
-                  onFinish([], { goToConfig: true });
-                });
-              }
-            }, 2000);
-          }
+        // Clean up
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        if (pollInterval) {
+          clearInterval(pollInterval);
         }
       } catch (error: any) {
+        console.log('Error during initialization:', error);
+        await LogUtils.writeDebugToFile(`Error during initialization: ${error.message}`);
         if (isMounted) {
-          const errorMessage = error.message || 'Error during initialization';
-          await LogUtils.writeDebugToFile(`Error during initialization: ${errorMessage}`);
-          console.error('Error during initialization:', error);
-          setLoadingText(errorMessage);
-          // Still finish after error, but with empty products
-          setTimeout(() => {
-            if (isMounted) {
-              Animated.timing(opacity, {
-                toValue: 0,
-                duration: 500,
-                easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
-              }).start(() => {
-                onFinish([], { goToConfig: true });
-              });
-            }
-          }, 2000);
+          setLoadingText('Initialization failed');
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 500,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }).start(() => {
+            onFinish([], { goToConfig: true });
+          });
         }
       }
     };
 
-    // Comment out waitForDock since we don't need to check docking status
-    // waitForDock();
-
-    // Start initialization immediately
+    // Start initialization
     initialize();
-
-    timeoutId = setTimeout(() => {
-      if (isMounted) {
-        setLoadingText('Loading timeout reached');
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 500,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }).start(() => {
-          onFinish([], { goToConfig: true });
-        });
-      }
-    }, 30000);
-
-    // DEBUG: Log all available PadbotUtils and PadbotModule methods at startup
-    (async () => {
-      try {
-        const initResult = await PadbotUtils.initialize();
-        // Add a small delay after initialization
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const batteryStatus = await PadbotUtils.getBatteryStatus();
-        const isCharging = await PadbotUtils.isCharging();
-        
-        console.log('[PadbotUtils] initialize:', initResult);
-        console.log('[PadbotUtils] getBatteryStatus:', batteryStatus);
-        console.log('[PadbotUtils] isCharging:', isCharging);
-        LogUtils.writeDebugToFile(`[PadbotUtils] initialize: ${JSON.stringify(initResult)}`);
-        LogUtils.writeDebugToFile(`[PadbotUtils] getBatteryStatus: ${JSON.stringify(batteryStatus)}`);
-        LogUtils.writeDebugToFile(`[PadbotUtils] isCharging: ${JSON.stringify(isCharging)}`);
-        
-        // Try to enumerate and call any extra methods on PadbotModule
-        const padbotModule = NativeModules.PadbotModule;
-        if (padbotModule) {
-          Object.keys(padbotModule).forEach(async (key) => {
-            try {
-              const result = typeof padbotModule[key] === 'function' ? await padbotModule[key]() : padbotModule[key];
-              console.log(`[PadbotModule] ${key}:`, result);
-              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: ${JSON.stringify(result)}`);
-            } catch (e) {
-              console.log(`[PadbotModule] ${key}: error`, e);
-              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: error ${e}`);
-            }
-          });
-        }
-      } catch (e) {
-        console.log('[PadbotUtils] Debug block error:', e);
-        LogUtils.writeDebugToFile(`[PadbotUtils] Debug block error: ${e}`);
-      }
-    })();
 
     return () => {
       isMounted = false;
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
     };
-  }, [opacity, onFinish]);
+  }, [onFinish]);
 
   return (
-    <View style={styles.background}>
-      <Animated.View style={[styles.container, { opacity }]}>
-        <View style={styles.contentContainer}>
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('../assets/AppIcon_Gotu.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.welcomeText}>
-            Welcome to{'\n'}Gotu
-          </Text>
-          <Text style={styles.loadingText}>{loadingText}</Text>
-        </View>
+    <View style={styles.container}>
+      <Animated.View style={[styles.content, { opacity }]}>
+        <Image
+          source={require('../assets/AppIcon_Gotu.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.loadingText}>{loadingText}</Text>
       </Animated.View>
-      <Modal
-        visible={showDockDialog}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {}}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Please return the robot to its docking station.</Text>
-          </View>
-        </View>
-      </Modal>
+
+      {/* Remove from dock dialog */}
       <Modal
         visible={showRemoveDockDialog}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => {}}>
-        <View style={styles.modalOverlay}>
+      >
+        <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>Remove the robot from the dock</Text>
             <TouchableOpacity
@@ -593,70 +474,67 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           </View>
         </View>
       </Modal>
+
+      {/* Return to dock dialog */}
+      <Modal
+        visible={showDockDialog}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Return the robot to the dock</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  contentContainer: {
-    padding: 30,
-    alignItems: 'center',
-    width: '80%',
-  },
-  logoContainer: {
-    width: 200,
-    height: 200,
-    justifyContent: 'center',
+  content: {
     alignItems: 'center',
   },
   logo: {
-    width: '100%',
-    height: '100%',
-  },
-  welcomeText: {
-    color: '#101010',
-    fontSize: 36,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 20,
+    width: 200,
+    height: 200,
+    marginBottom: 20,
   },
   loadingText: {
-    color: '#2670F8',
-    fontSize: 24,
+    fontSize: 18,
+    color: '#333333',
     textAlign: 'center',
   },
-  modalOverlay: {
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: 'white',
-    padding: 30,
+    backgroundColor: '#FFFFFF',
+    padding: 20,
     borderRadius: 10,
     alignItems: 'center',
+    width: '80%',
   },
   modalText: {
-    fontSize: 22,
-    color: '#101010',
+    fontSize: 18,
+    color: '#333333',
     textAlign: 'center',
+    marginBottom: 20,
   },
   modalButton: {
-    backgroundColor: '#2670F8',
+    backgroundColor: '#007AFF',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
-    marginTop: 15,
   },
   modalButtonText: {
     color: '#FFFFFF',
@@ -665,4 +543,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SplashScreen; 
+export default SplashScreen;
