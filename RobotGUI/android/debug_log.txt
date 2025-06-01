@@ -1,113 +1,69 @@
-2025-06-01T11:36:34.893Z: === New Debug Session Started ===
-2025-06-01T11:36:34.902Z: App Version: unknown
-2025-06-01T11:36:34.907Z: Starting app initialization...
-2025-06-01T11:36:34.911Z: Initializing PadbotModule...
-2025-06-01T11:36:34.920Z: [DEBUG] PadbotUtils.initialize() returned: true
-2025-06-01T11:36:34.924Z: PadbotModule initialized successfully
-2025-06-01T11:36:34.929Z: [DEBUG] Initial battery status: {"charging":false,"isInitialValue":true,"percentage":-1}
-2025-06-01T11:36:34.932Z: [DEBUG] Before Slamtec SDK test
-2025-06-01T11:36:34.936Z: [DEBUG] Testing Slamtec SDK connection...
+2025-06-01T13:44:04.826Z: === New Debug Session Started ===
+2025-06-01T13:44:04.835Z: App Version: unknown
+2025-06-01T13:44:04.842Z: Starting app initialization...
+2025-06-01T13:44:04.855Z: Initializing PadbotModule...
+2025-06-01T13:44:04.868Z: [DEBUG] PadbotUtils.initialize() returned: true
+2025-06-01T13:44:04.879Z: PadbotModule initialized successfully
+2025-06-01T13:44:04.885Z: Waiting for robot to be docked (charging state)...
+2025-06-01T13:44:04.900Z: Showing remove from dock dialog
+2025-06-01T13:44:05.348Z: [PadbotUtils] initialize: true
+2025-06-01T13:44:05.349Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
+2025-06-01T13:44:05.351Z: [PadbotUtils] isCharging: false
+2025-06-01T13:44:05.358Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T13:44:05.376Z: [PadbotModule] initialize: true
+2025-06-01T13:44:05.378Z: [PadbotModule] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
+2025-06-01T13:44:05.380Z: [PadbotModule] isCharging: false
+2025-06-01T13:44:07.337Z: Received valid battery status: {"charging":false,"percentage":97}
+2025-06-01T13:44:11.388Z: Robot successfully docked (charging state true)
+2025-06-01T13:44:11.496Z: Robot successfully docked (charging state true)
+2025-06-01T13:44:11.631Z: Robot successfully docked (charging state true)
+2025-06-01T13:44:11.737Z: Robot successfully docked (charging state true)
+2025-06-01T13:44:12.031Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":false,"percentage":97}
+2025-06-01T13:44:12.045Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-01T13:44:12.055Z: [DEBUG] Before Slamtec SDK test
+2025-06-01T13:44:12.063Z: [DEBUG] Testing Slamtec SDK connection...
 SDK Health Check: Connection successful
 SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
 SDK Health Check: Final result - deviceFound: true
-2025-06-01T11:36:35.043Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
-2025-06-01T11:36:35.049Z: [DEBUG] Slamtec SDK connection successful
-2025-06-01T11:36:35.058Z: [DEBUG] After Slamtec SDK test
-[2025-06-01 19:36:35.105] Using existing stored device ID: padbot-50411cf0f5b8
-[2025-06-01 19:36:35.118] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
-2025-06-01T11:36:35.131Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
-2025-06-01T11:36:35.136Z: Attempting authentication...
-2025-06-01T11:36:35.143Z: Authentication attempt 1/3
-2025-06-01T11:36:35.412Z: [PadbotUtils] initialize: true
-2025-06-01T11:36:35.413Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
-2025-06-01T11:36:35.413Z: [PadbotUtils] isCharging: false
-2025-06-01T11:36:35.415Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
-2025-06-01T11:36:35.423Z: [PadbotModule] initialize: true
-2025-06-01T11:36:35.424Z: [PadbotModule] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
-2025-06-01T11:36:35.424Z: [PadbotModule] isCharging: false
-2025-06-01T11:36:37.206Z: Authentication successful
-[2025-06-01 19:36:37.212] Authentication successful, initiating map download...
-2025-06-01T11:36:37.213Z: Checking for existing robot pose data ID...
-[2025-06-01 19:36:37.226] Starting downloadMapAfterAuth process
-[2025-06-01 19:36:37.229] Getting robot pose data ID
-[2025-06-01 19:36:37.239] Using map endpoint: https://dsc.dev.aukiverse.com/spatial/crosssection
-[2025-06-01 19:36:37.242] Using existing stored device ID: padbot-50411cf0f5b8
-[2025-06-01 19:36:37.248] Sending map request: {"domainId":"8093f9bf-c374-4162-ab74-ab61949627f1","domainServerUrl":"https:\/\/domain-server-us-east-1.aukiverse.com","height":0.1,"fileType":"stcm","pixelsPerMeter":20}
-[2025-06-01 19:36:37.257] Executing map download request
-[2025-06-01 19:36:37.252] Checking for existing pose data with deviceId: padbot-50411cf0f5b8
-[2025-06-01 19:36:37.266] Fetching data from: https://domain-server-us-east-1.aukiverse.com/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/data?name=padbot-50411cf0f5b8&data_type=reported_pose_json
-[2025-06-01 19:36:38.197] Get response: {"data":[{"id":"206555c8-8ca6-4ec0-bdfc-1a8ab18524eb","domain_id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"padbot-50411cf0f5b8","data_type":"reported_pose_json","size":16,"created_at":"2025-05-31T07:58:24.296681Z","updated_at":"2025-05-31T07:58:24.296681Z"}]}
-[2025-06-01 19:36:38.205] Found existing pose data with ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
-2025-06-01T11:36:38.210Z: Found existing robot pose data ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
-2025-06-01T11:36:38.216Z: Loading Gotu items...
-2025-06-01T11:36:39.299Z: Loaded 41 items
-[2025-06-01 19:36:39.529] Response content type: multipart/form-data; boundary=----3014533380407187556523851623
-[2025-06-01 19:36:39.602] Processing multipart/form-data response
-[2025-06-01 19:36:39.606] Found boundary: ------3014533380407187556523851623
-[2025-06-01 19:36:39.614] Split response into 4 parts
-[2025-06-01 19:36:39.619] Found img part in multipart response
-[2025-06-01 19:36:39.627] Extracted base64 data of length: 459868
-[2025-06-01 19:36:39.659] Successfully decoded 459868 bytes of base64 data to 344901 bytes of binary STCM data
-[2025-06-01 19:36:39.666] STCM map saved to: /storage/emulated/0/Download/GoTu/map.stcm
-[2025-06-01 19:36:39.670] Using SLAM API base URL: http://192.168.11.1:1445
-[2025-06-01 19:36:39.674] Clearing old POIs and map data
-2025-06-01T11:36:40.323Z: Initialization complete, transitioning to main screen...
-2025-06-01T11:36:41.147Z: Starting battery monitoring...
-2025-06-01T11:36:41.147Z: Patrol state changed to: inactive
-2025-06-01T11:36:41.148Z: MainScreen mounted. Promotion state: active=false, cancelled=false, currentPointIndex=0, remountFromConfig=false
-2025-06-01T11:36:41.229Z: Performing initial token validation
-2025-06-01T11:36:41.230Z: Polling for robot call data...
-2025-06-01T11:36:41.231Z: Started robot call polling
-2025-06-01T11:36:41.231Z: Navigation state changed to: IDLE
-2025-06-01T11:36:41.232Z: Navigation status updated to: IDLE
-2025-06-01T11:36:41.232Z: Performing initial health check in MainScreen...
-2025-06-01T11:36:41.233Z: [POSE POLLING] Wait-for-completion polling stopped
-2025-06-01T11:36:41.233Z: Performing initial health check in MainScreen...
-2025-06-01T11:36:41.235Z: Battery monitoring initialized successfully
-2025-06-01T11:36:41.236Z: validateToken called (force=true)
-2025-06-01T11:36:41.236Z: Proactively validating authentication token
-2025-06-01T11:36:41.290Z: [POSE POLLING] Wait-for-completion polling stopped
-2025-06-01T11:36:41.290Z: [POSE POLLING] Wait-for-completion polling started
-2025-06-01T11:36:41.291Z: No patrol points configuration found
-2025-06-01T11:36:41.300Z: [BATTERY] Battery status update event received
-2025-06-01T11:36:41.307Z: Polling stopped in IDLE state
-[2025-06-01 19:36:41.323] Starting token validation...
-2025-06-01T11:36:41.311Z: [POSE POLLING] Wait-for-completion polling stopped
-2025-06-01T11:36:41.330Z: [POSE POLLING] Auto-stopped polling - not in NAVIGATING/PATROL state
-[2025-06-01 19:36:41.334] Domain info from storage: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","created_at":"2024-02-02T00:35:47.24977Z","updated_at":"2025-05-02T06:00:55.444308Z","claimed_by_kazm_id":null,"owner_wallet_address":"","access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOlsiZG9tYWluOnJ3Il0sImRvbWFpbl9pZCI6IjgwOTNmOWJmLWMzNzQtNDE2Mi1hYjc0LWFiNjE5NDk2MjdmMSIsIm9yZyI6ImNiYWM0MGVmLTc0NTItNDA4ZS04MTdiLWFmZDRlOTEzYWQwYyIsInR5cGUiOiJ1c2VyLWFjY2VzcyIsImlzcyI6ImRkcyIsInN1YiI6IjNlMDNlMjk4LWY0NzEtNDk4Ni05YjEwLTgzOTlmMzUzMDYyMCIsImF1ZCI6WyJkZHMiLCJodHRwczovL2RvbWFpbi1zZXJ2ZXItdXMtZWFzdC0xLmF1a2l2ZXJzZS5jb20iXSwiZXhwIjoxNzQ4NzgxNDAyLCJpYXQiOjE3NDg3Nzc4MDJ9.SXRd2OGXthJBVGciufJii14fpQE6DvmfhhqzqQ0qx2DdmMxIWYyG5QWtZOG18hawqRbrJvb3QgoI1NrP675OmQ","domain_server":{"id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","organization_id":"00000000-0000-0000-0000-000000000001","name":"node-c1349ff69a9f4d46a6b","url":"https://domain-server-us-east-1.aukiverse.com","version":"v0.5.37","status":"online","created_at":"2024-01-18T09:08:31.358792Z","updated_at":"2025-05-26T09:17:22.865415Z","redirect_url":null,"mode":"public","variants":["auki"],"description":"","staking_status":"Staked","ip":"52.45.94.183","latitude":37.751,"longitude":-97.822,"asn":16509,"h3_cell_index":"8226e7fffffffff","cloud_region":""}}
-[2025-06-01 19:36:41.342] Re-authenticating with email: phil+aukilabs@aukilabs.com, domainId: 8093f9bf-c374-4162-ab74-ab61949627f1
-[2025-06-01 19:36:41.348] Posemesh user login URL: https://api.auki.network/user/login
-2025-06-01T11:36:41.934Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-[2025-06-01 19:36:42.170] Posemesh user login response code: 200
-[2025-06-01 19:36:42.191] Posemesh user login response: {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaXNzIjoiYXBpIiwic3ViIjoiM2UwM2UyOTgtZjQ3MS00OTg2LTliMTAtODM5OWYzNTMwNjIwIiwiYXVkIjpbImFwaSJdLCJleHAiOjE3NDg3ODE0MDcsImlhdC...
-[2025-06-01 19:36:42.207] Posemesh token received (first 10 chars): eyJhbGciOi...
-[2025-06-01 19:36:42.220] DDS authentication URL: https://api.auki.network/service/domains-access-token
-2025-06-01T11:36:42.404Z: Initial health check response: {
-  "deviceFound": false,
-  "slamApiAvailable": false,
-  "status": "Cannot connect to robot",
-  "error": "Connection error: timeout"
-}
-2025-06-01T11:36:42.405Z: Initial health check successful
-2025-06-01T11:36:42.405Z: Initial health check response: {
-  "deviceFound": false,
-  "slamApiAvailable": false,
-  "status": "Cannot connect to robot",
-  "error": "Connection error: timeout"
-}
-2025-06-01T11:36:42.406Z: Initial health check failed: Robot not ready
-2025-06-01T11:36:42.410Z: Error checking power status: Error: Error getting power status: timeout
-2025-06-01T11:36:42.411Z: [POSE POLLING] Polling loop exited
-[2025-06-01 19:36:42.983] DDS authentication response code: 200
-[2025-06-01 19:36:42.992] DDS authentication response: {"access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmciOiJjYmFjNDBlZi03NDUyLTQwOGUtODE3Yi1hZmQ0ZTkxM2FkMGMiLCJ0eXBlIjoidXNlci1hY2Nlc3MiLCJpc3MiOiJhcGkiLCJzdWIiOiIzZTAzZTI5OC1mNDcxLTQ5ODYtOWIxMC04Mzk5ZjM1MzA2MjAiLCJhdWQiOlsiZG9tYWluLXNlcnZpY2UiXSwiZXhwIjoxNzQ4NzgxNDA4LCJpYXQiOjE3NDg3Nzc4MDgsImp0aSI6ImNkYTVlZDdkLTNjZWYtNDE0Zi05NTE5LWMyNzExMDk1YzEzYiJ9.S8N9NPRhf8LYmhjt2pjmBuNAfT7wsy8YAl2dQ5iOoPTM5xXy6jLCmflcTxjNg4G09GBQFtX5-WPTXU4VqkxMYg"}
-[2025-06-01 19:36:42.997] DDS token received (first 10 chars): eyJhbGciOi...
-[2025-06-01 19:36:43.002] Domain authentication URL: https://dds.auki.network/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/auth
-[2025-06-01 19:36:43.700] Domain authentication response code: 200
-[2025-06-01 19:36:43.713] Domain authentication response: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc...
-[2025-06-01 19:36:43.721] Updated domain info after token validation
-[2025-06-01 19:36:43.730] Token validation successful via re-authentication
-2025-06-01T11:36:43.734Z: Token validation successful: {"message":"Token is valid","valid":true}
-2025-06-01T11:36:46.238Z: Polling for robot call data...
-2025-06-01T11:36:47.287Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-2025-06-01T11:36:47.299Z: App state changed from active to background
-2025-06-01T11:36:47.299Z: App state changed from active to background
+2025-06-01T13:44:12.144Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
+2025-06-01T13:44:12.148Z: [DEBUG] Slamtec SDK connection successful
+2025-06-01T13:44:12.152Z: [DEBUG] After Slamtec SDK test
+[2025-06-01 21:44:12.174] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-01 21:44:12.180] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-01T13:44:12.184Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-01T13:44:12.194Z: Attempting authentication...
+2025-06-01T13:44:12.202Z: Authentication attempt 1/3
+2025-06-01T13:44:14.394Z: Authentication successful
+[2025-06-01 21:44:14.398] Authentication successful, initiating map download...
+2025-06-01T13:44:14.401Z: Checking for existing robot pose data ID...
+[2025-06-01 21:44:14.408] Starting downloadMapAfterAuth process
+[2025-06-01 21:44:14.416] Getting robot pose data ID
+[2025-06-01 21:44:14.417] Using map endpoint: https://dsc.dev.aukiverse.com/spatial/crosssection
+[2025-06-01 21:44:14.422] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-01 21:44:14.425] Sending map request: {"domainId":"8093f9bf-c374-4162-ab74-ab61949627f1","domainServerUrl":"https:\/\/domain-server-us-east-1.aukiverse.com","height":0.1,"fileType":"stcm","pixelsPerMeter":20}
+[2025-06-01 21:44:14.428] Checking for existing pose data with deviceId: padbot-50411cf0f5b8
+[2025-06-01 21:44:14.433] Fetching data from: https://domain-server-us-east-1.aukiverse.com/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/data?name=padbot-50411cf0f5b8&data_type=reported_pose_json
+[2025-06-01 21:44:14.435] Executing map download request
+[2025-06-01 21:44:15.267] Get response: {"data":[{"id":"206555c8-8ca6-4ec0-bdfc-1a8ab18524eb","domain_id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"padbot-50411cf0f5b8","data_type":"reported_pose_json","size":16,"created_at":"2025-05-31T07:58:24.296681Z","updated_at":"2025-05-31T07:58:24.296681Z"}]}
+[2025-06-01 21:44:15.274] Found existing pose data with ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-01T13:44:15.277Z: Found existing robot pose data ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-01T13:44:15.282Z: Updating map...
+[2025-06-01 21:44:16.620] Response content type: multipart/form-data; boundary=----9624789335015441332158509657
+[2025-06-01 21:44:16.653] Processing multipart/form-data response
+[2025-06-01 21:44:16.658] Found boundary: ------9624789335015441332158509657
+[2025-06-01 21:44:16.665] Split response into 4 parts
+[2025-06-01 21:44:16.670] Found img part in multipart response
+[2025-06-01 21:44:16.677] Extracted base64 data of length: 459868
+[2025-06-01 21:44:16.710] Successfully decoded 459868 bytes of base64 data to 344901 bytes of binary STCM data
+[2025-06-01 21:44:16.718] STCM map saved to: /storage/emulated/0/Download/GoTu/map.stcm
+[2025-06-01 21:44:16.723] Using SLAM API base URL: http://192.168.11.1:1445
+[2025-06-01 21:44:16.728] Clearing old POIs and map data
+2025-06-01T13:44:17.526Z: Map downloaded successfully: /storage/emulated/0/Download/GoTu/map.stcm
+Processing map with SDK: /storage/emulated/0/Download/GoTu/map.stcm
+Input file exists: true, size: 344901 bytes
+Loading map from: /storage/emulated/0/Download/GoTu/map.stcm
+Map loaded successfully with SDK
+Uploading map to platform
+No valid initial_pose in config, using default zero pose
+Created initial pose object successfully
+Map uploaded successfully to platform

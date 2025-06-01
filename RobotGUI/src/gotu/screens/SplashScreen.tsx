@@ -305,7 +305,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         }
 
         // Update map
-        /*
         try {
           if (isMounted) {
             setLoadingText('Updating map...');
@@ -314,15 +313,26 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           
           // Only try to update map if authentication was successful
           if (authSuccess) {
-            // Check if map is already being downloaded from authenticate
-            // The authenticate method already triggers map download, so we'll just wait here
-            await LogUtils.writeDebugToFile('Authentication successful - map download was triggered during authentication');
+            // First, request storage permissions
+            await NativeModules.DomainUtils.requestStoragePermission();
             
-            // Wait a reasonable amount of time for the map download to progress
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Download the STCM map
+            const mapResult = await NativeModules.DomainUtils.getStcmMap(20);
+            await LogUtils.writeDebugToFile(`Map downloaded successfully: ${mapResult.filePath}`);
             
-            // No need to explicitly call downloadAndProcessMap() here as it was initiated during authentication
-            await LogUtils.writeDebugToFile('Map update complete');
+            // Process the map with SDK
+            const processResult = await NativeModules.SlamtecUtils.processMapWithSdk(mapResult.filePath);
+            await LogUtils.writeDebugToFile(`Map processed with SDK: ${processResult.mapPath}`);
+            
+            if (processResult.success) {
+              await LogUtils.writeDebugToFile('Map update complete');
+              if (isMounted) {
+                setLoadingText('Map updated successfully');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            } else {
+              throw new Error('Map processing failed');
+            }
           } else {
             await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');
           }
@@ -333,7 +343,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }
-        */
 
         // Load and validate waypoints
         /*
