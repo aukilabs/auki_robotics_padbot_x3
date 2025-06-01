@@ -3,7 +3,9 @@ description:
 globs: 
 alwaysApply: false
 ---
-"command": "cd RobotGUI/android && ./gradlew clean && ./gradlew assembleRelease",
-            "output_paths": {
-                "cactus": "RobotGUI/android/app/build/outputs/apk/cactus/release/Cactus.apk",
-                "gotu": "RobotGUI/android/app/build/outputs/apk/gotu/release/GoTu.apk"
+{
+  "command": "cd RobotGUI/android && ./gradlew clean && ./gradlew assembleGotuRelease && adb install -r app/build/outputs/apk/gotu/release/GoTu.apk",
+  "output_paths": {
+    "gotu": "RobotGUI/android/app/build/outputs/apk/gotu/release/GoTu.apk"
+  }
+}

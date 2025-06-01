@@ -102,19 +102,56 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         
         try {
           const robotInitialized = await PadbotUtils.initialize();
+          console.log('PadbotUtils.initialize() returned:', robotInitialized);
+          await LogUtils.writeDebugToFile(`[DEBUG] PadbotUtils.initialize() returned: ${robotInitialized}`);
           if (robotInitialized) {
             await LogUtils.writeDebugToFile('PadbotModule initialized successfully');
             // Get initial battery status
             const initialBatteryStatus = await PadbotUtils.getBatteryStatus();
-            await LogUtils.writeDebugToFile(`Initial battery status: ${JSON.stringify(initialBatteryStatus)}`);
+            console.log('Initial battery status:', initialBatteryStatus);
+            await LogUtils.writeDebugToFile(`[DEBUG] Initial battery status: ${JSON.stringify(initialBatteryStatus)}`);
           } else {
             await LogUtils.writeDebugToFile('Failed to initialize PadbotModule');
             throw new Error('Robot initialization failed');
           }
         } catch (robotError: any) {
-          await LogUtils.writeDebugToFile(`Error initializing robot: ${robotError.message}`);
+          console.log('Error initializing Padbot:', robotError);
+          await LogUtils.writeDebugToFile(`[DEBUG] Error initializing Padbot: ${robotError.message}`);
           throw robotError;
         }
+
+        // Debug: Before Slamtec SDK test
+        console.log('[DEBUG] Before Slamtec SDK test');
+        await LogUtils.writeDebugToFile('[DEBUG] Before Slamtec SDK test');
+
+        // Test Slamtec SDK connection
+        try {
+          if (isMounted) {
+            setLoadingText('Testing Slamtec SDK connection...');
+            console.log('[DEBUG] Testing Slamtec SDK connection...');
+            await LogUtils.writeDebugToFile('[DEBUG] Testing Slamtec SDK connection...');
+          }
+
+          // Test SDK connection
+          const sdkConnectionDetails = await NativeModules.SlamtecUtils.checkConnectionSdk();
+          console.log('[DEBUG] Slamtec SDK connection:', sdkConnectionDetails);
+          await LogUtils.writeDebugToFile(`[DEBUG] Slamtec SDK connection: ${JSON.stringify(sdkConnectionDetails)}`);
+
+          if (!sdkConnectionDetails.slamApiAvailable) {
+            throw new Error('Slamtec SDK connection failed');
+          }
+
+          await LogUtils.writeDebugToFile('[DEBUG] Slamtec SDK connection successful');
+          console.log('[DEBUG] Slamtec SDK connection successful');
+        } catch (slamtecError: any) {
+          console.log('[DEBUG] Error testing Slamtec SDK connection:', slamtecError);
+          await LogUtils.writeDebugToFile(`[DEBUG] Error testing Slamtec SDK connection: ${slamtecError.message}`);
+          throw slamtecError;
+        }
+
+        // Debug: After Slamtec SDK test
+        console.log('[DEBUG] After Slamtec SDK test');
+        await LogUtils.writeDebugToFile('[DEBUG] After Slamtec SDK test');
 
         // Get device identifiers early and store them globally
         try {
