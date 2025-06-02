@@ -1821,170 +1821,45 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     public void navigateWithSdk(double x, double y, double yaw, Promise promise) {
         executorService.execute(() -> {
             try {
-                connectPlatformIfNeeded();
                 Log.d(TAG, "Navigating with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
                 logToFile("Navigating with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
                 
-                // Create a location array for the target
-                com.slamtec.slamware.robot.Location[] locations = new com.slamtec.slamware.robot.Location[1];
-                locations[0] = new com.slamtec.slamware.robot.Location();
-                locations[0].setX((float)x);
-                locations[0].setY((float)y);
+                // Use existing platform connection
+                connectPlatformIfNeeded();
                 
-                // Create move options with specific settings
-                com.slamtec.slamware.robot.MoveOption moveOption = new com.slamtec.slamware.robot.MoveOption();
-                // Make robot movement precise/accurate
-                moveOption.setPrecise(true);
-                // Enable path search/planning functionality
-                moveOption.setMilestone(true);
-                // Make robot rotate to the target yaw when it stops
-                moveOption.setWithYaw(true);
-                // Don't use virtual tracks
-                moveOption.setKeyPoints(false);
-                
-                // Execute the move
-                Log.d(TAG, "Calling platform.moveTo with options: precise=true, milestone=true, withYaw=true, keyPoints=false");
-                com.slamtec.slamware.action.IMoveAction action = platform.moveTo(locations, moveOption, (float)yaw);
-                
-                // Wait for a short time to let action start
-                Log.d(TAG, "Waiting 5 seconds for action to start...");
-                logToFile("Waiting 5 seconds for action to start...");
-                Thread.sleep(5000);
-                Log.d(TAG, "Wait complete, checking action status");
-                logToFile("Wait complete, checking action status");
-                
-                // Monitor action until completion
-                boolean completed = false;
-                int retryCount = 0;
-                int maxRetries = 120; // 60 seconds max (500ms interval)
-                boolean hasStartedMoving = false;
-                boolean hasReachedTarget = false;
-                float targetDistanceThreshold = 0.5f; // Consider target reached if within 0.5 meters
-                
-                // Store initial position to detect movement
-                float initialX = 0;
-                float initialY = 0;
-                boolean haveInitialPosition = false;
-                
-                try {
-                    com.slamtec.slamware.robot.Pose initialPose = platform.getPose();
-                    initialX = initialPose.getX();
-                    initialY = initialPose.getY();
-                    haveInitialPosition = true;
-                    Log.d(TAG, "Saved initial position: [" + initialX + ", " + initialY + "]");
-                    logToFile("Saved initial position: [" + initialX + ", " + initialY + "]");
-                } catch (Exception e) {
-                    Log.e(TAG, "Error getting initial position: " + e.getMessage(), e);
-                    logToFile("Error getting initial position: " + e.getMessage());
+                if (platform != null) {
+                    // Create a location array for the target
+                    com.slamtec.slamware.robot.Location[] locations = new com.slamtec.slamware.robot.Location[1];
+                    locations[0] = new com.slamtec.slamware.robot.Location();
+                    locations[0].setX((float)x);
+                    locations[0].setY((float)y);
+                    
+                    // Create move options with specific settings
+                    com.slamtec.slamware.robot.MoveOption moveOption = new com.slamtec.slamware.robot.MoveOption();
+                    // Make robot movement precise/accurate
+                    moveOption.setPrecise(true);
+                    // Enable path search/planning functionality
+                    moveOption.setMilestone(true);
+                    // Make robot rotate to the target yaw when it stops
+                    moveOption.setWithYaw(true);
+                    // Don't use virtual tracks
+                    moveOption.setKeyPoints(false);
+                    
+                    // Execute the move
+                    Log.d(TAG, "Calling platform.moveTo with options: precise=true, milestone=true, withYaw=true, keyPoints=false");
+                    com.slamtec.slamware.action.IMoveAction action = platform.moveTo(locations, moveOption, (float)yaw);
+                    
+                    // Wait for a short time to let action start
+                    Thread.sleep(100);
+                    
+                    // Return success
+                    mainHandler.post(() -> promise.resolve(true));
+                } else {
+                    String errorMsg = "Failed to connect to platform (null return)";
+                    Log.e(TAG, errorMsg);
+                    logToFile(errorMsg);
+                    mainHandler.post(() -> promise.reject("NAVIGATION_ERROR", errorMsg));
                 }
-                
-                while (!completed && retryCount < maxRetries) {
-                    // Check current action status
-                    try {
-                        com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
-                        
-                        // Check current position to detect movement and target arrival
-                        try {
-                            com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
-                            float currentX = currentPose.getX();
-                            float currentY = currentPose.getY();
-                            
-                            // Log position
-                            Log.d(TAG, "Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
-                            
-                            // Only log to file occasionally to avoid huge log files
-                            if (retryCount % 10 == 0) {
-                                logToFile("Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
-                            }
-                            
-                            // Check if we've started moving (changed position significantly)
-                            if (haveInitialPosition && !hasStartedMoving) {
-                                float dx = currentX - initialX;
-                                float dy = currentY - initialY;
-                                float distanceMoved = (float)Math.sqrt(dx*dx + dy*dy);
-                                
-                                if (distanceMoved > 0.05) { // 5cm movement threshold
-                                    hasStartedMoving = true;
-                                    Log.d(TAG, "Robot has started moving! Distance moved: " + distanceMoved);
-                                    logToFile("Robot has started moving! Distance moved: " + distanceMoved);
-                                }
-                            }
-                            
-                            // Calculate distance to target
-                            float dx = currentX - (float)x;
-                            float dy = currentY - (float)y;
-                            float distanceToTarget = (float)Math.sqrt(dx*dx + dy*dy);
-                            
-                            if (retryCount % 10 == 0) {
-                                Log.d(TAG, "Distance to target: " + distanceToTarget + " meters");
-                            }
-                            
-                            // Check if we've reached the target
-                            if (distanceToTarget <= targetDistanceThreshold) {
-                                hasReachedTarget = true;
-                                Log.d(TAG, "Target reached! Distance: " + distanceToTarget);
-                                logToFile("Target reached! Distance: " + distanceToTarget);
-                                
-                                // If we've reached the target and action is complete or we're just waiting, 
-                                // consider navigation complete
-                                if (currentAction == null) {
-                                    completed = true;
-                                    Log.d(TAG, "Navigation complete - at target with no current action");
-                                    logToFile("Navigation complete - at target with no current action");
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error getting position update: " + e.getMessage());
-                        }
-                        
-                        if (currentAction == null) {
-                            // No current action means movement is complete
-                            if (hasReachedTarget) {
-                                completed = true;
-                                Log.d(TAG, "Home navigation completed successfully (no current action and at target)");
-                                logToFile("Home navigation completed successfully (no current action and at target)");
-                                
-                                // We don't need auto-charging in the regular navigate method
-                                // Only navigateHomeWithSdk should trigger auto-charging
-                            } else if (hasStartedMoving) {
-                                completed = true;
-                                Log.d(TAG, "Home navigation completed (no current action, moved but target not reached)");
-                                logToFile("Home navigation completed (no current action, moved but target not reached)");
-                            } else {
-                                // If we have no current action but haven't moved, something is wrong
-                                // Wait a bit more in case robot is just starting
-                                retryCount++;
-                                Log.d(TAG, "No current action but no movement detected. Check #" + retryCount);
-                                
-                                if (retryCount > 20) { // After 10 seconds, assume something is wrong
-                                    Log.e(TAG, "No movement detected after 10 seconds with no current action. Navigation may have failed.");
-                                    logToFile("No movement detected after 10 seconds with no current action. Navigation may have failed.");
-                                    completed = true; // End the loop
-                                }
-                            }
-                        } else {
-                            // Still moving, log status and wait
-                            retryCount++;
-                            Log.d(TAG, "Robot still moving, check #" + retryCount + " of " + maxRetries);
-                            Thread.sleep(500);
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error checking action status: " + e.getMessage(), e);
-                        logToFile("Error checking action status: " + e.getMessage());
-                        // Assume completed if we can't check status
-                        completed = true;
-                    }
-                }
-                
-                if (retryCount >= maxRetries) {
-                    Log.d(TAG, "Navigation timeout - assuming success after " + maxRetries + " checks");
-                }
-                
-                Log.d(TAG, "Navigation completed");
-                logToFile("Navigation completed");
-                
-                // Return success
-                mainHandler.post(() -> promise.resolve(true));
             } catch (Exception e) {
                 String errorMsg = "Error during SDK navigation: " + e.getMessage();
                 Log.e(TAG, errorMsg, e);
@@ -2140,27 +2015,6 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                                 
                                 // We don't need auto-charging in the regular navigate method
                                 // Only navigateHomeWithSdk should trigger auto-charging
-                                
-                                // Start auto-charging when we've reached the home position
-                                try {
-                                    Log.d(TAG, "Starting auto-charging...");
-                                    logToFile("Starting auto-charging...");
-                                    
-                                    // Use RobotControlManager to start auto-charging
-                                    RobotControlManager controlManager = RobotControlManager.getInstance();
-                                    if (controlManager != null) {
-                                        controlManager.startAutoCharging();
-                                        Log.d(TAG, "Auto-charging started successfully");
-                                        logToFile("Auto-charging started successfully");
-                                    } else {
-                                        Log.e(TAG, "RobotControlManager is null, cannot start auto-charging");
-                                        logToFile("RobotControlManager is null, cannot start auto-charging");
-                                    }
-                                } catch (Exception e) {
-                                    Log.e(TAG, "Error starting auto-charging: " + e.getMessage(), e);
-                                    logToFile("Error starting auto-charging: " + e.getMessage());
-                                    // Continue execution even if auto-charging fails
-                                }
                             } else if (hasStartedMoving) {
                                 completed = true;
                                 Log.d(TAG, "Home navigation completed (no current action, moved but target not reached)");
@@ -2184,36 +2038,19 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                             Thread.sleep(500);
                         }
                     } catch (Exception e) {
-                        Log.e(TAG, "Error checking home action status: " + e.getMessage(), e);
-                        logToFile("Error checking home action status: " + e.getMessage());
+                        Log.e(TAG, "Error checking action status: " + e.getMessage(), e);
+                        logToFile("Error checking action status: " + e.getMessage());
                         // Assume completed if we can't check status
                         completed = true;
                     }
                 }
                 
                 if (retryCount >= maxRetries) {
-                    Log.d(TAG, "Home navigation timeout - assuming success after " + maxRetries + " checks");
+                    Log.d(TAG, "Navigation timeout - assuming success after " + maxRetries + " checks");
                 }
                 
-                // Check final position
-                try {
-                    com.slamtec.slamware.robot.Pose finalPose = platform.getPose();
-                    Log.d(TAG, "Final position: [" + finalPose.getX() + ", " + finalPose.getY() + ", yaw=" + finalPose.getYaw() + "]");
-                    logToFile("Final position: [" + finalPose.getX() + ", " + finalPose.getY() + ", yaw=" + finalPose.getYaw() + "]");
-                    
-                    // Calculate distance to target
-                    float dx = finalPose.getX() - (float)x;
-                    float dy = finalPose.getY() - (float)y;
-                    float distance = (float)Math.sqrt(dx*dx + dy*dy);
-                    Log.d(TAG, "Distance to target: " + distance + " meters");
-                    logToFile("Distance to target: " + distance + " meters");
-                } catch (Exception e) {
-                    Log.e(TAG, "Error getting final position: " + e.getMessage(), e);
-                    logToFile("Error getting final position: " + e.getMessage());
-                }
-                
-                Log.d(TAG, "Home navigation completed");
-                logToFile("Home navigation completed");
+                Log.d(TAG, "Navigation completed");
+                logToFile("Navigation completed");
                 
                 // Return success
                 mainHandler.post(() -> promise.resolve(true));
