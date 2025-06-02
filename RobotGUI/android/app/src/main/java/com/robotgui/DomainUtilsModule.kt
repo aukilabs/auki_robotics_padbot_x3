@@ -471,7 +471,7 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
                 val domainInfoObj = JSONObject(response3)
                 val accessToken = domainInfoObj.getString("access_token")
                 val domainServer = domainInfoObj.getString("domain_server")
-
+                /*
                 // After successful authentication, download the map in a separate coroutine
                 scope.launch {
                     try {
@@ -482,7 +482,8 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
                         if (isDownloadingMap.compareAndSet(false, true)) {
                             try {
                                 // Download map directly without using Promise
-                                downloadMapAfterAuth()
+                                //downloadMapAfterAuth()
+                                getStcmMap(20)
                             } finally {
                                 // Always reset the flag when done
                                 isDownloadingMap.set(false)
@@ -495,7 +496,7 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
                         Log.e(TAG, "Error downloading map after authentication: ${e.message}", e)
                         logToFile("Error downloading map after authentication: ${e.message}")
                     }
-                }
+                }*/
 
                 // Return response with domain server URL
                 val result = Arguments.createMap().apply {
@@ -2245,6 +2246,58 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
                 Log.e(TAG, "Error writing robot pose data: ${e.message}", e)
                 logToFile("Error writing robot pose data: ${e.message}")
                 promise.reject("WRITE_POSE_ERROR", "Failed to write robot pose data: ${e.message}")
+            }
+        }
+    }
+
+    @ReactMethod
+    fun getHomedockQrId(promise: Promise) {
+        scope.launch {
+            try {
+                val homedockQrId = sharedPreferences.getString("homedock_qr_id", "")
+                if (!homedockQrId.isNullOrEmpty()) {
+                    Log.d(TAG, "Retrieved homedock_qr_id: $homedockQrId")
+                    logToFile("Retrieved homedock_qr_id: $homedockQrId")
+                    
+                    // Get pose data for the QR ID
+                    val poseData = getHomedockPoseFromQrId(homedockQrId)
+                    
+                    // Create result map with both QR ID and pose data
+                    val result = Arguments.createMap().apply {
+                        putString("qrId", homedockQrId)
+                        if (poseData != null) {
+                            putDouble("px", poseData.getDouble("px"))
+                            putDouble("py", poseData.getDouble("py"))
+                            putDouble("pz", poseData.getDouble("pz"))
+                            putDouble("yaw", poseData.getDouble("yaw"))
+                        } else {
+                            // If no pose data found, return default values
+                            putDouble("px", 0.0)
+                            putDouble("py", 0.0)
+                            putDouble("pz", 0.0)
+                            putDouble("yaw", 0.0)
+                        }
+                    }
+                    
+                    promise.resolve(result)
+                } else {
+                    Log.d(TAG, "No homedock_qr_id found in preferences")
+                    logToFile("No homedock_qr_id found in preferences")
+                    
+                    // Return empty result with default values
+                    val result = Arguments.createMap().apply {
+                        putString("qrId", "")
+                        putDouble("px", 0.0)
+                        putDouble("py", 0.0)
+                        putDouble("pz", 0.0)
+                        putDouble("yaw", 0.0)
+                    }
+                    promise.resolve(result)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting homedock QR ID and pose: ${e.message}", e)
+                logToFile("Error getting homedock QR ID and pose: ${e.message}")
+                promise.reject("GET_HOMEDOCK_QR_ID_ERROR", "Failed to get homedock QR ID and pose: ${e.message}")
             }
         }
     }

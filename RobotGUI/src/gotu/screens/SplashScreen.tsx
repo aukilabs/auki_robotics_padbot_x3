@@ -13,6 +13,9 @@ import { LogUtils } from '../utils/logging';
 import DeviceStorage from '../../utils/deviceStorage';
 import PadbotUtils from '../utils/PadbotUtils';
 
+// Access the global object in a way that works in React Native
+const globalAny: any = global;
+
 interface SplashScreenProps {
   onFinish: (products: any[], options?: { goToConfig?: boolean }) => void;
 }
@@ -240,7 +243,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         }
 
         // Update map
-        /*
         try {
           if (isMounted) {
             setLoadingText('Updating map...');
@@ -251,13 +253,39 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           if (authSuccess) {
             // Check if map is already being downloaded from authenticate
             // The authenticate method already triggers map download, so we'll just wait here
-            await LogUtils.writeDebugToFile('Authentication successful - map download was triggered during authentication');
+            await LogUtils.writeDebugToFile('Authentication successful - downloading map');
+
+            await NativeModules.DomainUtils.getStcmMap(20);
             
             // Wait a reasonable amount of time for the map download to progress
             await new Promise(resolve => setTimeout(resolve, 3000));
             
             // No need to explicitly call downloadAndProcessMap() here as it was initiated during authentication
-            await LogUtils.writeDebugToFile('Map update complete');
+            await LogUtils.writeDebugToFile('Map download complete');
+
+            const homedockData = await NativeModules.DomainUtils.getHomedockQrId();
+            await LogUtils.writeDebugToFile(`Got homedock data: ${JSON.stringify(homedockData)}`);
+            
+            if (homedockData.qrId) {
+              // Calculate initialPose and homePoint using SlamtecUtils
+              const homedock = [
+                homedockData.px,
+                homedockData.py,
+                homedockData.pz,
+                homedockData.yaw,
+                0.0,
+                0.0
+              ];
+              
+              // Calculate poses
+              const initialPose = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.2);
+              const homePoint = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.4);
+              
+              // Store poses globally and log once
+              globalAny.initialPose = initialPose;
+              globalAny.homePoint = homePoint;
+              await LogUtils.writeDebugToFile(`Calculated and stored poses - initialPose: ${JSON.stringify(globalAny.initialPose)}, homePoint: ${JSON.stringify(globalAny.homePoint)}`);
+            }
           } else {
             await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');
           }
@@ -268,7 +296,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }
-        */
 
         // Load and validate waypoints
         /*
