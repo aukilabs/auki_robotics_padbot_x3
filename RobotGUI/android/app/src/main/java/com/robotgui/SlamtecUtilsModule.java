@@ -1124,18 +1124,19 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     private double[] calculatePose(double[] homedock, double distanceInMeters) {
         double x = homedock[0];
         double y = homedock[1];
-        double z = homedock[2];
-        double yaw = homedock[3];
-        double pitch = homedock[4];
-        double roll = homedock[5];
+        double z = 0; //homedock[2];
+        double yaw = -homedock[3];
+        double pitch = 0;
+        double roll = 0;
         
         double dx = distanceInMeters * Math.cos(yaw);
-        double dz = distanceInMeters * Math.sin(yaw);
+        double dy = distanceInMeters * Math.sin(yaw);
+        // double dz = distanceInMeters * Math.sin(yaw);
         
         return new double[] {
             x + dx,  // new x
-            y,       // y remains unchanged
-            z + dz,  // new z
+            y + dy,  // new y 
+            z     ,  // z = 0
             yaw,     // yaw remains unchanged
             pitch,   // pitch remains unchanged
             roll     // roll remains unchanged

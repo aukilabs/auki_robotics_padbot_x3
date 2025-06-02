@@ -2233,16 +2233,14 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
             <BatteryIndicator />
             <TouchableOpacity 
               style={styles.configButton}
-              onPress={undefined}
-              onLongPress={() => {
+              onPress={() => {
                 clearInactivityTimer();
                 LogUtils.writeDebugToFile('Config screen opened, cleared inactivity timer');
                 navigatingToConfig = true;
                 onConfigPress();
               }}
-              delayLongPress={3000}
             >
-              {/* Config button is now invisible but still functional with long press */}
+              <Text style={styles.configButtonText}>⚙️</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2282,9 +2280,21 @@ const styles = StyleSheet.create({
     height: 40,
   },
   configButton: {
-    padding: 5,
-    width: 40,
-    height: 40,
+    padding: 8,
+    width: 60,
+    height: 60,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  configButtonText: {
+    fontSize: 30,
   },
   headerRight: {
     flexDirection: 'row',
