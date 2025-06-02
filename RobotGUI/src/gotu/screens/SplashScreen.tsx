@@ -16,15 +16,6 @@ import { LogUtils } from '../utils/logging';
 import DeviceStorage from '../../utils/deviceStorage';
 import PadbotUtils from '../utils/PadbotUtils';
 
-// Access the global object in a way that works in React Native
-const globalAny: any = global;
-
-interface BatteryStatus {
-  percentage: number;
-  charging: boolean;
-  isInitialValue?: boolean;
-}
-
 interface SplashScreenProps {
   onFinish: (products: any[], options?: { goToConfig?: boolean }) => void;
 }
@@ -326,101 +317,131 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         }
       }
 
-      // Update map
-      try {
-        if (isMounted) {
-          setLoadingText('Updating map...');
-          await LogUtils.writeDebugToFile('Updating map...');
-        }
-        
-        // Only try to update map if authentication was successful
-        if (authSuccess) {
-          // First, get homedock pose
-          try {
-            if (isMounted) {
-              setLoadingText('Getting homedock pose...');
-              await LogUtils.writeDebugToFile('Getting homedock pose...');
-            }
-            
-            const homedockData = await NativeModules.DomainUtils.getHomedockQrId();
-            await LogUtils.writeDebugToFile(`Got homedock data: ${JSON.stringify(homedockData)}`);
-            
-            if (homedockData.qrId) {
-              // Calculate initialPose and homePoint using SlamtecUtils
-              const homedock = [
-                homedockData.px,
-                homedockData.py,
-                homedockData.pz,
-                homedockData.yaw,
-                0.0,
-                0.0
-              ];
-              
-              // Calculate poses
-              const initialPose = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.2);
-              const homePoint = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.4);
-              
-              // Store poses globally and log once
-              globalAny.initialPose = initialPose;
-              globalAny.homePoint = homePoint;
-              await LogUtils.writeDebugToFile(`Calculated and stored poses - initialPose: ${JSON.stringify(globalAny.initialPose)}, homePoint: ${JSON.stringify(globalAny.homePoint)}`);
-            }
-          } catch (error) {
-            await LogUtils.writeDebugToFile(`Error getting homedock pose: ${error}`);
-            if (isMounted) {
-              setLoadingText('Error getting homedock pose. Some features may be limited.');
-              await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+        // Update map
+        /*
+        try {
+          if (isMounted) {
+            setLoadingText('Updating map...');
+            await LogUtils.writeDebugToFile('Updating map...');
           }
-
-          // First, request storage permissions
-          await NativeModules.DomainUtils.requestStoragePermission();
           
-          // Download the STCM map
-          const mapResult = await NativeModules.DomainUtils.getStcmMap(20);
-          await LogUtils.writeDebugToFile(`Map downloaded successfully: ${mapResult.filePath}`);
-          
-          // Process the map with SDK
-          const processResult = await NativeModules.SlamtecUtils.processMapWithSdk(mapResult.filePath);
-          await LogUtils.writeDebugToFile(`Map processed with SDK: ${processResult.mapPath}`);
-          
-          if (processResult.success) {
+          // Only try to update map if authentication was successful
+          if (authSuccess) {
+            // Check if map is already being downloaded from authenticate
+            // The authenticate method already triggers map download, so we'll just wait here
+            await LogUtils.writeDebugToFile('Authentication successful - map download was triggered during authentication');
+            
+            // Wait a reasonable amount of time for the map download to progress
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // No need to explicitly call downloadAndProcessMap() here as it was initiated during authentication
             await LogUtils.writeDebugToFile('Map update complete');
-            if (isMounted) {
-              setLoadingText('Map updated successfully');
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
           } else {
-            throw new Error('Map processing failed');
+            await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');
           }
-        } else {
-          await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');
+        } catch (mapError: any) {
+          await LogUtils.writeDebugToFile(`Map update error: ${mapError.message}, proceeding anyway`);
+          if (isMounted) {
+            setLoadingText('Map update failed. Using existing map.');
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          }
         }
-      } catch (mapError: any) {
-        await LogUtils.writeDebugToFile(`Map update error: ${mapError.message}, proceeding anyway`);
-        if (isMounted) {
-          setLoadingText('Map update failed. Using existing map.');
-          await new Promise(resolve => setTimeout(resolve, 1500));
-        }
-      }
+        */
 
-      // Load items from Gotu endpoint
-      if (isMounted) {
-        setLoadingText('Loading items...');
-        await LogUtils.writeDebugToFile('Loading Gotu items...');
-      }
-      
-      try {
-        await LogUtils.writeDebugToFile('Attempting to get items from GotuUtils...');
-        const products = await NativeModules.GotuUtils.getItems();
-        await LogUtils.writeDebugToFile(`GotuUtils.getItems() returned ${products?.length || 0} items`);
-        
-        if (!products) {
-          throw new Error('No products returned from GotuUtils.getItems()');
+        // Load and validate waypoints
+        /*
+        try {
+          if (isMounted) {
+            setLoadingText('Validating waypoints...');
+            await LogUtils.writeDebugToFile('Validating waypoints...');
+          }
+          
+          const patrolPointsContent = await NativeModules.FileUtils.readFile('patrol_points.json');
+          if (patrolPointsContent) {
+            const patrolPoints = JSON.parse(patrolPointsContent);
+            const formattedPoints = patrolPoints.patrol_points.map((point: any) => ({
+              yaw: point.yaw,
+              y: point.y,
+              x: point.x,
+              name: point.name
+            }));
+            await LogUtils.writeDebugToFile(`Patrol Points Configuration: ${JSON.stringify(formattedPoints)}`);
+
+            // Get current POIs
+            let pois = await NativeModules.SlamtecUtils.getPOIs();
+            await LogUtils.writeDebugToFile(`Initial POIs fetch: ${JSON.stringify(pois)}`);
+            
+            // If POIs is empty, wait a moment and try again as they might be initializing
+            if (Array.isArray(pois) && pois.length === 0) {
+              await LogUtils.writeDebugToFile('No POIs found, waiting for initialization...');
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for POIs to initialize
+              pois = await NativeModules.SlamtecUtils.getPOIs();
+              await LogUtils.writeDebugToFile(`POIs after initialization: ${JSON.stringify(pois)}`);
+            }
+            
+            // POIs response is an array of POI objects with metadata.display_name
+            const poiNames = Array.isArray(pois) ? pois.map((poi: any) => poi.metadata?.display_name?.trim()) : [];
+            await LogUtils.writeDebugToFile(`Found POI names: ${JSON.stringify(poiNames)}`);
+            
+            // Filter out any undefined or empty names
+            const validPoiNames = poiNames.filter((name): name is string => 
+              typeof name === 'string' && name.length > 0
+            );
+            await LogUtils.writeDebugToFile(`Valid POI names: ${JSON.stringify(validPoiNames)}`);
+            
+            // Check for mismatches
+            const extraPOIs = validPoiNames.filter((name: string) => 
+              !formattedPoints.find((cp: { name: string }) => cp.name === name)
+            );
+            const missingPoints = formattedPoints.filter((cp: { name: string }) => 
+              !validPoiNames.includes(cp.name)
+            );
+            
+            if (extraPOIs.length > 0 || missingPoints.length > 0) {
+              let errorMsg = '';
+              if (extraPOIs.length > 0) {
+                errorMsg += `Unexpected POIs found: ${extraPOIs.join(', ')}\n`;
+              }
+              if (missingPoints.length > 0) {
+                errorMsg += `Missing waypoints: ${missingPoints.map((p: { name: string }) => p.name).join(', ')}`;
+              }
+              await LogUtils.writeDebugToFile(`POI validation error: ${errorMsg}`);
+              
+              // Clear and reinitialize POIs
+              await LogUtils.writeDebugToFile('Clearing and reinitializing POIs...');
+              if (isMounted) setLoadingText('Resetting waypoints...');
+              
+              await NativeModules.SlamtecUtils.clearAndInitializePOIs();
+              await LogUtils.writeDebugToFile('POIs have been reset and reinitialized');
+              
+              // Verify the POIs again
+              pois = await NativeModules.SlamtecUtils.getPOIs();
+              await LogUtils.writeDebugToFile(`POIs after reset: ${JSON.stringify(pois)}`);
+            } else {
+              await LogUtils.writeDebugToFile('POI validation successful - all points match config');
+            }
+          }
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          await LogUtils.writeDebugToFile(`Waypoint validation error: ${errorMessage}`);
+          if (isMounted) {
+            setLoadingText(`Error validating waypoints: ${errorMessage}`);
+            // Keep error visible for 5 seconds
+            await new Promise(resolve => setTimeout(resolve, 5000));
+          }
+        }
+        */
+         
+        // Load items from Gotu endpoint
+        if (isMounted) {
+          setLoadingText('Loading items...');
+          await LogUtils.writeDebugToFile('Loading Gotu items...');
         }
         
-        const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name));
-        await LogUtils.writeDebugToFile(`Loaded ${products.length} items`);
+        try {
+          const products = await NativeModules.GotuUtils.getItems();
+          const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name));
+          await LogUtils.writeDebugToFile(`Loaded ${products.length} items`);
 
         if (isMounted) {
           // Add a short delay before transition

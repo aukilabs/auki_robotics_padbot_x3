@@ -1,0 +1,58 @@
+2025-06-02T05:33:48.845Z: === New Debug Session Started ===
+2025-06-02T05:33:48.852Z: App Version: unknown
+2025-06-02T05:33:48.857Z: Starting app initialization...
+2025-06-02T05:33:48.870Z: Valid credentials found
+2025-06-02T05:33:48.876Z: Initializing PadbotModule...
+2025-06-02T05:33:48.889Z: [DEBUG] PadbotUtils.initialize() returned: true
+2025-06-02T05:33:48.893Z: PadbotModule initialized successfully
+2025-06-02T05:33:48.899Z: Waiting for valid battery status...
+2025-06-02T05:34:01.158Z: Received valid battery status: {"charging":false,"percentage":100}
+2025-06-02T05:34:01.982Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":false,"percentage":100}
+2025-06-02T05:34:06.579Z: Robot successfully docked (charging state true)
+2025-06-02T05:34:06.686Z: Robot successfully docked (charging state true)
+2025-06-02T05:34:06.822Z: Robot successfully docked (charging state true)
+2025-06-02T05:34:06.929Z: Robot successfully docked (charging state true)
+2025-06-02T05:34:07.018Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-02T05:34:07.026Z: [DEBUG] Before Slamtec SDK test
+2025-06-02T05:34:07.040Z: [DEBUG] Testing Slamtec SDK connection...
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+2025-06-02T05:34:07.084Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
+2025-06-02T05:34:07.091Z: [DEBUG] Slamtec SDK connection successful
+2025-06-02T05:34:07.097Z: [DEBUG] After Slamtec SDK test
+[2025-06-02 13:34:07.111] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-02 13:34:07.119] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-02T05:34:07.135Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-02T05:34:07.140Z: Attempting authentication...
+2025-06-02T05:34:07.153Z: Authentication attempt 1/3
+2025-06-02T05:34:09.326Z: Authentication successful
+2025-06-02T05:34:09.335Z: Checking for existing robot pose data ID...
+[2025-06-02 13:34:09.351] Getting robot pose data ID
+[2025-06-02 13:34:09.367] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-02 13:34:09.375] Checking for existing pose data with deviceId: padbot-50411cf0f5b8
+[2025-06-02 13:34:09.381] Fetching data from: https://domain-server-us-east-1.aukiverse.com/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/data?name=padbot-50411cf0f5b8&data_type=reported_pose_json
+[2025-06-02 13:34:10.344] Get response: {"data":[{"id":"206555c8-8ca6-4ec0-bdfc-1a8ab18524eb","domain_id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"padbot-50411cf0f5b8","data_type":"reported_pose_json","size":16,"created_at":"2025-05-31T07:58:24.296681Z","updated_at":"2025-05-31T07:58:24.296681Z"}]}
+[2025-06-02 13:34:10.354] Found existing pose data with ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-02T05:34:10.359Z: Found existing robot pose data ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-02T05:34:10.364Z: Updating map...
+2025-06-02T05:34:10.373Z: Getting homedock pose...
+[2025-06-02 13:34:10.402] Retrieved homedock_qr_id: 2ZWHV5L6I04
+[2025-06-02 13:34:10.410] Getting pose data for QR ID: 2ZWHV5L6I04
+[2025-06-02 13:34:10.419] Fetching lighthouse data for QR ID: 2ZWHV5L6I04 from domain server: https://domain-server-us-east-1.aukiverse.com
+[2025-06-02 13:34:10.955] Get lighthouses response code: 200
+[2025-06-02 13:34:11.219] Found 'poses' field with 80 items
+[2025-06-02 13:34:11.223] Found matching lighthouse with short_id: 2ZWHV5L6I04
+[2025-06-02 13:34:11.227] Transformed coordinates: Original (px=0.12365669757127762, py=0.0, pz=-1.9286682605743408) -> Transformed (px=0.12365669757127762, py=1.9286682605743408, pz=0.0)
+[2025-06-02 13:34:11.231] Converted quaternion (rx=-0.7070834125222052, ry=0.005742730586745238, rz=0.0057427317661111555, rw=0.7070835097873683) -> yaw=3.14
+[2025-06-02 13:34:11.235] Saved homedock data to preferences: x=0.12365669757127762, y=1.9286682605743408, z=0.0, yaw=3.14
+2025-06-02T05:34:11.237Z: Got homedock data: {"yaw":3.14,"py":1.9286682605743408,"pz":0,"px":0.12365669757127762,"qrId":"2ZWHV5L6I04"}
+2025-06-02T05:34:11.242Z: Calculated and stored poses - initialPose: [-0.07634304877423029,1.9286682605743408,0.0003185305832973657,3.14,0,0], homePoint: [-0.2763427951197382,1.9286682605743408,0.0006370611665947314,3.14,0,0]
+2025-06-02T05:34:13.699Z: Map downloaded successfully: /storage/emulated/0/Download/GoTu/map.stcm
+Processing map with SDK: /storage/emulated/0/Download/GoTu/map.stcm
+Input file exists: true, size: 344901 bytes
+Loading map from: /storage/emulated/0/Download/GoTu/map.stcm
+Map loaded successfully with SDK
+Uploading map to platform
+No valid initial_pose in config, using default zero pose
+Created initial pose object successfully

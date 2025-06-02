@@ -482,7 +482,8 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
                         if (isDownloadingMap.compareAndSet(false, true)) {
                             try {
                                 // Download map directly without using Promise
-                                downloadMapAfterAuth()
+                                //downloadMapAfterAuth()
+                                getStcmMap(20)
                             } finally {
                                 // Always reset the flag when done
                                 isDownloadingMap.set(false)
