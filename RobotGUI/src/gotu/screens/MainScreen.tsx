@@ -462,7 +462,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         // Log navigation parameters for debugging
         await LogUtils.writeDebugToFile(`Navigating to coordinates: x=${point.x}, y=${point.y}, yaw=${point.yaw}`);
         
-        await NativeModules.SlamtecUtils.navigate(
+        await NativeModules.SlamtecUtils.navigateWithSdk(
           point.x,
           point.y,
           point.yaw
@@ -869,7 +869,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         
         try {
           await LogUtils.writeDebugToFile('Starting navigation command...');
-          await NativeModules.SlamtecUtils.navigateProduct(
+          await NativeModules.SlamtecUtils.navigateWithSdk(
             targetCoords.x,
             targetCoords.z,  // Pass z as y since the API expects (x,y) plane movement
             targetCoords.yaw || -Math.PI
@@ -1648,14 +1648,14 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   // Function to check robot base health
   const checkRobotBaseHealth = async (): Promise<boolean> => {
     try {
-      if (NativeModules.SlamtecUtils && typeof NativeModules.SlamtecUtils.checkConnection === 'function') {
-        const details = await NativeModules.SlamtecUtils.checkConnection();
+      if (NativeModules.SlamtecUtils && typeof NativeModules.SlamtecUtils.checkConnectionSdk === 'function') {
+        const details = await NativeModules.SlamtecUtils.checkConnectionSdk();
         await LogUtils.writeDebugToFile(`Health check - Robot status: ${JSON.stringify(details)}`);
         
         setRobotBaseStatus(details.status || 'unknown');
         return details.slamApiAvailable === true;
       } else {
-        await LogUtils.writeDebugToFile(`Health check skipped - checkConnection method not available`);
+        await LogUtils.writeDebugToFile(`Health check skipped - checkConnectionSdk method not available`);
         setRobotBaseStatus('unknown');
         return true;
       }
@@ -1826,7 +1826,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       await LogUtils.writeDebugToFile(`Using product coordinates - X: ${product.pose.x}, Y: ${product.pose.y}, Yaw: ${yaw}`);
       
       // Call the native module to navigate
-      await NativeModules.SlamtecUtils.navigateProduct(
+      await NativeModules.SlamtecUtils.navigateWithSdk(
         product.pose.x,
         product.pose.y,
         yaw,
@@ -1858,7 +1858,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     const performInitialHealthCheck = async () => {
       try {
         LogUtils.writeDebugToFile('Performing initial health check in MainScreen...');
-        const response = await NativeModules.SlamtecUtils.checkConnection();
+        const response = await NativeModules.SlamtecUtils.checkConnectionSdk();
         LogUtils.writeDebugToFile('Initial health check response: ' + JSON.stringify(response, null, 2));
 
         // Parse the response string if it exists
@@ -1885,7 +1885,6 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       } catch (error) {
         LogUtils.writeDebugToFile('Initial health check failed: ' + (error instanceof Error ? error.message : String(error)));
         
-        // Show error dialog with more detailed information
         Alert.alert(
           'Connection Error',
           'There was an issue detected, please restart the app. If the error persists please reboot the robot.',
@@ -1945,7 +1944,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       try {
         // Perform health check first
         LogUtils.writeDebugToFile('Performing initial health check in MainScreen...');
-        const healthCheck = await NativeModules.SlamtecUtils.checkConnection();
+        const healthCheck = await NativeModules.SlamtecUtils.checkConnectionSdk();
         LogUtils.writeDebugToFile('Initial health check response: ' + JSON.stringify(healthCheck, null, 2));
 
         if (!healthCheck.slamApiAvailable) {
