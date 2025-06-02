@@ -293,6 +293,9 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
                 globalAny.initialPose
               );
               await LogUtils.writeDebugToFile(`Map processed with SDK: ${processResult.mapPath}`);
+
+              const currentPose = await NativeModules.SlamtecUtils.getCurrentPoseSdk();
+              await LogUtils.writeDebugToFile(`Current pose: ${JSON.stringify(currentPose)}`);
             } 
           } else {
             await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');

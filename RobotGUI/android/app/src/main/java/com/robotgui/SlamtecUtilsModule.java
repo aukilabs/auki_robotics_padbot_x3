@@ -2376,14 +2376,16 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
         executorService.execute(() -> {
             try {
                 connectPlatformIfNeeded();
-                Pose pose = platform.getPose();
+                com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
+                
                 WritableMap response = Arguments.createMap();
-                response.putDouble("x", pose.getX());
-                response.putDouble("y", pose.getY());
-                response.putDouble("z", pose.getZ());
-                response.putDouble("yaw", pose.getYaw());
-                response.putDouble("pitch", pose.getPitch());
-                response.putDouble("roll", pose.getRoll());
+                response.putDouble("x", currentPose.getX());
+                response.putDouble("y", currentPose.getY());
+                response.putDouble("z", currentPose.getZ());
+                response.putDouble("yaw", currentPose.getYaw());
+                response.putDouble("pitch", currentPose.getPitch());
+                response.putDouble("roll", currentPose.getRoll());
+                
                 mainHandler.post(() -> promise.resolve(response));
             } catch (Exception e) {
                 mainHandler.post(() -> promise.reject("POSE_ERROR", "Error getting pose: " + e.getMessage()));
