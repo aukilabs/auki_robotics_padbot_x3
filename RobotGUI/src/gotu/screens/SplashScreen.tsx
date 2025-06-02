@@ -33,47 +33,36 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
   const [opacity] = useState(new Animated.Value(1));
   const [loadingText, setLoadingText] = useState('Initializing...');
   const [showDockDialog, setShowDockDialog] = useState(false);
-  const [isDocked, setIsDocked] = useState(false);
   const [showRemoveDockDialog, setShowRemoveDockDialog] = useState(false);
+  const [showWaitDialog, setShowWaitDialog] = useState(false);
   const [isMounted] = useState(true);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
-  const waitForCharging = async (): Promise<BatteryStatus> => {
-    setLoadingText('Initialising robot base...');
-    await LogUtils.writeDebugToFile('Waiting for robot to be docked (charging state)...');
-
-    // First show the "Remove from dock" dialog
-    setShowRemoveDockDialog(true);
-    await LogUtils.writeDebugToFile('Showing remove from dock dialog');
+  const waitForBatteryStatus = async (): Promise<BatteryStatus> => {
+    setShowWaitDialog(true);
+    await LogUtils.writeDebugToFile('Waiting for valid battery status...');
 
     let batterySubscription: EmitterSubscription | undefined;
-    let chargingSubscription: EmitterSubscription | undefined;
     let validBatteryReceived = false;
-    let chargingStarted = false;
 
     try {
       batterySubscription = PadbotUtils.addBatteryListener((status: BatteryStatus) => {
         if (!validBatteryReceived && status.percentage !== -1) {
           validBatteryReceived = true;
           LogUtils.writeDebugToFile(`Received valid battery status: ${JSON.stringify(status)}`);
-          setShowRemoveDockDialog(false);
+          setShowWaitDialog(false);
           setShowDockDialog(true);
-          setIsDocked(false);
-        }
-      }) as EmitterSubscription;
-
-      chargingSubscription = PadbotUtils.addChargingListener((info: { isCharging: boolean }) => {
-        if (info.isCharging) {
-          chargingStarted = true;
-          setShowDockDialog(false);
-          setIsDocked(true);
-          LogUtils.writeDebugToFile('Robot successfully docked (charging state true)');
         }
       }) as EmitterSubscription;
 
       await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Could not get valid battery status after 75s'));
+        }, 75000);
+
         const checkConditions = () => {
-          if (validBatteryReceived && chargingStarted) {
+          if (validBatteryReceived) {
+            clearTimeout(timeout);
             resolve();
           } else {
             setTimeout(checkConditions, 1000);
@@ -85,6 +74,38 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       return await PadbotUtils.getBatteryStatus();
     } finally {
       if (batterySubscription) batterySubscription.remove();
+    }
+  };
+
+  const waitForCharging = async (): Promise<void> => {
+    let chargingSubscription: EmitterSubscription | undefined;
+    let chargingStarted = false;
+
+    try {
+      chargingSubscription = PadbotUtils.addChargingListener((info: { isCharging: boolean }) => {
+        if (info.isCharging) {
+          chargingStarted = true;
+          setShowDockDialog(false);
+          LogUtils.writeDebugToFile('Robot successfully docked (charging state true)');
+        }
+      }) as EmitterSubscription;
+
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Could not get charging status after 75s'));
+        }, 75000);
+
+        const checkConditions = () => {
+          if (chargingStarted) {
+            clearTimeout(timeout);
+            resolve();
+          } else {
+            setTimeout(checkConditions, 1000);
+          }
+        };
+        checkConditions();
+      });
+    } finally {
       if (chargingSubscription) chargingSubscription.remove();
     }
   };
@@ -109,10 +130,13 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         if (robotInitialized) {
           await LogUtils.writeDebugToFile('PadbotModule initialized successfully');
           
-          // Wait for charging state to be true before proceeding
-          batteryStatus = await waitForCharging();
+          // Wait for valid battery status
+          batteryStatus = await waitForBatteryStatus();
           console.log('[PadbotUtils] getBatteryStatus:', batteryStatus);
           await LogUtils.writeDebugToFile(`[PadbotUtils] getBatteryStatus: ${JSON.stringify(batteryStatus)}`);
+          
+          // Wait for charging state
+          await waitForCharging();
           
           // Log PadbotModule constants
           const padbotModule = NativeModules.PadbotModule;
@@ -396,21 +420,8 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
 
   const handleOkPress = async () => {
     try {
-      setShowDockDialog(false);
-      setLoadingText('Initializing...');
-      
-      // Start the timeout after OK is pressed
-      const timeout = setTimeout(() => {
-        throw new Error('Could not get valid battery status after 75s');
-      }, 75000);
-
-      try {
-        await initialize();
-        clearTimeout(timeout);
-      } catch (error) {
-        clearTimeout(timeout);
-        throw error;
-      }
+      setShowRemoveDockDialog(false);
+      await initialize();
     } catch (error: any) {
       console.error('Error during initialization:', error);
       await LogUtils.writeDebugToFile(`Error during initialization: ${error.message}`);
@@ -421,34 +432,13 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
   };
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
     let isMounted = true;
-
-    const checkDockStatus = async () => {
-      try {
-        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-        if (powerStatus.dockingStatus !== 'on_dock') {
-          setShowDockDialog(true);
-          setIsDocked(false);
-          return false;
-        } else {
-          setShowDockDialog(false);
-          setIsDocked(true);
-          return true;
-        }
-      } catch (e) {
-        setShowDockDialog(true);
-        setIsDocked(false);
-        return false;
-      }
-    };
 
     const checkCredentials = async () => {
       try {
         const creds = await NativeModules.DomainUtils.getStoredCredentials();
         const hasCreds = creds && creds.email && creds.password && creds.domainId && creds.email.length > 0 && creds.password.length > 0 && creds.domainId.length > 0;
         if (!hasCreds) {
-          // Skip initialization and go to ConfigScreen
           onFinish([], { goToConfig: true });
           return false;
         }
@@ -459,65 +449,12 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
       }
     };
 
-    // Comment out waitForDock since we don't need to check docking status
-    // waitForDock();
-
-    // Start initialization immediately
-    initialize();
-
-    timeoutId = setTimeout(() => {
-      if (isMounted) {
-        setLoadingText('Loading timeout reached');
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 500,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }).start(() => {
-          onFinish([], { goToConfig: true });
-        });
-      }
-    }, 30000);
-
-    // DEBUG: Log all available PadbotUtils and PadbotModule methods at startup
-    (async () => {
-      try {
-        const initResult = await PadbotUtils.initialize();
-        // Add a small delay after initialization
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const batteryStatus = await PadbotUtils.getBatteryStatus();
-        const isCharging = await PadbotUtils.isCharging();
-        
-        console.log('[PadbotUtils] initialize:', initResult);
-        console.log('[PadbotUtils] getBatteryStatus:', batteryStatus);
-        console.log('[PadbotUtils] isCharging:', isCharging);
-        LogUtils.writeDebugToFile(`[PadbotUtils] initialize: ${JSON.stringify(initResult)}`);
-        LogUtils.writeDebugToFile(`[PadbotUtils] getBatteryStatus: ${JSON.stringify(batteryStatus)}`);
-        LogUtils.writeDebugToFile(`[PadbotUtils] isCharging: ${JSON.stringify(isCharging)}`);
-        
-        // Try to enumerate and call any extra methods on PadbotModule
-        const padbotModule = NativeModules.PadbotModule;
-        if (padbotModule) {
-          Object.keys(padbotModule).forEach(async (key) => {
-            try {
-              const result = typeof padbotModule[key] === 'function' ? await padbotModule[key]() : padbotModule[key];
-              console.log(`[PadbotModule] ${key}:`, result);
-              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: ${JSON.stringify(result)}`);
-            } catch (e) {
-              console.log(`[PadbotModule] ${key}: error`, e);
-              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: error ${e}`);
-            }
-          });
-        }
-      } catch (e) {
-        console.log('[PadbotUtils] Debug block error:', e);
-        LogUtils.writeDebugToFile(`[PadbotUtils] Debug block error: ${e}`);
-      }
-    })();
+    // Start with remove from dock dialog
+    setShowRemoveDockDialog(true);
 
     return () => {
       isMounted = false;
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [opacity, onFinish]);
 
@@ -563,6 +500,17 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             >
               <Text style={styles.modalButtonText}>OK</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={showWaitDialog}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {}}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Please wait...</Text>
           </View>
         </View>
       </Modal>

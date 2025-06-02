@@ -1,0 +1,115 @@
+2025-06-02T04:58:50.992Z: === New Debug Session Started ===
+2025-06-02T04:58:50.999Z: App Version: unknown
+2025-06-02T04:58:51.007Z: Starting app initialization...
+2025-06-02T04:58:51.014Z: Initializing PadbotModule...
+2025-06-02T04:58:51.041Z: [DEBUG] PadbotUtils.initialize() returned: true
+2025-06-02T04:58:51.045Z: PadbotModule initialized successfully
+2025-06-02T04:58:51.051Z: Waiting for valid battery status...
+2025-06-02T04:59:01.238Z: Received valid battery status: {"charging":false,"percentage":100}
+2025-06-02T04:59:02.130Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":false,"percentage":100}
+2025-06-02T04:59:07.824Z: Robot successfully docked (charging state true)
+2025-06-02T04:59:07.942Z: Robot successfully docked (charging state true)
+2025-06-02T04:59:08.066Z: Robot successfully docked (charging state true)
+2025-06-02T04:59:08.176Z: Robot successfully docked (charging state true)
+2025-06-02T04:59:08.188Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-02T04:59:08.196Z: [DEBUG] Before Slamtec SDK test
+2025-06-02T04:59:08.203Z: [DEBUG] Testing Slamtec SDK connection...
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+2025-06-02T04:59:08.275Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
+2025-06-02T04:59:08.279Z: [DEBUG] Slamtec SDK connection successful
+2025-06-02T04:59:08.283Z: [DEBUG] After Slamtec SDK test
+[2025-06-02 12:59:08.306] No existing device ID found, generating new ID
+[2025-06-02 12:59:08.325] Generated and saved new device ID: padbot-50411cf0f5b8
+[2025-06-02 12:59:08.342] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-02T04:59:08.349Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-02T04:59:08.353Z: Attempting authentication...
+2025-06-02T04:59:08.364Z: Authentication attempt 1/3
+2025-06-02T04:59:08.373Z: Authentication error on attempt 1: Missing credentials
+2025-06-02T04:59:08.379Z: Error code: AUTH_ERROR
+2025-06-02T04:59:08.386Z: Retrying authentication in 1000ms...
+2025-06-02T04:59:09.406Z: Authentication attempt 2/3
+2025-06-02T04:59:09.421Z: Authentication error on attempt 2: Missing credentials
+2025-06-02T04:59:09.432Z: Error code: AUTH_ERROR
+2025-06-02T04:59:09.438Z: Retrying authentication in 2000ms...
+2025-06-02T04:59:11.450Z: Authentication attempt 3/3
+2025-06-02T04:59:11.465Z: Authentication error on attempt 3: Missing credentials
+2025-06-02T04:59:11.474Z: Error code: AUTH_ERROR
+2025-06-02T04:59:11.480Z: All authentication attempts failed, proceeding with limited functionality
+2025-06-02T04:59:13.493Z: Updating map...
+2025-06-02T04:59:13.512Z: Skipping map update due to authentication failure
+2025-06-02T04:59:13.518Z: Loading Gotu items...
+2025-06-02T04:59:13.531Z: Attempting to get items from GotuUtils...
+2025-06-02T04:59:14.533Z: GotuUtils.getItems() returned 41 items
+2025-06-02T04:59:14.644Z: Loaded 41 items
+2025-06-02T04:59:15.662Z: Initialization complete, transitioning to main screen...
+2025-06-02T04:59:16.455Z: Starting battery monitoring...
+2025-06-02T04:59:16.456Z: Patrol state changed to: inactive
+2025-06-02T04:59:16.457Z: MainScreen mounted. Promotion state: active=false, cancelled=false, currentPointIndex=0, remountFromConfig=false
+2025-06-02T04:59:16.538Z: Performing initial token validation
+2025-06-02T04:59:16.539Z: Polling for robot call data...
+2025-06-02T04:59:16.539Z: Started robot call polling
+2025-06-02T04:59:16.540Z: Navigation state changed to: IDLE
+2025-06-02T04:59:16.540Z: Navigation status updated to: IDLE
+2025-06-02T04:59:16.540Z: Performing initial health check in MainScreen...
+2025-06-02T04:59:16.541Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-02T04:59:16.541Z: Performing initial health check in MainScreen...
+2025-06-02T04:59:16.543Z: Battery monitoring initialized successfully
+2025-06-02T04:59:16.543Z: validateToken called (force=true)
+2025-06-02T04:59:16.544Z: Proactively validating authentication token
+2025-06-02T04:59:16.590Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-02T04:59:16.590Z: [POSE POLLING] Wait-for-completion polling started
+2025-06-02T04:59:16.591Z: No patrol points configuration found
+2025-06-02T04:59:16.616Z: [BATTERY] Battery status update event received
+[2025-06-02 12:59:16.642] Starting token validation...
+2025-06-02T04:59:16.622Z: Polling stopped in IDLE state
+2025-06-02T04:59:16.623Z: Error fetching robot call data: Failed to fetch domain data: No domain info available
+[2025-06-02 12:59:16.661] Token validation error: No domain info available
+2025-06-02T04:59:16.628Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-02T04:59:16.669Z: Token validation failed: Token validation failed: No domain info available
+2025-06-02T04:59:16.671Z: [POSE POLLING] Auto-stopped polling - not in NAVIGATING/PATROL state
+2025-06-02T04:59:17.600Z: Initial health check response: {
+  "deviceFound": false,
+  "slamApiAvailable": false,
+  "status": "Cannot connect to robot",
+  "error": "Connection error: timeout"
+}
+2025-06-02T04:59:17.600Z: Initial health check successful
+2025-06-02T04:59:17.779Z: Initial health check response: {
+  "deviceFound": false,
+  "slamApiAvailable": false,
+  "status": "Cannot connect to robot",
+  "error": "Connection error: timeout"
+}
+2025-06-02T04:59:17.780Z: Initial health check failed: Robot not ready
+2025-06-02T04:59:17.793Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-02T04:59:17.795Z: [POSE POLLING] Polling loop exited
+2025-06-02T04:59:21.559Z: Polling for robot call data...
+2025-06-02T04:59:21.576Z: Error fetching robot call data: Failed to fetch domain data: No domain info available
+2025-06-02T04:59:26.559Z: Polling for robot call data...
+2025-06-02T04:59:26.575Z: Error fetching robot call data: Failed to fetch domain data: No domain info available
+2025-06-02T04:59:31.561Z: Polling for robot call data...
+2025-06-02T04:59:31.581Z: Error fetching robot call data: Failed to fetch domain data: No domain info available
+2025-06-02T04:59:36.561Z: Polling for robot call data...
+2025-06-02T04:59:36.577Z: Error fetching robot call data: Failed to fetch domain data: No domain info available
+2025-06-02T04:59:38.884Z: Cleared token validation interval
+2025-06-02T04:59:38.884Z: Cleared token refresh interval
+2025-06-02T04:59:38.885Z: Cleaned up robot call polling
+2025-06-02T04:59:38.885Z: [POSE POLLING] Wait-for-completion polling stopped
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+2025-06-02T04:59:38.890Z: Battery monitoring stopped
+SDK Health Check: Final result - deviceFound: true
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
+SDK Health Check: Connection successful
+SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
+SDK Health Check: Final result - deviceFound: true
