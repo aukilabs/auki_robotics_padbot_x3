@@ -110,11 +110,37 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
     }
   };
 
+  const checkCredentials = async () => {
+    try {
+      const creds = await NativeModules.DomainUtils.getStoredCredentials();
+      const hasCreds = creds && creds.email && creds.password && creds.domainId && 
+                      creds.email.length > 0 && creds.password.length > 0 && creds.domainId.length > 0;
+      if (!hasCreds) {
+        await LogUtils.writeDebugToFile('No valid credentials found');
+        onFinish([], { goToConfig: true });
+        return false;
+      }
+      await LogUtils.writeDebugToFile('Valid credentials found');
+      return true;
+    } catch (e) {
+      await LogUtils.writeDebugToFile(`Error checking credentials: ${e}`);
+      onFinish([], { goToConfig: true });
+      return false;
+    }
+  };
+
   const initialize = async () => {
     try {
       // Initialize logging first
       await LogUtils.initializeLogging();
       await LogUtils.writeDebugToFile('Starting app initialization...');
+
+      // Check credentials before proceeding
+      const hasCredentials = await checkCredentials();
+      if (!hasCredentials) {
+        await LogUtils.writeDebugToFile('No credentials found, proceeding to config screen');
+        return;
+      }
 
       // Initialize Padbot first - this is the central initialization point
       if (isMounted) {
@@ -266,6 +292,17 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           }
         } catch (authError: any) {
           await LogUtils.writeDebugToFile(`Authentication error on attempt ${authAttempts}: ${authError.message}`);
+          
+          // If credentials are missing, immediately go to config screen
+          if (authError.message === 'Missing credentials') {
+            await LogUtils.writeDebugToFile('Missing credentials detected, proceeding to config screen');
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              setTimeoutId(null);
+            }
+            onFinish([], { goToConfig: true });
+            return;
+          }
           
           // Log more detailed error information
           if (authError.code) {
@@ -433,21 +470,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
 
   useEffect(() => {
     let isMounted = true;
-
-    const checkCredentials = async () => {
-      try {
-        const creds = await NativeModules.DomainUtils.getStoredCredentials();
-        const hasCreds = creds && creds.email && creds.password && creds.domainId && creds.email.length > 0 && creds.password.length > 0 && creds.domainId.length > 0;
-        if (!hasCreds) {
-          onFinish([], { goToConfig: true });
-          return false;
-        }
-        return true;
-      } catch (e) {
-        onFinish([], { goToConfig: true });
-        return false;
-      }
-    };
 
     // Start with remove from dock dialog
     setShowRemoveDockDialog(true);
