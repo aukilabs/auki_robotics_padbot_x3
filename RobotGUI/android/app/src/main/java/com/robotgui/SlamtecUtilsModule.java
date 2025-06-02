@@ -2427,4 +2427,23 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
             }
         });
     }
+
+    // Add this method to expose calculatePose to React Native
+    @ReactMethod
+    public void calculatePose(ReadableArray homedock, double distance, Promise promise) {
+        try {
+            double[] homedockArr = new double[6];
+            for (int i = 0; i < 6; i++) {
+                homedockArr[i] = homedock.getDouble(i);
+            }
+            double[] result = calculatePose(homedockArr, distance);
+            WritableArray jsResult = Arguments.createArray();
+            for (double v : result) {
+                jsResult.pushDouble(v);
+            }
+            promise.resolve(jsResult);
+        } catch (Exception e) {
+            promise.reject("CALCULATE_POSE_ERROR", e.getMessage());
+        }
+    }
 } 
