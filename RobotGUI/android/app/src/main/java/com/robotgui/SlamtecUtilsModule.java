@@ -2239,7 +2239,7 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void processMapWithSdk(String inputFilePath, Promise promise) {
+    public void processMapWithSdk(String inputFilePath, ReadableArray initialPoseArray, Promise promise) {
         executorService.execute(() -> {
             try {
                 connectPlatformIfNeeded();
@@ -2279,45 +2279,64 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                     Log.d(TAG, "Map loaded successfully with SDK");
                     logToFile("Map loaded successfully with SDK");
                     
-                    // Upload the loaded map to the platform - use an empty pose to avoid null issue
-                    Log.d(TAG, "Uploading map to platform");
-                    logToFile("Uploading map to platform");
-                    
-                    // Explicitly create a zero pose to avoid null issues
+                    // Create initial pose from the provided array
                     com.slamtec.slamware.robot.Pose initialPose = null;
                     try {
-                        // Get initial_pose from config.yaml
-                        double[] initialPoseConfig = configManager.getDoubleArray("initial_pose");
-                        
-                        if (initialPoseConfig != null && initialPoseConfig.length >= 6) {
-                            // Create pose from config initial_pose values
+                        if (initialPoseArray != null && initialPoseArray.size() >= 6) {
                             initialPose = new com.slamtec.slamware.robot.Pose();
-                            initialPose.setX((float)initialPoseConfig[0]);
-                            initialPose.setY((float)initialPoseConfig[1]);
-                            initialPose.setZ((float)initialPoseConfig[2]);
-                            initialPose.setYaw((float)initialPoseConfig[3]);
-                            initialPose.setPitch((float)initialPoseConfig[4]);
-                            initialPose.setRoll((float)initialPoseConfig[5]);
+                            initialPose.setX((float)initialPoseArray.getDouble(0));
+                            initialPose.setY((float)initialPoseArray.getDouble(1));
+                            initialPose.setZ((float)initialPoseArray.getDouble(2));
+                            initialPose.setYaw((float)initialPoseArray.getDouble(3));
+                            initialPose.setPitch((float)initialPoseArray.getDouble(4));
+                            initialPose.setRoll((float)initialPoseArray.getDouble(5));
                             
-                            Log.d(TAG, "Created initial pose from config: [" + 
-                                  initialPoseConfig[0] + ", " + 
-                                  initialPoseConfig[1] + ", " + 
-                                  initialPoseConfig[2] + ", " + 
-                                  initialPoseConfig[3] + ", " + 
-                                  initialPoseConfig[4] + ", " + 
-                                  initialPoseConfig[5] + "]");
-                            logToFile("Created initial pose from config: [" + 
-                                     initialPoseConfig[0] + ", " + 
-                                     initialPoseConfig[1] + ", " + 
-                                     initialPoseConfig[2] + ", " + 
-                                     initialPoseConfig[3] + ", " + 
-                                     initialPoseConfig[4] + ", " + 
-                                     initialPoseConfig[5] + "]");
+                            Log.d(TAG, "Created initial pose from array: [" + 
+                                  initialPoseArray.getDouble(0) + ", " + 
+                                  initialPoseArray.getDouble(1) + ", " + 
+                                  initialPoseArray.getDouble(2) + ", " + 
+                                  initialPoseArray.getDouble(3) + ", " + 
+                                  initialPoseArray.getDouble(4) + ", " + 
+                                  initialPoseArray.getDouble(5) + "]");
+                            logToFile("Created initial pose from array: [" + 
+                                     initialPoseArray.getDouble(0) + ", " + 
+                                     initialPoseArray.getDouble(1) + ", " + 
+                                     initialPoseArray.getDouble(2) + ", " + 
+                                     initialPoseArray.getDouble(3) + ", " + 
+                                     initialPoseArray.getDouble(4) + ", " + 
+                                     initialPoseArray.getDouble(5) + "]");
                         } else {
-                            // Fall back to default pose if config values aren't available
-                            Log.d(TAG, "No valid initial_pose in config, using default zero pose");
-                            logToFile("No valid initial_pose in config, using default zero pose");
-                            initialPose = new com.slamtec.slamware.robot.Pose();
+                            // Fall back to config.yaml if array is not valid
+                            double[] initialPoseConfig = configManager.getDoubleArray("initial_pose");
+                            if (initialPoseConfig != null && initialPoseConfig.length >= 6) {
+                                initialPose = new com.slamtec.slamware.robot.Pose();
+                                initialPose.setX((float)initialPoseConfig[0]);
+                                initialPose.setY((float)initialPoseConfig[1]);
+                                initialPose.setZ((float)initialPoseConfig[2]);
+                                initialPose.setYaw((float)initialPoseConfig[3]);
+                                initialPose.setPitch((float)initialPoseConfig[4]);
+                                initialPose.setRoll((float)initialPoseConfig[5]);
+                                
+                                Log.d(TAG, "Created initial pose from config: [" + 
+                                      initialPoseConfig[0] + ", " + 
+                                      initialPoseConfig[1] + ", " + 
+                                      initialPoseConfig[2] + ", " + 
+                                      initialPoseConfig[3] + ", " + 
+                                      initialPoseConfig[4] + ", " + 
+                                      initialPoseConfig[5] + "]");
+                                logToFile("Created initial pose from config: [" + 
+                                         initialPoseConfig[0] + ", " + 
+                                         initialPoseConfig[1] + ", " + 
+                                         initialPoseConfig[2] + ", " + 
+                                         initialPoseConfig[3] + ", " + 
+                                         initialPoseConfig[4] + ", " + 
+                                         initialPoseConfig[5] + "]");
+                            } else {
+                                // Fall back to default pose if neither array nor config values are available
+                                Log.d(TAG, "No valid initial pose available, using default zero pose");
+                                logToFile("No valid initial pose available, using default zero pose");
+                                initialPose = new com.slamtec.slamware.robot.Pose();
+                            }
                         }
                         
                         Log.d(TAG, "Created initial pose object successfully");

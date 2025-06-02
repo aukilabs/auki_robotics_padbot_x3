@@ -255,7 +255,8 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             // The authenticate method already triggers map download, so we'll just wait here
             await LogUtils.writeDebugToFile('Authentication successful - downloading map');
 
-            await NativeModules.DomainUtils.getStcmMap(20);
+            const mapResult = await NativeModules.DomainUtils.getStcmMap(20);
+            await LogUtils.writeDebugToFile(`Map downloaded successfully: ${mapResult.filePath}`);
             
             // Wait a reasonable amount of time for the map download to progress
             await new Promise(resolve => setTimeout(resolve, 3000));
@@ -285,7 +286,14 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
               globalAny.initialPose = initialPose;
               globalAny.homePoint = homePoint;
               await LogUtils.writeDebugToFile(`Calculated and stored poses - initialPose: ${JSON.stringify(globalAny.initialPose)}, homePoint: ${JSON.stringify(globalAny.homePoint)}`);
-            }
+
+              // Process the map with SDK
+              const processResult = await NativeModules.SlamtecUtils.processMapWithSdk(
+                mapResult.filePath,
+                globalAny.initialPose
+              );
+              await LogUtils.writeDebugToFile(`Map processed with SDK: ${processResult.mapPath}`);
+            } 
           } else {
             await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');
           }
