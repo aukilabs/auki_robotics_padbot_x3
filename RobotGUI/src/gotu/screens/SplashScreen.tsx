@@ -8,13 +8,13 @@ import {
   Easing,
   NativeModules,
   Modal,
-  NativeEventEmitter,
-  EmitterSubscription,
-  TouchableOpacity,
 } from 'react-native';
 import { LogUtils } from '../utils/logging';
 import DeviceStorage from '../../utils/deviceStorage';
 import PadbotUtils from '../utils/PadbotUtils';
+
+// Access the global object in a way that works in React Native
+const globalAny: any = global;
 
 interface SplashScreenProps {
   onFinish: (products: any[], options?: { goToConfig?: boolean }) => void;
@@ -24,301 +24,225 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
   const [opacity] = useState(new Animated.Value(1));
   const [loadingText, setLoadingText] = useState('Initializing...');
   const [showDockDialog, setShowDockDialog] = useState(false);
-  const [showRemoveDockDialog, setShowRemoveDockDialog] = useState(false);
-  const [showWaitDialog, setShowWaitDialog] = useState(false);
-  const [isMounted] = useState(true);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [isDocked, setIsDocked] = useState(false);
 
-  const waitForBatteryStatus = async (): Promise<BatteryStatus> => {
-    setShowWaitDialog(true);
-    await LogUtils.writeDebugToFile('Waiting for valid battery status...');
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let pollInterval: NodeJS.Timeout;
+    let isMounted = true;
 
-    let batterySubscription: EmitterSubscription | undefined;
-    let validBatteryReceived = false;
-
-    try {
-      batterySubscription = PadbotUtils.addBatteryListener((status: BatteryStatus) => {
-        if (!validBatteryReceived && status.percentage !== -1) {
-          validBatteryReceived = true;
-          LogUtils.writeDebugToFile(`Received valid battery status: ${JSON.stringify(status)}`);
-          setShowWaitDialog(false);
+    const checkDockStatus = async () => {
+      try {
+        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
+        if (powerStatus.dockingStatus !== 'on_dock') {
           setShowDockDialog(true);
-        }
-      }) as EmitterSubscription;
-
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('Could not get valid battery status after 75s'));
-        }, 75000);
-
-        const checkConditions = () => {
-          if (validBatteryReceived) {
-            clearTimeout(timeout);
-            resolve();
-          } else {
-            setTimeout(checkConditions, 1000);
-          }
-        };
-        checkConditions();
-      });
-
-      return await PadbotUtils.getBatteryStatus();
-    } finally {
-      if (batterySubscription) batterySubscription.remove();
-    }
-  };
-
-  const waitForCharging = async (): Promise<void> => {
-    let chargingSubscription: EmitterSubscription | undefined;
-    let chargingStarted = false;
-
-    try {
-      chargingSubscription = PadbotUtils.addChargingListener((info: { isCharging: boolean }) => {
-        if (info.isCharging) {
-          chargingStarted = true;
+          setIsDocked(false);
+          return false;
+        } else {
           setShowDockDialog(false);
-          LogUtils.writeDebugToFile('Robot successfully docked (charging state true)');
+          setIsDocked(true);
+          return true;
         }
-      }) as EmitterSubscription;
+      } catch (e) {
+        setShowDockDialog(true);
+        setIsDocked(false);
+        return false;
+      }
+    };
 
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('Could not get charging status after 75s'));
-        }, 75000);
-
-        const checkConditions = () => {
-          if (chargingStarted) {
-            clearTimeout(timeout);
-            resolve();
-          } else {
-            setTimeout(checkConditions, 1000);
-          }
-        };
-        checkConditions();
-      });
-    } finally {
-      if (chargingSubscription) chargingSubscription.remove();
-    }
-  };
-
-  const checkCredentials = async () => {
-    try {
-      const creds = await NativeModules.DomainUtils.getStoredCredentials();
-      const hasCreds = creds && creds.email && creds.password && creds.domainId && 
-                      creds.email.length > 0 && creds.password.length > 0 && creds.domainId.length > 0;
-      if (!hasCreds) {
-        await LogUtils.writeDebugToFile('No valid credentials found');
+    const checkCredentials = async () => {
+      try {
+        const creds = await NativeModules.DomainUtils.getStoredCredentials();
+        const hasCreds = creds && creds.email && creds.password && creds.domainId && creds.email.length > 0 && creds.password.length > 0 && creds.domainId.length > 0;
+        if (!hasCreds) {
+          // Skip initialization and go to ConfigScreen
+          onFinish([], { goToConfig: true });
+          return false;
+        }
+        return true;
+      } catch (e) {
         onFinish([], { goToConfig: true });
         return false;
       }
-      await LogUtils.writeDebugToFile('Valid credentials found');
-      return true;
-    } catch (e) {
-      await LogUtils.writeDebugToFile(`Error checking credentials: ${e}`);
-      onFinish([], { goToConfig: true });
-      return false;
-    }
-  };
+    };
 
-  const initialize = async () => {
-    try {
-      // Initialize logging first
-      await LogUtils.initializeLogging();
-      await LogUtils.writeDebugToFile('Starting app initialization...');
-
-      // Check credentials before proceeding
-      const hasCredentials = await checkCredentials();
-      if (!hasCredentials) {
-        await LogUtils.writeDebugToFile('No credentials found, proceeding to config screen');
-        return;
-      }
-
-      // Initialize Padbot first - this is the central initialization point
-      if (isMounted) {
-        setLoadingText('Initializing Padbot...');
-        await LogUtils.writeDebugToFile('Initializing PadbotModule...');
-      }
+    const waitForDock = async () => {
+      setLoadingText('Checking docking status...');
+      await LogUtils.writeDebugToFile('Checking robot docking status...');
       
-      let batteryStatus;
-      try {
-        const robotInitialized = await PadbotUtils.initialize();
-        console.log('PadbotUtils.initialize() returned:', robotInitialized);
-        await LogUtils.writeDebugToFile(`[DEBUG] PadbotUtils.initialize() returned: ${robotInitialized}`);
-        if (robotInitialized) {
-          await LogUtils.writeDebugToFile('PadbotModule initialized successfully');
-          
-          // Wait for valid battery status
-          batteryStatus = await waitForBatteryStatus();
-          console.log('[PadbotUtils] getBatteryStatus:', batteryStatus);
-          await LogUtils.writeDebugToFile(`[PadbotUtils] getBatteryStatus: ${JSON.stringify(batteryStatus)}`);
-          
-          // Wait for charging state
-          await waitForCharging();
-          
-          // Log PadbotModule constants
-          const padbotModule = NativeModules.PadbotModule;
-          if (padbotModule) {
-            const constants = await padbotModule.getConstants();
-            console.log('[PadbotModule] getConstants:', constants);
-            await LogUtils.writeDebugToFile(`[PadbotModule] getConstants: ${JSON.stringify(constants)}`);
+      let docked = await checkDockStatus();
+      if (!docked) {
+        await LogUtils.writeDebugToFile('Robot not docked, waiting for docking...');
+        pollInterval = setInterval(async () => {
+          docked = await checkDockStatus();
+          if (docked) {
+            await LogUtils.writeDebugToFile('Robot successfully docked');
+            clearInterval(pollInterval);
+            // After docked, check credentials
+            const credsOk = await checkCredentials();
+            if (credsOk) initialize();
           }
-        } else {
-          await LogUtils.writeDebugToFile('Failed to initialize PadbotModule');
-          throw new Error('Robot initialization failed');
-        }
-      } catch (robotError: any) {
-        console.log('Error initializing Padbot:', robotError);
-        await LogUtils.writeDebugToFile(`[DEBUG] Error initializing Padbot: ${robotError.message}`);
-        throw robotError;
+        }, 5000);
+      } else {
+        await LogUtils.writeDebugToFile('Robot already docked');
+        // After docked, check credentials
+        const credsOk = await checkCredentials();
+        if (credsOk) initialize();
       }
+    };
 
-      // Start the main 30s timeout after charging state is confirmed
-      setTimeoutId(setTimeout(() => {
-        if (isMounted) {
-          setLoadingText('Loading timeout reached');
-          Animated.timing(opacity, {
-            toValue: 0,
-            duration: 500,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }).start(() => {
-            onFinish([], { goToConfig: true });
-          });
-        }
-      }, 30000));
-
-      // Debug: Before Slamtec SDK test
-      console.log('[DEBUG] Before Slamtec SDK test');
-      await LogUtils.writeDebugToFile('[DEBUG] Before Slamtec SDK test');
-
-      // Test Slamtec SDK connection
+    const initialize = async () => {
       try {
+        // Initialize logging first
+        await LogUtils.initializeLogging();
+        await LogUtils.writeDebugToFile('Starting app initialization...');
+
+        // Initialize Padbot first - this is the central initialization point
         if (isMounted) {
-          setLoadingText('Testing Slamtec SDK connection...');
-          console.log('[DEBUG] Testing Slamtec SDK connection...');
-          await LogUtils.writeDebugToFile('[DEBUG] Testing Slamtec SDK connection...');
-        }
-
-        // Test SDK connection
-        const sdkConnectionDetails = await NativeModules.SlamtecUtils.checkConnectionSdk();
-        console.log('[DEBUG] Slamtec SDK connection:', sdkConnectionDetails);
-        await LogUtils.writeDebugToFile(`[DEBUG] Slamtec SDK connection: ${JSON.stringify(sdkConnectionDetails)}`);
-
-        if (!sdkConnectionDetails.slamApiAvailable) {
-          throw new Error('Slamtec SDK connection failed');
-        }
-
-        await LogUtils.writeDebugToFile('[DEBUG] Slamtec SDK connection successful');
-        console.log('[DEBUG] Slamtec SDK connection successful');
-      } catch (slamtecError: any) {
-        console.log('[DEBUG] Error testing Slamtec SDK connection:', slamtecError);
-        await LogUtils.writeDebugToFile(`[DEBUG] Error testing Slamtec SDK connection: ${slamtecError.message}`);
-        throw slamtecError;
-      }
-
-      // Debug: After Slamtec SDK test
-      console.log('[DEBUG] After Slamtec SDK test');
-      await LogUtils.writeDebugToFile('[DEBUG] After Slamtec SDK test');
-
-      // Get device identifiers early and store them globally
-      try {
-        if (isMounted) {
-          setLoadingText('Initializing device...');
+          setLoadingText('Initializing Padbot...');
+          await LogUtils.writeDebugToFile('Initializing PadbotModule...');
         }
         
-        const identifiers = await NativeModules.DomainUtils.getDeviceIdentifiers();
-        DeviceStorage.setIdentifiers(identifiers.deviceId, identifiers.macAddress);
-        await LogUtils.writeDebugToFile(`Device identifiers initialized: deviceId=${identifiers.deviceId}, macAddress=${identifiers.macAddress}`);
-      } catch (identifierError: any) {
-        await LogUtils.writeDebugToFile(`Error initializing device identifiers: ${identifierError.message}`);
-      }
-
-      // First authenticate with stored credentials
-      if (isMounted) {
-        setLoadingText('Authenticating...');
-        await LogUtils.writeDebugToFile('Attempting authentication...');
-      }
-      
-      // Use the regular authentication system, not gotu credentials
-      let authSuccess = false;
-      let authAttempts = 0;
-      const maxAuthAttempts = 3;
-      
-      while (!authSuccess && authAttempts < maxAuthAttempts) {
         try {
-          authAttempts++;
-          await LogUtils.writeDebugToFile(`Authentication attempt ${authAttempts}/${maxAuthAttempts}`);
-          
-          // This uses the existing authentication system with stored credentials
-          await NativeModules.DomainUtils.authenticate(null, null, null);
-          await LogUtils.writeDebugToFile('Authentication successful');
-          authSuccess = true;
+          const robotInitialized = await PadbotUtils.initialize();
+          console.log('PadbotUtils.initialize() returned:', robotInitialized);
+          await LogUtils.writeDebugToFile(`[DEBUG] PadbotUtils.initialize() returned: ${robotInitialized}`);
+          if (robotInitialized) {
+            await LogUtils.writeDebugToFile('PadbotModule initialized successfully');
+            // Get initial battery status
+            const initialBatteryStatus = await PadbotUtils.getBatteryStatus();
+            console.log('Initial battery status:', initialBatteryStatus);
+            await LogUtils.writeDebugToFile(`[DEBUG] Initial battery status: ${JSON.stringify(initialBatteryStatus)}`);
+          } else {
+            await LogUtils.writeDebugToFile('Failed to initialize PadbotModule');
+            throw new Error('Robot initialization failed');
+          }
+        } catch (robotError: any) {
+          console.log('Error initializing Padbot:', robotError);
+          await LogUtils.writeDebugToFile(`[DEBUG] Error initializing Padbot: ${robotError.message}`);
+          throw robotError;
+        }
 
-          // First try to get existing robot pose data ID
-          try {
-            await LogUtils.writeDebugToFile('Checking for existing robot pose data ID...');
-            const dataIdResult = await NativeModules.DomainUtils.getRobotPoseDataId();
-            
-            if (dataIdResult.exists) {
-              // Use existing data ID if available
-              DeviceStorage.setRobotPoseDataId(dataIdResult.dataId);
-              await LogUtils.writeDebugToFile(`Found existing robot pose data ID: ${dataIdResult.dataId}`);
-            } else {
-              // Only if no existing data ID, send test robot pose data with POST method
-              await LogUtils.writeDebugToFile('No existing data ID found. Sending test robot pose data with POST method...');
-              const testData = '{"Test 1 2 3 4"}';
-              const result = await NativeModules.DomainUtils.writeRobotPose(testData, 'POST', null);
-              await LogUtils.writeDebugToFile(`Robot pose test data sent successfully with ${result.method} method`);
-              
-              // Store the data ID from POST result
-              if (result.dataId) {
-                DeviceStorage.setRobotPoseDataId(result.dataId);
-                await LogUtils.writeDebugToFile(`Robot pose data ID from POST: ${result.dataId}`);
-              } else {
-                await LogUtils.writeDebugToFile('No robot pose data ID returned from POST. Will create one with the first pose update.');
-              }
-            }
-          } catch (poseError: any) {
-            await LogUtils.writeDebugToFile(`Error handling robot pose data: ${poseError.message}`);
+        // Debug: Before Slamtec SDK test
+        console.log('[DEBUG] Before Slamtec SDK test');
+        await LogUtils.writeDebugToFile('[DEBUG] Before Slamtec SDK test');
+
+        // Test Slamtec SDK connection
+        try {
+          if (isMounted) {
+            setLoadingText('Testing Slamtec SDK connection...');
+            console.log('[DEBUG] Testing Slamtec SDK connection...');
+            await LogUtils.writeDebugToFile('[DEBUG] Testing Slamtec SDK connection...');
           }
-        } catch (authError: any) {
-          await LogUtils.writeDebugToFile(`Authentication error on attempt ${authAttempts}: ${authError.message}`);
-          
-          // If credentials are missing, immediately go to config screen
-          if (authError.message === 'Missing credentials') {
-            await LogUtils.writeDebugToFile('Missing credentials detected, proceeding to config screen');
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-              setTimeoutId(null);
-            }
-            onFinish([], { goToConfig: true });
-            return;
+
+          // Test SDK connection
+          const sdkConnectionDetails = await NativeModules.SlamtecUtils.checkConnectionSdk();
+          console.log('[DEBUG] Slamtec SDK connection:', sdkConnectionDetails);
+          await LogUtils.writeDebugToFile(`[DEBUG] Slamtec SDK connection: ${JSON.stringify(sdkConnectionDetails)}`);
+
+          if (!sdkConnectionDetails.slamApiAvailable) {
+            throw new Error('Slamtec SDK connection failed');
           }
-          
-          // Log more detailed error information
-          if (authError.code) {
-            await LogUtils.writeDebugToFile(`Error code: ${authError.code}`);
-          }
-          
-          // Implement exponential backoff between retries
-          if (authAttempts < maxAuthAttempts) {
-            const backoffDelay = Math.pow(2, authAttempts - 1) * 1000; // 1s, 2s, 4s
-            await LogUtils.writeDebugToFile(`Retrying authentication in ${backoffDelay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, backoffDelay));
-          }
+
+          await LogUtils.writeDebugToFile('[DEBUG] Slamtec SDK connection successful');
+          console.log('[DEBUG] Slamtec SDK connection successful');
+        } catch (slamtecError: any) {
+          console.log('[DEBUG] Error testing Slamtec SDK connection:', slamtecError);
+          await LogUtils.writeDebugToFile(`[DEBUG] Error testing Slamtec SDK connection: ${slamtecError.message}`);
+          throw slamtecError;
         }
-      }
-      
-      if (!authSuccess) {
-        await LogUtils.writeDebugToFile('All authentication attempts failed, proceeding with limited functionality');
+
+        // Debug: After Slamtec SDK test
+        console.log('[DEBUG] After Slamtec SDK test');
+        await LogUtils.writeDebugToFile('[DEBUG] After Slamtec SDK test');
+
+        // Get device identifiers early and store them globally
+        try {
+          if (isMounted) {
+            setLoadingText('Initializing device...');
+          }
+          
+          const identifiers = await NativeModules.DomainUtils.getDeviceIdentifiers();
+          DeviceStorage.setIdentifiers(identifiers.deviceId, identifiers.macAddress);
+          await LogUtils.writeDebugToFile(`Device identifiers initialized: deviceId=${identifiers.deviceId}, macAddress=${identifiers.macAddress}`);
+        } catch (identifierError: any) {
+          await LogUtils.writeDebugToFile(`Error initializing device identifiers: ${identifierError.message}`);
+        }
+
+        // First authenticate with stored credentials
         if (isMounted) {
-          setLoadingText('Authentication failed. Some features may be limited.');
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          setLoadingText('Authenticating...');
+          await LogUtils.writeDebugToFile('Attempting authentication...');
         }
-      }
+        
+        // Use the regular authentication system, not gotu credentials
+        let authSuccess = false;
+        let authAttempts = 0;
+        const maxAuthAttempts = 3;
+        
+        while (!authSuccess && authAttempts < maxAuthAttempts) {
+          try {
+            authAttempts++;
+            await LogUtils.writeDebugToFile(`Authentication attempt ${authAttempts}/${maxAuthAttempts}`);
+            
+            // This uses the existing authentication system with stored credentials
+            await NativeModules.DomainUtils.authenticate(null, null, null);
+            await LogUtils.writeDebugToFile('Authentication successful');
+            authSuccess = true;
+
+            // First try to get existing robot pose data ID
+            try {
+              await LogUtils.writeDebugToFile('Checking for existing robot pose data ID...');
+              const dataIdResult = await NativeModules.DomainUtils.getRobotPoseDataId();
+              
+              if (dataIdResult.exists) {
+                // Use existing data ID if available
+                DeviceStorage.setRobotPoseDataId(dataIdResult.dataId);
+                await LogUtils.writeDebugToFile(`Found existing robot pose data ID: ${dataIdResult.dataId}`);
+              } else {
+                // Only if no existing data ID, send test robot pose data with POST method
+                await LogUtils.writeDebugToFile('No existing data ID found. Sending test robot pose data with POST method...');
+                const testData = '{"Test 1 2 3 4"}';
+                const result = await NativeModules.DomainUtils.writeRobotPose(testData, 'POST', null);
+                await LogUtils.writeDebugToFile(`Robot pose test data sent successfully with ${result.method} method`);
+                
+                // Store the data ID from POST result
+                if (result.dataId) {
+                  DeviceStorage.setRobotPoseDataId(result.dataId);
+                  await LogUtils.writeDebugToFile(`Robot pose data ID from POST: ${result.dataId}`);
+                } else {
+                  await LogUtils.writeDebugToFile('No robot pose data ID returned from POST. Will create one with the first pose update.');
+                }
+              }
+            } catch (poseError: any) {
+              await LogUtils.writeDebugToFile(`Error handling robot pose data: ${poseError.message}`);
+            }
+          } catch (authError: any) {
+            await LogUtils.writeDebugToFile(`Authentication error on attempt ${authAttempts}: ${authError.message}`);
+            
+            // Log more detailed error information
+            if (authError.code) {
+              await LogUtils.writeDebugToFile(`Error code: ${authError.code}`);
+            }
+            
+            // Implement exponential backoff between retries
+            if (authAttempts < maxAuthAttempts) {
+              const backoffDelay = Math.pow(2, authAttempts - 1) * 1000; // 1s, 2s, 4s
+              await LogUtils.writeDebugToFile(`Retrying authentication in ${backoffDelay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, backoffDelay));
+            }
+          }
+        }
+        
+        if (!authSuccess) {
+          await LogUtils.writeDebugToFile('All authentication attempts failed, proceeding with limited functionality');
+          if (isMounted) {
+            setLoadingText('Authentication failed. Some features may be limited.');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
 
         // Update map
-        /*
         try {
           if (isMounted) {
             setLoadingText('Updating map...');
@@ -329,13 +253,39 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           if (authSuccess) {
             // Check if map is already being downloaded from authenticate
             // The authenticate method already triggers map download, so we'll just wait here
-            await LogUtils.writeDebugToFile('Authentication successful - map download was triggered during authentication');
+            await LogUtils.writeDebugToFile('Authentication successful - downloading map');
+
+            await NativeModules.DomainUtils.getStcmMap(20);
             
             // Wait a reasonable amount of time for the map download to progress
             await new Promise(resolve => setTimeout(resolve, 3000));
             
             // No need to explicitly call downloadAndProcessMap() here as it was initiated during authentication
-            await LogUtils.writeDebugToFile('Map update complete');
+            await LogUtils.writeDebugToFile('Map download complete');
+
+            const homedockData = await NativeModules.DomainUtils.getHomedockQrId();
+            await LogUtils.writeDebugToFile(`Got homedock data: ${JSON.stringify(homedockData)}`);
+            
+            if (homedockData.qrId) {
+              // Calculate initialPose and homePoint using SlamtecUtils
+              const homedock = [
+                homedockData.px,
+                homedockData.py,
+                homedockData.pz,
+                homedockData.yaw,
+                0.0,
+                0.0
+              ];
+              
+              // Calculate poses
+              const initialPose = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.2);
+              const homePoint = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.4);
+              
+              // Store poses globally and log once
+              globalAny.initialPose = initialPose;
+              globalAny.homePoint = homePoint;
+              await LogUtils.writeDebugToFile(`Calculated and stored poses - initialPose: ${JSON.stringify(globalAny.initialPose)}, homePoint: ${JSON.stringify(globalAny.homePoint)}`);
+            }
           } else {
             await LogUtils.writeDebugToFile('Skipping map update due to authentication failure');
           }
@@ -346,7 +296,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }
-        */
 
         // Load and validate waypoints
         /*
@@ -443,61 +392,122 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name));
           await LogUtils.writeDebugToFile(`Loaded ${products.length} items`);
 
-        if (isMounted) {
-          // Add a short delay before transition
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          await LogUtils.writeDebugToFile('Initialization complete, transitioning to main screen...');
-          
-          // Create fade-out animation
-          Animated.timing(opacity, {
-            toValue: 0,
-            duration: 500,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
-          }).start(() => {
-            onFinish(sortedProducts);
-          });
+          if (isMounted) {
+            // Add a short delay before transition
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await LogUtils.writeDebugToFile('Initialization complete, transitioning to main screen...');
+            
+            // Create fade-out animation
+            Animated.timing(opacity, {
+              toValue: 0,
+              duration: 500,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }).start(() => {
+              onFinish(sortedProducts);
+            });
+          }
+        } catch (itemsError: any) {
+          await LogUtils.writeDebugToFile(`Error loading items: ${itemsError.message}`);
+          if (isMounted) {
+            setLoadingText('Error loading items. Please restart the application.');
+            setTimeout(() => {
+              if (isMounted) {
+                Animated.timing(opacity, {
+                  toValue: 0,
+                  duration: 500,
+                  easing: Easing.out(Easing.cubic),
+                  useNativeDriver: true,
+                }).start(() => {
+                  onFinish([], { goToConfig: true });
+                });
+              }
+            }, 2000);
+          }
         }
       } catch (error: any) {
-        await LogUtils.writeDebugToFile(`Error loading items: ${error.message}`);
         if (isMounted) {
-          setLoadingText(`Error loading items: ${error.message}`);
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          onFinish([], { goToConfig: true });
+          const errorMessage = error.message || 'Error during initialization';
+          await LogUtils.writeDebugToFile(`Error during initialization: ${errorMessage}`);
+          console.error('Error during initialization:', error);
+          setLoadingText(errorMessage);
+          // Still finish after error, but with empty products
+          setTimeout(() => {
+            if (isMounted) {
+              Animated.timing(opacity, {
+                toValue: 0,
+                duration: 500,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+              }).start(() => {
+                onFinish([], { goToConfig: true });
+              });
+            }
+          }, 2000);
         }
       }
-    } catch (error: any) {
-      await LogUtils.writeDebugToFile(`Error during initialization: ${error.message}`);
+    };
+
+    // Comment out waitForDock since we don't need to check docking status
+    // waitForDock();
+
+    // Start initialization immediately
+    initialize();
+
+    timeoutId = setTimeout(() => {
       if (isMounted) {
-        setLoadingText(`Error: ${error.message}`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        onFinish([], { goToConfig: true });
+        setLoadingText('Loading timeout reached');
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 500,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }).start(() => {
+          onFinish([], { goToConfig: true });
+        });
       }
-    }
-  };
+    }, 30000);
 
-  const handleOkPress = async () => {
-    try {
-      setShowRemoveDockDialog(false);
-      await initialize();
-    } catch (error: any) {
-      console.error('Error during initialization:', error);
-      await LogUtils.writeDebugToFile(`Error during initialization: ${error.message}`);
-      setLoadingText(`Error: ${error.message}`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      onFinish([], { goToConfig: true });
-    }
-  };
-
-  useEffect(() => {
-    let isMounted = true;
-
-    // Start with remove from dock dialog
-    setShowRemoveDockDialog(true);
+    // DEBUG: Log all available PadbotUtils and PadbotModule methods at startup
+    (async () => {
+      try {
+        const initResult = await PadbotUtils.initialize();
+        // Add a small delay after initialization
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        const isCharging = await PadbotUtils.isCharging();
+        
+        console.log('[PadbotUtils] initialize:', initResult);
+        console.log('[PadbotUtils] getBatteryStatus:', batteryStatus);
+        console.log('[PadbotUtils] isCharging:', isCharging);
+        LogUtils.writeDebugToFile(`[PadbotUtils] initialize: ${JSON.stringify(initResult)}`);
+        LogUtils.writeDebugToFile(`[PadbotUtils] getBatteryStatus: ${JSON.stringify(batteryStatus)}`);
+        LogUtils.writeDebugToFile(`[PadbotUtils] isCharging: ${JSON.stringify(isCharging)}`);
+        
+        // Try to enumerate and call any extra methods on PadbotModule
+        const padbotModule = NativeModules.PadbotModule;
+        if (padbotModule) {
+          Object.keys(padbotModule).forEach(async (key) => {
+            try {
+              const result = typeof padbotModule[key] === 'function' ? await padbotModule[key]() : padbotModule[key];
+              console.log(`[PadbotModule] ${key}:`, result);
+              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: ${JSON.stringify(result)}`);
+            } catch (e) {
+              console.log(`[PadbotModule] ${key}: error`, e);
+              LogUtils.writeDebugToFile(`[PadbotModule] ${key}: error ${e}`);
+            }
+          });
+        }
+      } catch (e) {
+        console.log('[PadbotUtils] Debug block error:', e);
+        LogUtils.writeDebugToFile(`[PadbotUtils] Debug block error: ${e}`);
+      }
+    })();
 
     return () => {
       isMounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
+      if (pollInterval) clearInterval(pollInterval);
     };
   }, [opacity, onFinish]);
 
@@ -526,34 +536,6 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>Please return the robot to its docking station.</Text>
-          </View>
-        </View>
-      </Modal>
-      <Modal
-        visible={showRemoveDockDialog}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {}}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Remove the robot from the dock</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={handleOkPress}
-            >
-              <Text style={styles.modalButtonText}>OK</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-      <Modal
-        visible={showWaitDialog}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {}}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Please wait...</Text>
           </View>
         </View>
       </Modal>
@@ -614,18 +596,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: '#101010',
     textAlign: 'center',
-  },
-  modalButton: {
-    backgroundColor: '#2670F8',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginTop: 15,
-  },
-  modalButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 
