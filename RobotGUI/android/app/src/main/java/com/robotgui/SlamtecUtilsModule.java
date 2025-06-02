@@ -1850,7 +1850,207 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                     com.slamtec.slamware.action.IMoveAction action = platform.moveTo(locations, moveOption, (float)yaw);
                     
                     // Wait for a short time to let action start
-                    Thread.sleep(100);
+                    Thread.sleep(5000);
+                    
+                    // Monitor action until completion
+                    boolean completed = false;
+                    int retryCount = 0;
+                    int maxRetries = 120; // 60 seconds max (500ms interval)
+                    boolean hasStartedMoving = false;
+                    boolean hasReachedTarget = false;
+                    float targetDistanceThreshold = 0.5f; // Consider target reached if within 0.5 meters
+                    
+                    // Store initial position to detect movement
+                    float initialX = 0;
+                    float initialY = 0;
+                    boolean haveInitialPosition = false;
+                    
+                    try {
+                        com.slamtec.slamware.robot.Pose initialPose = platform.getPose();
+                        initialX = initialPose.getX();
+                        initialY = initialPose.getY();
+                        haveInitialPosition = true;
+                        Log.d(TAG, "Saved initial position: [" + initialX + ", " + initialY + "]");
+                        logToFile("Saved initial position: [" + initialX + ", " + initialY + "]");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error getting initial position: " + e.getMessage());
+                        logToFile("Error getting initial position: " + e.getMessage());
+                    }
+                    
+                    while (!completed && retryCount < maxRetries) {
+                        // Check current action status
+                        try {
+                            com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
+                            
+                            // Log current action status
+                            if (currentAction != null) {
+                                try {
+                                    StringBuilder actionLog = new StringBuilder();
+                                    actionLog.append("Current Action Status:\n");
+                                    
+                                    // IAction interface properties
+                                    try {
+                                        actionLog.append("  - Action Name: ").append(currentAction.getActionName()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Action Name: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    try {
+                                        actionLog.append("  - Action ID: ").append(currentAction.getActionId()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Action ID: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    try {
+                                        actionLog.append("  - Is Empty: ").append(currentAction.isEmpty()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Is Empty: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    try {
+                                        actionLog.append("  - Progress: ").append(currentAction.getProgress()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Progress: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    try {
+                                        actionLog.append("  - Status: ").append(currentAction.getStatus()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Status: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    try {
+                                        actionLog.append("  - Reason: ").append(currentAction.getReason()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Reason: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    // IMoveAction specific properties
+                                    try {
+                                        actionLog.append("  - Remaining Path: ").append(currentAction.getRemainingPath()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Remaining Path: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    try {
+                                        actionLog.append("  - Remaining Milestones: ").append(currentAction.getRemainingMilestones()).append("\n");
+                                    } catch (Exception e) {
+                                        actionLog.append("  - Remaining Milestones: Error - ").append(e.getMessage()).append("\n");
+                                    }
+                                    
+                                    // Log to Android debug
+                                    Log.d(TAG, actionLog.toString());
+                                    
+                                    // Log to file (less frequently to avoid huge logs)
+                                    if (retryCount % 10 == 0) {
+                                        logToFile(actionLog.toString());
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error getting action details: " + e.getMessage());
+                                }
+                            } else {
+                                Log.d(TAG, "No current action (null)");
+                                if (retryCount % 10 == 0) {
+                                    logToFile("No current action (null)");
+                                }
+                            }
+                            
+                            // Check current position to detect movement and target arrival
+                            try {
+                                com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
+                                float currentX = currentPose.getX();
+                                float currentY = currentPose.getY();
+                                
+                                // Log position
+                                Log.d(TAG, "Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
+                                
+                                // Only log to file occasionally to avoid huge log files
+                                if (retryCount % 10 == 0) {
+                                    logToFile("Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
+                                }
+                                
+                                // Check if we've started moving (changed position significantly)
+                                if (haveInitialPosition && !hasStartedMoving) {
+                                    float dx = currentX - initialX;
+                                    float dy = currentY - initialY;
+                                    float distanceMoved = (float)Math.sqrt(dx*dx + dy*dy);
+                                    
+                                    if (distanceMoved > 0.05) { // 5cm movement threshold
+                                        hasStartedMoving = true;
+                                        Log.d(TAG, "Robot has started moving! Distance moved: " + distanceMoved);
+                                        logToFile("Robot has started moving! Distance moved: " + distanceMoved);
+                                    }
+                                }
+                                
+                                // Calculate distance to target
+                                float dx = currentX - (float)x;
+                                float dy = currentY - (float)y;
+                                float distanceToTarget = (float)Math.sqrt(dx*dx + dy*dy);
+                                
+                                if (retryCount % 10 == 0) {
+                                    Log.d(TAG, "Distance to target: " + distanceToTarget + " meters");
+                                }
+                                
+                                // Check if we've reached the target
+                                if (distanceToTarget <= targetDistanceThreshold) {
+                                    hasReachedTarget = true;
+                                    Log.d(TAG, "Target reached! Distance: " + distanceToTarget);
+                                    logToFile("Target reached! Distance: " + distanceToTarget);
+                                    
+                                    // If we've reached the target and action is complete or we're just waiting, 
+                                    // consider navigation complete
+                                    if (currentAction == null) {
+                                        completed = true;
+                                        Log.d(TAG, "Navigation complete - at target with no current action");
+                                        logToFile("Navigation complete - at target with no current action");
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error getting position update: " + e.getMessage());
+                            }
+                            
+                            if (currentAction == null) {
+                                // No current action means movement is complete
+                                if (hasReachedTarget) {
+                                    completed = true;
+                                    Log.d(TAG, "Navigation completed successfully (no current action and at target)");
+                                    logToFile("Navigation completed successfully (no current action and at target)");
+                                } else if (hasStartedMoving) {
+                                    completed = true;
+                                    Log.d(TAG, "Navigation completed (no current action, moved but target not reached)");
+                                    logToFile("Navigation completed (no current action, moved but target not reached)");
+                                } else {
+                                    // If we have no current action but haven't moved, something is wrong
+                                    // Wait a bit more in case robot is just starting
+                                    retryCount++;
+                                    Log.d(TAG, "No current action but no movement detected. Check #" + retryCount);
+                                    
+                                    if (retryCount > 20) { // After 10 seconds, assume something is wrong
+                                        Log.e(TAG, "No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        logToFile("No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        completed = true; // End the loop
+                                    }
+                                }
+                            } else {
+                                // Still moving, log status and wait
+                                retryCount++;
+                                Log.d(TAG, "Robot still moving, check #" + retryCount + " of " + maxRetries);
+                                Thread.sleep(500);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error checking action status: " + e.getMessage(), e);
+                            logToFile("Error checking action status: " + e.getMessage());
+                            // Assume completed if we can't check status
+                            completed = true;
+                        }
+                    }
+                    
+                    if (retryCount >= maxRetries) {
+                        Log.d(TAG, "Navigation timeout - assuming success after " + maxRetries + " checks");
+                    }
+                    
+                    Log.d(TAG, "Navigation completed");
+                    logToFile("Navigation completed");
                     
                     // Return success
                     mainHandler.post(() -> promise.resolve(true));
@@ -1951,6 +2151,79 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                     // Check current action status
                     try {
                         com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
+                        
+                        // Log current action status
+                        if (currentAction != null) {
+                            try {
+                                StringBuilder actionLog = new StringBuilder();
+                                actionLog.append("Current Action Status:\n");
+                                
+                                // IAction interface properties
+                                try {
+                                    actionLog.append("  - Action Name: ").append(currentAction.getActionName()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Action Name: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                try {
+                                    actionLog.append("  - Action ID: ").append(currentAction.getActionId()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Action ID: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                try {
+                                    actionLog.append("  - Is Empty: ").append(currentAction.isEmpty()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Is Empty: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                try {
+                                    actionLog.append("  - Progress: ").append(currentAction.getProgress()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Progress: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                try {
+                                    actionLog.append("  - Status: ").append(currentAction.getStatus()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Status: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                try {
+                                    actionLog.append("  - Reason: ").append(currentAction.getReason()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Reason: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                // IMoveAction specific properties
+                                try {
+                                    actionLog.append("  - Remaining Path: ").append(currentAction.getRemainingPath()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Remaining Path: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                try {
+                                    actionLog.append("  - Remaining Milestones: ").append(currentAction.getRemainingMilestones()).append("\n");
+                                } catch (Exception e) {
+                                    actionLog.append("  - Remaining Milestones: Error - ").append(e.getMessage()).append("\n");
+                                }
+                                
+                                // Log to Android debug
+                                Log.d(TAG, actionLog.toString());
+                                
+                                // Log to file (less frequently to avoid huge logs)
+                                if (retryCount % 10 == 0) {
+                                    logToFile(actionLog.toString());
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error getting action details: " + e.getMessage());
+                            }
+                        } else {
+                            Log.d(TAG, "No current action (null)");
+                            if (retryCount % 10 == 0) {
+                                logToFile("No current action (null)");
+                            }
+                        }
                         
                         // Check current position to detect movement and target arrival
                         try {

@@ -797,7 +797,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     await LogUtils.writeDebugToFile(`Starting navigation to: ${product.name}`);
     setSelectedProduct(product);
     setNavigationStatus(NavigationStatus.NAVIGATING);
-    
+    /*
     // Set robot speed to product search speed (faster)
     try {
       await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.productSearch.toString());
@@ -805,7 +805,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     } catch (error: any) {
       await LogUtils.writeDebugToFile(`Failed to set product search speed: ${error.message}`);
     }
-    
+    */
     const attemptNavigation = async (retryCount = 0) => {
       try {
         // Validate token before attempting navigation
@@ -1466,7 +1466,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     await stopPosePolling();
     posePollingShouldRun = true;
     await LogUtils.writeDebugToFile('[POSE POLLING] Wait-for-completion polling started');
-    pollPoseLoop();
+    //pollPoseLoop();
   };
 
   const stopPosePolling = async () => {
