@@ -25,6 +25,7 @@ import com.slamtec.slamware.robot.Pose;
 import com.slamtec.slamware.robot.Location;
 import com.slamtec.slamware.robot.MoveOption;
 import com.slamtec.slamware.action.IMoveAction;
+import com.slamtec.slamware.robot.SystemParameters;
 import cn.inbot.basiclib.RobotControlManager;
 import com.robotgui.PadbotUtils;
 import java.util.HashMap;
@@ -2920,4 +2921,28 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
             }
         });
     }
+
+    @ReactMethod
+    public void setRobotSpeedSdk(double speed, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                connectPlatformIfNeeded();
+                Log.d(TAG, "Setting robot speed with SDK to: " + speed);
+                logToFile("Setting robot speed with SDK to: " + speed);
+                
+                // Set the speed parameter (0.0 to 1.0)
+                platform.setSystemParameter(SystemParameters.SYSPARAM_ROBOT_SPEED, String.valueOf(speed));
+                
+                Log.d(TAG, "Robot speed set successfully");
+                logToFile("Robot speed set successfully");
+                
+                mainHandler.post(() -> promise.resolve(true));
+            } catch (Exception e) {
+                String errorMsg = "Error setting robot speed with SDK: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                logToFile(errorMsg);
+                mainHandler.post(() -> promise.reject("SPEED_ERROR", errorMsg));
+            }
+        });
+    }   
 } 

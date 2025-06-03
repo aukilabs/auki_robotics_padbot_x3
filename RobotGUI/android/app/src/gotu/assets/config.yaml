@@ -30,8 +30,8 @@ patrol:
   point4: [-1.03, 0.01, 1.57]  
 
 speeds:
-  patrol: "0.25"
-  product_search: "0.7"
+  patrol: "0.2"
+  product_search: "0.5"
   default: "0.5"
 
 gotu:
