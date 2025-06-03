@@ -2160,20 +2160,6 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   return (
     <SafeAreaView 
       style={styles.container}
-      /*onTouchStart={async () => {
-        // Debounce touch events to prevent rapid firing
-        if (isTouchDebouncedRef.current) return;
-        isTouchDebouncedRef.current = true;
-        setTimeout(() => { isTouchDebouncedRef.current = false; }, 1000);
-
-        // Only log essential information
-        if (!isPatrollingRef.current && navigationStatus !== NavigationStatus.PATROL) {
-          resetInactivityTimer()
-            .catch(err => console.error('Error resetting inactivity timer:', err));
-        } else if (isPatrollingRef.current && navigationStatus === NavigationStatus.PATROL) {
-          startInactivityTimer();
-        }
-      }}*/
       onTouchStart={() => {
         // Only start timer if we're in promotion mode (PATROL), no product selected, and promotion is active
         if (navigationStatus === NavigationStatus.PATROL && !selectedProduct && globalAny.promotionActive) {
@@ -2208,22 +2194,28 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
           />
           
           <View style={styles.headerRight}>
-            <BatteryIndicator />
             <TouchableOpacity 
               style={styles.configButton}
-              onPress={() => {
+              onPress={undefined}
+              onLongPress={() => {
                 clearInactivityTimer();
                 LogUtils.writeDebugToFile('Config screen opened, cleared inactivity timer');
                 navigatingToConfig = true;
                 onConfigPress();
               }}
+              delayLongPress={3000}
             >
-              <Text style={styles.configButtonText}>⚙️</Text>
+              {/* Config button is now invisible but still functional with long press */}
             </TouchableOpacity>
           </View>
         </View>
         
         {renderContent()}
+        
+        {/* Battery indicator moved to top layer */}
+        <View style={styles.batteryOverlay}>
+          <BatteryIndicator />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -2261,18 +2253,10 @@ const styles = StyleSheet.create({
     padding: 8,
     width: 60,
     height: 60,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent', // Make button transparent
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  configButtonText: {
-    fontSize: 30,
   },
   headerRight: {
     flexDirection: 'row',
@@ -2543,6 +2527,12 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     opacity: 0, // Start invisible
+  },
+  batteryOverlay: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1000, // Ensure it's above other content
   },
 });
 
