@@ -27,6 +27,8 @@ import com.slamtec.slamware.robot.MoveOption;
 import com.slamtec.slamware.action.IMoveAction;
 import cn.inbot.basiclib.RobotControlManager;
 import com.robotgui.PadbotUtils;
+import java.util.HashMap;
+import com.slamtec.slamware.robot.CompositePose;
 
 public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     private static final String TAG = "SlamtecUtilsModule";
@@ -2731,6 +2733,190 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 Log.e(TAG, errorMsg, e);
                 logToFile(errorMsg);
                 mainHandler.post(() -> promise.reject("NAVIGATION_ERROR", errorMsg));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getPOIsSdk(Promise promise) {
+        executorService.execute(() -> {
+            try {
+                connectPlatformIfNeeded();
+                Log.d(TAG, "Getting POIs using SDK...");
+                logToFile("Getting POIs using SDK...");
+                HashMap<String, CompositePose> pois = platform.getPOIs();
+                Log.d(TAG, "getPOIs returned: " + (pois != null ? pois.size() + " POIs" : "null"));
+                logToFile("getPOIs returned: " + (pois != null ? pois.size() + " POIs" : "null"));
+                WritableArray poiArray = Arguments.createArray();
+                if (pois != null) {
+                    for (Map.Entry<String, CompositePose> entry : pois.entrySet()) {
+                        WritableMap poiMap = Arguments.createMap();
+                        poiMap.putString("display_name", entry.getKey());
+                        Pose pose = entry.getValue().getPose();
+                        poiMap.putDouble("x", pose.getX());
+                        poiMap.putDouble("y", pose.getY());
+                        poiMap.putDouble("yaw", pose.getYaw());
+                        poiArray.pushMap(poiMap);
+                    }
+                }
+                promise.resolve(poiArray);
+            } catch (Exception e) {
+                Log.e(TAG, "Error getting POIs with SDK: " + e.getMessage(), e);
+                logToFile("Error getting POIs with SDK: " + e.getMessage());
+                promise.reject("POI_ERROR", "Failed to get POIs: " + e.getMessage());
+            }
+        });
+    }
+
+    private void initializeDefaultPOIsSdk(Promise promise) {
+        try {
+            Log.d(TAG, "Starting POI initialization with SDK...");
+            logToFile("Starting POI initialization with SDK...");
+            
+            // Get the ReactApplicationContext
+            ReactApplicationContext context = getReactApplicationContext();
+            if (context == null) {
+                throw new Exception("ReactApplicationContext is null");
+            }
+
+            // Get app variant and determine correct path
+            String appVariant = context.getResources().getString(R.string.app_variant);
+            Log.d(TAG, "Got app variant: " + appVariant);
+            logToFile("Got app variant: " + appVariant);
+            
+            // Get the Downloads directory and app-specific directory
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File appDir = new File(downloadsDir, appVariant.equals("gotu") ? "GoTu" : "CactusAssistant");
+            if (!appDir.exists()) {
+                appDir.mkdirs();
+            }
+            
+            // Read patrol points from the app-specific directory
+            File patrolPointsFile = new File(appDir, "patrol_points.json");
+            if (!patrolPointsFile.exists()) {
+                throw new Exception("Patrol points file does not exist at: " + patrolPointsFile.getAbsolutePath());
+            }
+            
+            // Read file content
+            StringBuilder content = new StringBuilder();
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(patrolPointsFile);
+                 java.io.InputStreamReader isr = new java.io.InputStreamReader(fis, "UTF-8");
+                 java.io.BufferedReader reader = new java.io.BufferedReader(isr)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
+                }
+            }
+
+            // Parse JSON
+            JSONObject patrolPoints = new JSONObject(content.toString());
+            JSONArray pointsArray = patrolPoints.getJSONArray("patrol_points");
+            
+            // Create HashMap for POIs
+            HashMap<String, com.slamtec.slamware.robot.CompositePose> poiMap = new HashMap<>();
+            
+            // Create POIs using SDK
+            for (int i = 0; i < pointsArray.length(); i++) {
+                JSONObject point = pointsArray.getJSONObject(i);
+                String name = point.getString("name");
+                double x = point.getDouble("x");
+                double y = point.getDouble("y");
+                double yaw = point.getDouble("yaw");
+                
+                // Create CompositePose for POI
+                com.slamtec.slamware.robot.CompositePose compositePose = new com.slamtec.slamware.robot.CompositePose();
+                com.slamtec.slamware.robot.Pose pose = new com.slamtec.slamware.robot.Pose();
+                pose.setX((float)x);
+                pose.setY((float)y);
+                pose.setYaw((float)yaw);
+                compositePose.setPose(pose);
+                compositePose.setName(name);
+                
+                // Add to HashMap
+                poiMap.put(name, compositePose);
+                
+                Log.d(TAG, "Created POI: " + name + " at [" + x + ", " + y + ", " + yaw + "]");
+                logToFile("Created POI: " + name + " at [" + x + ", " + y + ", " + yaw + "]");
+            }
+            
+            // Set all POIs at once
+            boolean success = platform.setPOIs(poiMap);
+            if (!success) {
+                throw new Exception("Failed to set POIs");
+            }
+            
+            Log.d(TAG, "POI initialization complete");
+            logToFile("POI initialization complete");
+            
+        } catch (Exception e) {
+            String errorMsg = "Error initializing POIs with SDK: " + e.getMessage();
+            Log.e(TAG, errorMsg, e);
+            logToFile(errorMsg);
+            mainHandler.post(() -> promise.reject("POI_ERROR", errorMsg));
+        }
+    }
+
+    @ReactMethod
+    public void clearAndInitializePOIsSdk(Promise promise) {
+        executorService.execute(() -> {
+            try {
+                connectPlatformIfNeeded();
+                Log.d(TAG, "Starting POI reset process with SDK...");
+                logToFile("Starting POI reset process with SDK...");
+                
+                // Clear existing POIs
+                boolean cleared = platform.clearPOIs();
+                if (!cleared) {
+                    throw new Exception("Failed to clear POIs");
+                }
+                Log.d(TAG, "Successfully cleared existing POIs");
+                logToFile("Successfully cleared existing POIs");
+                
+                // Initialize new POIs
+                initializeDefaultPOIsSdk(promise);
+                
+                mainHandler.post(() -> promise.resolve(true));
+            } catch (Exception e) {
+                String errorMsg = "Error resetting POIs with SDK: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                logToFile(errorMsg);
+                mainHandler.post(() -> promise.reject("POI_ERROR", errorMsg));
+            }
+        });
+    }
+
+    @ReactMethod
+    public void createPOISdk(double x, double y, double yaw, String displayName, Promise promise) {
+        executorService.execute(() -> {
+            try {
+                connectPlatformIfNeeded();
+                Log.d(TAG, "Creating POI with SDK: " + displayName);
+                logToFile("Creating POI with SDK: " + displayName);
+                
+                // Create CompositePose for POI
+                com.slamtec.slamware.robot.CompositePose compositePose = new com.slamtec.slamware.robot.CompositePose();
+                com.slamtec.slamware.robot.Pose pose = new com.slamtec.slamware.robot.Pose();
+                pose.setX((float)x);
+                pose.setY((float)y);
+                pose.setYaw((float)yaw);
+                compositePose.setPose(pose);
+                compositePose.setName(displayName);
+                
+                // Add POI to platform
+                boolean success = platform.addPOI(compositePose);
+                if (!success) {
+                    throw new Exception("Failed to add POI");
+                }
+                
+                Log.d(TAG, "Successfully created POI: " + displayName);
+                logToFile("Successfully created POI: " + displayName);
+                
+                mainHandler.post(() -> promise.resolve(true));
+            } catch (Exception e) {
+                String errorMsg = "Error creating POI with SDK: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                logToFile(errorMsg);
+                mainHandler.post(() -> promise.reject("POI_ERROR", errorMsg));
             }
         });
     }

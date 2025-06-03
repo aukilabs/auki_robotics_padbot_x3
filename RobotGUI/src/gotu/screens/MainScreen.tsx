@@ -1395,7 +1395,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
                   activeOpacity={1}
                 >
                   <Image 
-                    source={require('../assets/GotuAdLandscape.png')} 
+                    source={require('../assets/GotuAdVertical.png')} 
                     style={styles.fullScreenImage}
                     resizeMode="cover"
                   />
@@ -2062,58 +2062,6 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
             name: point.name
           }));
           await LogUtils.writeDebugToFile(`Loaded patrol points: ${JSON.stringify(patrolPoints)}`);
-
-          // Validate against POIs
-          let pois = await NativeModules.SlamtecUtils.getPOIs();
-          await LogUtils.writeDebugToFile(`Initial POIs fetch: ${JSON.stringify(pois)}`);
-          
-          // If POIs is empty, wait a moment and try again as they might be initializing
-          if (Array.isArray(pois) && pois.length === 0) {
-            await LogUtils.writeDebugToFile('No POIs found, waiting for initialization...');
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for POIs to initialize
-            pois = await NativeModules.SlamtecUtils.getPOIs();
-            await LogUtils.writeDebugToFile(`POIs after initialization: ${JSON.stringify(pois)}`);
-          }
-          
-          // POIs response is an array of POI objects with metadata.display_name
-          const poiNames = Array.isArray(pois) ? pois.map((poi: any) => poi.metadata?.display_name?.trim()) : [];
-          await LogUtils.writeDebugToFile(`Found POI names: ${JSON.stringify(poiNames)}`);
-          
-          // Filter out any undefined or empty names
-          const validPoiNames = poiNames.filter((name): name is string => 
-            typeof name === 'string' && name.length > 0
-          );
-          await LogUtils.writeDebugToFile(`Valid POI names: ${JSON.stringify(validPoiNames)}`);
-          
-          // Check for mismatches
-          const extraPOIs = validPoiNames.filter((name: string) => 
-            !patrolPoints.find((cp: { name: string }) => cp.name === name)
-          );
-          const missingPoints = patrolPoints.filter((cp: { name: string }) => 
-            !validPoiNames.includes(cp.name)
-          );
-          
-          if (extraPOIs.length > 0 || missingPoints.length > 0) {
-            let errorMsg = '';
-            if (extraPOIs.length > 0) {
-              errorMsg += `Unexpected POIs found: ${extraPOIs.join(', ')}\n`;
-            }
-            if (missingPoints.length > 0) {
-              errorMsg += `Missing waypoints: ${missingPoints.map((p: { name: string }) => p.name).join(', ')}`;
-            }
-            await LogUtils.writeDebugToFile(`POI validation error: ${errorMsg}`);
-            
-            // Clear and reinitialize POIs
-            await LogUtils.writeDebugToFile('Clearing and reinitializing POIs...');
-            await NativeModules.SlamtecUtils.clearAndInitializePOIs();
-            await LogUtils.writeDebugToFile('POIs have been reset and reinitialized');
-            
-            // Verify the POIs again
-            pois = await NativeModules.SlamtecUtils.getPOIs();
-            await LogUtils.writeDebugToFile(`POIs after reset: ${JSON.stringify(pois)}`);
-          } else {
-            await LogUtils.writeDebugToFile('POI validation successful - all points match config');
-          }
         } else {
           await LogUtils.writeDebugToFile('No patrol points configuration found');
         }

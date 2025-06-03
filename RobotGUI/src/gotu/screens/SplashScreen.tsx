@@ -307,9 +307,8 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }
-
-        // Load and validate waypoints
         /*
+        // Load and validate waypoints
         try {
           if (isMounted) {
             setLoadingText('Validating waypoints...');
@@ -327,20 +326,20 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             }));
             await LogUtils.writeDebugToFile(`Patrol Points Configuration: ${JSON.stringify(formattedPoints)}`);
 
-            // Get current POIs
-            let pois = await NativeModules.SlamtecUtils.getPOIs();
+            // Get current POIs using SDK
+            let pois = await NativeModules.SlamtecUtils.getPOIsSdk();
             await LogUtils.writeDebugToFile(`Initial POIs fetch: ${JSON.stringify(pois)}`);
             
             // If POIs is empty, wait a moment and try again as they might be initializing
             if (Array.isArray(pois) && pois.length === 0) {
               await LogUtils.writeDebugToFile('No POIs found, waiting for initialization...');
               await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for POIs to initialize
-              pois = await NativeModules.SlamtecUtils.getPOIs();
+              pois = await NativeModules.SlamtecUtils.getPOIsSdk();
               await LogUtils.writeDebugToFile(`POIs after initialization: ${JSON.stringify(pois)}`);
             }
             
-            // POIs response is an array of POI objects with metadata.display_name
-            const poiNames = Array.isArray(pois) ? pois.map((poi: any) => poi.metadata?.display_name?.trim()) : [];
+            // POIs response is an array of POI objects with display_name
+            const poiNames = Array.isArray(pois) ? pois.map((poi: any) => poi.display_name?.trim()) : [];
             await LogUtils.writeDebugToFile(`Found POI names: ${JSON.stringify(poiNames)}`);
             
             // Filter out any undefined or empty names
@@ -367,15 +366,15 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
               }
               await LogUtils.writeDebugToFile(`POI validation error: ${errorMsg}`);
               
-              // Clear and reinitialize POIs
+              // Clear and reinitialize POIs using SDK
               await LogUtils.writeDebugToFile('Clearing and reinitializing POIs...');
               if (isMounted) setLoadingText('Resetting waypoints...');
               
-              await NativeModules.SlamtecUtils.clearAndInitializePOIs();
+              await NativeModules.SlamtecUtils.clearAndInitializePOIsSdk();
               await LogUtils.writeDebugToFile('POIs have been reset and reinitialized');
               
               // Verify the POIs again
-              pois = await NativeModules.SlamtecUtils.getPOIs();
+              pois = await NativeModules.SlamtecUtils.getPOIsSdk();
               await LogUtils.writeDebugToFile(`POIs after reset: ${JSON.stringify(pois)}`);
             } else {
               await LogUtils.writeDebugToFile('POI validation successful - all points match config');
