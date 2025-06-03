@@ -1,141 +1,182 @@
-2025-06-02T13:39:12.068Z: === New Debug Session Started ===
-2025-06-02T13:39:12.081Z: App Version: unknown
-2025-06-02T13:39:12.086Z: Starting app initialization...
-2025-06-02T13:39:12.104Z: Initializing PadbotModule...
-2025-06-02T13:39:12.118Z: [DEBUG] PadbotUtils.initialize() returned: true
-2025-06-02T13:39:12.130Z: PadbotModule initialized successfully
-2025-06-02T13:39:12.145Z: [DEBUG] Initial battery status: {"charging":false,"isInitialValue":true,"percentage":-1}
-2025-06-02T13:39:12.158Z: [DEBUG] Before Slamtec SDK test
-2025-06-02T13:39:12.169Z: [DEBUG] Testing Slamtec SDK connection...
+2025-06-03T00:06:09.963Z: === New Debug Session Started ===
+2025-06-03T00:06:09.976Z: App Version: unknown
+2025-06-03T00:06:09.987Z: Starting app initialization...
+2025-06-03T00:06:09.994Z: Initializing PadbotModule...
+2025-06-03T00:06:10.014Z: [DEBUG] PadbotUtils.initialize() returned: true
+2025-06-03T00:06:10.024Z: PadbotModule initialized successfully
+2025-06-03T00:06:10.039Z: [DEBUG] Initial battery status: {"charging":false,"isInitialValue":true,"percentage":-1}
+2025-06-03T00:06:10.051Z: [DEBUG] Before Slamtec SDK test
+2025-06-03T00:06:10.064Z: [DEBUG] Testing Slamtec SDK connection...
 SDK Health Check: Connection successful
 SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
 SDK Health Check: Final result - deviceFound: true
-2025-06-02T13:39:12.235Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
-2025-06-02T13:39:12.241Z: [DEBUG] Slamtec SDK connection successful
-2025-06-02T13:39:12.248Z: [DEBUG] After Slamtec SDK test
-[2025-06-02 21:39:12.310] Using existing stored device ID: padbot-50411cf0f5b8
-[2025-06-02 21:39:12.315] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
-2025-06-02T13:39:12.320Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
-2025-06-02T13:39:12.326Z: Attempting authentication...
-2025-06-02T13:39:12.335Z: Authentication attempt 1/3
-2025-06-02T13:39:12.600Z: [PadbotUtils] initialize: true
-2025-06-02T13:39:12.602Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
-2025-06-02T13:39:12.604Z: [PadbotUtils] isCharging: false
-2025-06-02T13:39:12.610Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
-2025-06-02T13:39:12.624Z: [PadbotModule] initialize: true
-2025-06-02T13:39:12.627Z: [PadbotModule] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
-2025-06-02T13:39:12.629Z: [PadbotModule] isCharging: false
-2025-06-02T13:39:14.993Z: Authentication successful
-2025-06-02T13:39:15.000Z: Checking for existing robot pose data ID...
-[2025-06-02 21:39:15.012] Getting robot pose data ID
-[2025-06-02 21:39:15.024] Using existing stored device ID: padbot-50411cf0f5b8
-[2025-06-02 21:39:15.031] Checking for existing pose data with deviceId: padbot-50411cf0f5b8
-[2025-06-02 21:39:15.037] Fetching data from: https://domain-server-us-east-1.aukiverse.com/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/data?name=padbot-50411cf0f5b8&data_type=reported_pose_json
-[2025-06-02 21:39:16.151] Get response: {"data":[{"id":"206555c8-8ca6-4ec0-bdfc-1a8ab18524eb","domain_id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"padbot-50411cf0f5b8","data_type":"reported_pose_json","size":16,"created_at":"2025-05-31T07:58:24.296681Z","updated_at":"2025-05-31T07:58:24.296681Z"}]}
-[2025-06-02 21:39:16.160] Found existing pose data with ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
-2025-06-02T13:39:16.165Z: Found existing robot pose data ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
-2025-06-02T13:39:16.170Z: Updating map...
-2025-06-02T13:39:16.185Z: Authentication successful - downloading map
-2025-06-02T13:39:18.496Z: Map downloaded successfully: /storage/emulated/0/Download/GoTu/map.stcm
-2025-06-02T13:39:21.519Z: Map download complete
-[2025-06-02 21:39:21.538] Retrieved homedock_qr_id: D1J0UQWF33W
-[2025-06-02 21:39:21.551] Getting pose data for QR ID: D1J0UQWF33W
-[2025-06-02 21:39:21.567] Fetching lighthouse data for QR ID: D1J0UQWF33W from domain server: https://domain-server-us-east-1.aukiverse.com
-[2025-06-02 21:39:22.507] Get lighthouses response code: 200
-[2025-06-02 21:39:22.804] Found 'poses' field with 80 items
-[2025-06-02 21:39:22.809] Found matching lighthouse with short_id: D1J0UQWF33W
-[2025-06-02 21:39:22.813] Yaw: -1.5812466814892414, Pitch: -1.5707962710398569, Roll: 0.0216199748868282
-[2025-06-02 21:39:22.817] Transformed coordinates: Original (px=3.1223645210266113, py=0.0, pz=0.7757523059844971) -> Transformed (px=3.1223645210266113, py=-0.7757523059844971, pz=0.0)
-[2025-06-02 21:39:22.822] Converted quaternion (rx=-0.5027845803016476, ry=-0.4971998000490528, rz=-0.4971998250889374, rw=0.5027846045511017) -> yaw=-1.5812466814892414
-[2025-06-02 21:39:22.826] Saved homedock data to preferences: x=3.1223645210266113, y=-0.7757523059844971, z=0.0, yaw=-1.5812466814892414
-2025-06-02T13:39:22.829Z: Got homedock data: {"yaw":-1.5812466814892414,"py":-0.7757523059844971,"pz":0,"px":3.1223645210266113,"qrId":"D1J0UQWF33W"}
-2025-06-02T13:39:22.834Z: Calculated and stored poses - initialPose: [3.120274488130279,-0.5757632268764311,0,1.5812466814892414,0,0], homePoint: [3.1181844552339464,-0.3757741477683652,0,1.5812466814892414,0,0]
+2025-06-03T00:06:10.183Z: [DEBUG] Slamtec SDK connection: {"deviceFound":true,"response":"{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}","slamApiAvailable":true,"status":"Robot health check successful","responseCode":200}
+2025-06-03T00:06:10.187Z: [DEBUG] Slamtec SDK connection successful
+2025-06-03T00:06:10.190Z: [DEBUG] After Slamtec SDK test
+[2025-06-03 08:06:10.221] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-03 08:06:10.226] Device identifiers retrieved: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-03T00:06:10.264Z: Device identifiers initialized: deviceId=padbot-50411cf0f5b8, macAddress=50411cf0f5b8
+2025-06-03T00:06:10.268Z: Attempting authentication...
+2025-06-03T00:06:10.277Z: Authentication attempt 1/3
+2025-06-03T00:06:10.483Z: [PadbotUtils] initialize: true
+2025-06-03T00:06:10.484Z: [PadbotUtils] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
+2025-06-03T00:06:10.484Z: [PadbotUtils] isCharging: false
+2025-06-03T00:06:10.486Z: [PadbotModule] getConstants: {"DEFAULT_BATTERY_LEVEL":-1}
+2025-06-03T00:06:10.497Z: [PadbotModule] initialize: true
+2025-06-03T00:06:10.500Z: [PadbotModule] getBatteryStatus: {"charging":false,"isInitialValue":true,"percentage":-1}
+2025-06-03T00:06:10.502Z: [PadbotModule] isCharging: false
+2025-06-03T00:06:12.499Z: Authentication successful
+2025-06-03T00:06:12.506Z: Checking for existing robot pose data ID...
+[2025-06-03 08:06:12.522] Getting robot pose data ID
+[2025-06-03 08:06:12.534] Using existing stored device ID: padbot-50411cf0f5b8
+[2025-06-03 08:06:12.540] Checking for existing pose data with deviceId: padbot-50411cf0f5b8
+[2025-06-03 08:06:12.545] Fetching data from: https://domain-server-us-east-1.aukiverse.com/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/data?name=padbot-50411cf0f5b8&data_type=reported_pose_json
+[2025-06-03 08:06:13.634] Get response: {"data":[{"id":"206555c8-8ca6-4ec0-bdfc-1a8ab18524eb","domain_id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"padbot-50411cf0f5b8","data_type":"reported_pose_json","size":16,"created_at":"2025-05-31T07:58:24.296681Z","updated_at":"2025-05-31T07:58:24.296681Z"}]}
+[2025-06-03 08:06:13.643] Found existing pose data with ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-03T00:06:13.647Z: Found existing robot pose data ID: 206555c8-8ca6-4ec0-bdfc-1a8ab18524eb
+2025-06-03T00:06:13.654Z: Updating map...
+2025-06-03T00:06:13.665Z: Authentication successful - downloading map
+2025-06-03T00:06:15.874Z: Map downloaded successfully: /storage/emulated/0/Download/GoTu/map.stcm
+2025-06-03T00:06:18.886Z: Map download complete
+[2025-06-03 08:06:18.905] Retrieved homedock_qr_id: D1J0UQWF33W
+[2025-06-03 08:06:18.916] Getting pose data for QR ID: D1J0UQWF33W
+[2025-06-03 08:06:18.930] Fetching lighthouse data for QR ID: D1J0UQWF33W from domain server: https://domain-server-us-east-1.aukiverse.com
+[2025-06-03 08:06:19.951] Get lighthouses response code: 200
+[2025-06-03 08:06:20.173] Found 'poses' field with 80 items
+[2025-06-03 08:06:20.177] Found matching lighthouse with short_id: D1J0UQWF33W
+[2025-06-03 08:06:20.181] Yaw: -1.5812466814892414, Pitch: -1.5707962710398569, Roll: 0.0216199748868282
+[2025-06-03 08:06:20.185] Transformed coordinates: Original (px=3.1223645210266113, py=0.0, pz=0.7757523059844971) -> Transformed (px=3.1223645210266113, py=-0.7757523059844971, pz=0.0)
+[2025-06-03 08:06:20.189] Converted quaternion (rx=-0.5027845803016476, ry=-0.4971998000490528, rz=-0.4971998250889374, rw=0.5027846045511017) -> yaw=-1.5812466814892414
+[2025-06-03 08:06:20.194] Saved homedock data to preferences: x=3.1223645210266113, y=-0.7757523059844971, z=0.0, yaw=-1.5812466814892414
+2025-06-03T00:06:20.197Z: Got homedock data: {"yaw":-1.5812466814892414,"py":-0.7757523059844971,"pz":0,"px":3.1223645210266113,"qrId":"D1J0UQWF33W"}
+2025-06-03T00:06:20.202Z: Calculated and stored poses - initialPose: [3.120274488130279,-0.5757632268764311,0,1.5812466814892414,0,0], homePoint: [3.1181844552339464,-0.3757741477683652,0,1.5812466814892414,0,0]
 Processing map with SDK: /storage/emulated/0/Download/GoTu/map.stcm
 Input file exists: true, size: 344901 bytes
+Successfully cleared existing map before loading new map
 Loading map from: /storage/emulated/0/Download/GoTu/map.stcm
 Map loaded successfully with SDK
 Created initial pose from array: [3.120274488130279, -0.5757632268764311, 0.0, 1.5812466814892414, 0.0, 0.0]
 Created initial pose object successfully
 Map uploaded successfully to platform
-2025-06-02T13:39:24.310Z: Map processed with SDK: /storage/emulated/0/Download/GoTu/map.stcm
-2025-06-02T13:39:24.355Z: Current pose: {"roll":0,"yaw":1.5836342573165894,"z":0,"y":-0.5687135457992554,"pitch":0,"x":3.095564842224121}
-2025-06-02T13:39:24.364Z: Loading Gotu items...
-2025-06-02T13:39:25.587Z: Loaded 41 items
-2025-06-02T13:39:26.609Z: Initialization complete, transitioning to main screen...
-2025-06-02T13:39:27.389Z: Starting battery monitoring...
-2025-06-02T13:39:27.389Z: Patrol state changed to: inactive
-2025-06-02T13:39:27.390Z: MainScreen mounted. Promotion state: active=false, cancelled=false, currentPointIndex=0, remountFromConfig=false
-2025-06-02T13:39:27.454Z: Performing initial token validation
-2025-06-02T13:39:27.455Z: Polling for robot call data...
-2025-06-02T13:39:27.455Z: Started robot call polling
-2025-06-02T13:39:27.456Z: Navigation state changed to: IDLE
-2025-06-02T13:39:27.456Z: Navigation status updated to: IDLE
-2025-06-02T13:39:27.457Z: Performing initial health check in MainScreen...
-2025-06-02T13:39:27.457Z: [POSE POLLING] Wait-for-completion polling stopped
-2025-06-02T13:39:27.458Z: Performing initial health check in MainScreen...
+2025-06-03T00:06:22.501Z: Map processed with SDK: /storage/emulated/0/Download/GoTu/map.stcm
+2025-06-03T00:06:22.522Z: Current pose: {"roll":0,"yaw":1.5812467336654663,"z":0,"y":-0.5757661461830139,"pitch":0,"x":3.120274543762207}
+2025-06-03T00:06:22.529Z: Loading Gotu items...
+2025-06-03T00:06:23.690Z: Loaded 41 items
+2025-06-03T00:06:24.711Z: Initialization complete, transitioning to main screen...
+2025-06-03T00:06:25.539Z: Starting battery monitoring...
+2025-06-03T00:06:25.540Z: Patrol state changed to: inactive
+2025-06-03T00:06:25.540Z: MainScreen mounted. Promotion state: active=false, cancelled=false, currentPointIndex=0, remountFromConfig=false
+2025-06-03T00:06:25.616Z: Performing initial token validation
+2025-06-03T00:06:25.617Z: Polling for robot call data...
+2025-06-03T00:06:25.618Z: Started robot call polling
+2025-06-03T00:06:25.618Z: Navigation state changed to: IDLE
+2025-06-03T00:06:25.618Z: Navigation status updated to: IDLE
+2025-06-03T00:06:25.619Z: Performing initial health check in MainScreen...
+2025-06-03T00:06:25.619Z: [POSE POLLING] Wait-for-completion polling stopped
 SDK Health Check: Connection successful
+2025-06-03T00:06:25.620Z: Performing initial health check in MainScreen...
 SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
-2025-06-02T13:39:27.459Z: Battery monitoring initialized successfully
-2025-06-02T13:39:27.460Z: validateToken called (force=true)
 SDK Health Check: Connection successful
 SDK Health Check: Final result - deviceFound: true
-2025-06-02T13:39:27.460Z: Proactively validating authentication token
 SDK Health Check: Health info - Error: false, Warning: false, Fatal: false
 SDK Health Check: Final result - deviceFound: true
-2025-06-02T13:39:27.515Z: [POSE POLLING] Wait-for-completion polling stopped
-2025-06-02T13:39:27.516Z: [POSE POLLING] Wait-for-completion polling started
-2025-06-02T13:39:27.516Z: No patrol points configuration found
-2025-06-02T13:39:27.517Z: [BATTERY] Battery status update event received
-[2025-06-02 21:39:27.531] Starting token validation...
-2025-06-02T13:39:27.520Z: Polling stopped in IDLE state
-[2025-06-02 21:39:27.540] Domain info from storage: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","created_at":"2024-02-02T00:35:47.24977Z","updated_at":"2025-05-02T06:00:55.444308Z","claimed_by_kazm_id":null,"owner_wallet_address":"","access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOlsiZG9tYWluOnJ3Il0sImRvbWFpbl9pZCI6IjgwOTNmOWJmLWMzNzQtNDE2Mi1hYjc0LWFiNjE5NDk2MjdmMSIsIm9yZyI6ImNiYWM0MGVmLTc0NTItNDA4ZS04MTdiLWFmZDRlOTEzYWQwYyIsInR5cGUiOiJ1c2VyLWFjY2VzcyIsImlzcyI6ImRkcyIsInN1YiI6IjNlMDNlMjk4LWY0NzEtNDk4Ni05YjEwLTgzOTlmMzUzMDYyMCIsImF1ZCI6WyJkZHMiLCJodHRwczovL2RvbWFpbi1zZXJ2ZXItdXMtZWFzdC0xLmF1a2l2ZXJzZS5jb20iXSwiZXhwIjoxNzQ4ODc1MTU0LCJpYXQiOjE3NDg4NzE1NTR9.2bjMXyFFrPUTFyNIYgqKphvIAdvEoY8VFYRgte20j7yVG2ylMaEuWMJAoS8pm_9-YNVtxbvoVmCyv6OcV-tFcg","domain_server":{"id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","organization_id":"00000000-0000-0000-0000-000000000001","name":"node-c1349ff69a9f4d46a6b","url":"https://domain-server-us-east-1.aukiverse.com","version":"v0.5.38","status":"online","created_at":"2024-01-18T09:08:31.358792Z","updated_at":"2025-06-02T04:12:22.700508Z","redirect_url":null,"mode":"public","variants":["auki"],"description":"","staking_status":"Staked","ip":"52.45.94.183","latitude":37.751,"longitude":-97.822,"asn":16509,"h3_cell_index":"8226e7fffffffff","cloud_region":""}}
-[2025-06-02 21:39:27.544] Re-authenticating with email: phil+aukilabs@aukilabs.com, domainId: 8093f9bf-c374-4162-ab74-ab61949627f1
-[2025-06-02 21:39:27.551] Posemesh user login URL: https://api.auki.network/user/login
-2025-06-02T13:39:28.046Z: Initial health check response: {
+2025-06-03T00:06:25.622Z: Battery monitoring initialized successfully
+2025-06-03T00:06:25.675Z: validateToken called (force=true)
+2025-06-03T00:06:25.675Z: Proactively validating authentication token
+2025-06-03T00:06:25.676Z: [POSE POLLING] Wait-for-completion polling stopped
+2025-06-03T00:06:25.676Z: [POSE POLLING] Wait-for-completion polling started
+2025-06-03T00:06:25.677Z: No patrol points configuration found
+2025-06-03T00:06:25.693Z: [BATTERY] Battery status update event received
+2025-06-03T00:06:25.710Z: Polling stopped in IDLE state
+[2025-06-03 08:06:25.730] Starting token validation...
+[2025-06-03 08:06:25.739] Domain info from storage: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","created_at":"2024-02-02T00:35:47.24977Z","updated_at":"2025-05-02T06:00:55.444308Z","claimed_by_kazm_id":null,"owner_wallet_address":"","access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZXMiOlsiZG9tYWluOnJ3Il0sImRvbWFpbl9pZCI6IjgwOTNmOWJmLWMzNzQtNDE2Mi1hYjc0LWFiNjE5NDk2MjdmMSIsIm9yZyI6ImNiYWM0MGVmLTc0NTItNDA4ZS04MTdiLWFmZDRlOTEzYWQwYyIsInR5cGUiOiJ1c2VyLWFjY2VzcyIsImlzcyI6ImRkcyIsInN1YiI6IjNlMDNlMjk4LWY0NzEtNDk4Ni05YjEwLTgzOTlmMzUzMDYyMCIsImF1ZCI6WyJkZHMiLCJodHRwczovL2RvbWFpbi1zZXJ2ZXItdXMtZWFzdC0xLmF1a2l2ZXJzZS5jb20iXSwiZXhwIjoxNzQ4OTEyNzcyLCJpYXQiOjE3NDg5MDkxNzJ9.8KLC8dzmomo8uH_St3lORaptcmpRWlV-mXOjZ0LsNPlOdj5youvQbojW5XK_-HbUfh5dd_88TNvS5_UeGVlgUA","domain_server":{"id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc392","organization_id":"00000000-0000-0000-0000-000000000001","name":"node-c1349ff69a9f4d46a6b","url":"https://domain-server-us-east-1.aukiverse.com","version":"v0.5.38","status":"online","created_at":"2024-01-18T09:08:31.358792Z","updated_at":"2025-06-02T04:12:22.700508Z","redirect_url":null,"mode":"public","variants":["auki"],"description":"","staking_status":"Staked","ip":"52.45.94.183","latitude":37.751,"longitude":-97.822,"asn":16509,"h3_cell_index":"8226e7fffffffff","cloud_region":""}}
+[2025-06-03 08:06:25.747] Re-authenticating with email: phil+aukilabs@aukilabs.com, domainId: 8093f9bf-c374-4162-ab74-ab61949627f1
+[2025-06-03 08:06:25.755] Posemesh user login URL: https://api.auki.network/user/login
+2025-06-03T00:06:26.156Z: Initial health check response: {
   "deviceFound": true,
   "response": "{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}",
   "slamApiAvailable": true,
   "status": "Robot health check successful",
   "responseCode": 200
 }
-2025-06-02T13:39:28.046Z: Parsed health check response: {
+2025-06-03T00:06:26.159Z: Parsed health check response: {
   "hasError": false,
   "hasWarning": false,
   "hasFatal": false
 }
-2025-06-02T13:39:28.047Z: Initial health check successful
-2025-06-02T13:39:28.048Z: Initial health check response: {
+2025-06-03T00:06:26.161Z: Initial health check successful
+2025-06-03T00:06:26.163Z: Initial health check response: {
   "deviceFound": true,
   "response": "{\"hasError\":false,\"hasWarning\":false,\"hasFatal\":false}",
   "slamApiAvailable": true,
   "status": "Robot health check successful",
   "responseCode": 200
 }
-2025-06-02T13:39:28.049Z: validateToken called (force=false)
-2025-06-02T13:39:28.049Z: Token validation already in progress, skipping
-2025-06-02T13:39:28.074Z: Initial health check successful
-[2025-06-02 21:39:28.331] Posemesh user login response code: 200
-[2025-06-02 21:39:28.338] Posemesh user login response: {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaXNzIjoiYXBpIiwic3ViIjoiM2UwM2UyOTgtZjQ3MS00OTg2LTliMTAtODM5OWYzNTMwNjIwIiwiYXVkIjpbImFwaSJdLCJleHAiOjE3NDg4NzUxNjgsImlhdC...
-[2025-06-02 21:39:28.344] Posemesh token received (first 10 chars): eyJhbGciOi...
-[2025-06-02 21:39:28.350] DDS authentication URL: https://api.auki.network/service/domains-access-token
-2025-06-02T13:39:28.641Z: Error checking power status: Error: Error getting power status: timeout
-[2025-06-02 21:39:29.031] DDS authentication response code: 200
-[2025-06-02 21:39:29.042] DDS authentication response: {"access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmciOiJjYmFjNDBlZi03NDUyLTQwOGUtODE3Yi1hZmQ0ZTkxM2FkMGMiLCJ0eXBlIjoidXNlci1hY2Nlc3MiLCJpc3MiOiJhcGkiLCJzdWIiOiIzZTAzZTI5OC1mNDcxLTQ5ODYtOWIxMC04Mzk5ZjM1MzA2MjAiLCJhdWQiOlsiZG9tYWluLXNlcnZpY2UiXSwiZXhwIjoxNzQ4ODc1MTY4LCJpYXQiOjE3NDg4NzE1NjgsImp0aSI6IjY2OTBiNzhlLTU3NzQtNDFjNy1iNDQxLTQwYjM2ZWIwODU3MCJ9.u0GmW4v2RMUlm-CRxpDDk5Uv1GBhTW4IWJvuW5fojvH-98aY-e2Oi9Ziak_6NTf1ODFq1R3FFmFgnxS9rS-OZw"}
-[2025-06-02 21:39:29.051] DDS token received (first 10 chars): eyJhbGciOi...
-[2025-06-02 21:39:29.060] Domain authentication URL: https://dds.auki.network/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/auth
-2025-06-02T13:39:29.086Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-[2025-06-02 21:39:29.537] Domain authentication response code: 200
-[2025-06-02 21:39:29.542] Domain authentication response: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc...
-[2025-06-02 21:39:29.548] Updated domain info after token validation
-[2025-06-02 21:39:29.552] Token validation successful via re-authentication
-2025-06-02T13:39:29.615Z: Token validation successful: {"message":"Token is valid","valid":true}
-2025-06-02T13:39:32.471Z: Polling for robot call data...
-2025-06-02T13:39:33.876Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-2025-06-02T13:39:37.472Z: Polling for robot call data...
-2025-06-02T13:39:38.131Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-2025-06-02T13:39:42.473Z: Polling for robot call data...
-2025-06-02T13:39:43.555Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-2025-06-02T13:39:47.474Z: Polling for robot call data...
-2025-06-02T13:39:48.879Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
-2025-06-02T13:39:52.475Z: Polling for robot call data...
-2025-06-02T13:39:53.078Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:06:26.165Z: validateToken called (force=false)
+2025-06-03T00:06:26.167Z: Token validation already in progress, skipping
+2025-06-03T00:06:26.345Z: Initial health check successful
+[2025-06-03 08:06:26.550] Posemesh user login response code: 200
+[2025-06-03 08:06:26.557] Posemesh user login response: {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaXNzIjoiYXBpIiwic3ViIjoiM2UwM2UyOTgtZjQ3MS00OTg2LTliMTAtODM5OWYzNTMwNjIwIiwiYXVkIjpbImFwaSJdLCJleHAiOjE3NDg5MTI3ODYsImlhdC...
+[2025-06-03 08:06:26.563] Posemesh token received (first 10 chars): eyJhbGciOi...
+[2025-06-03 08:06:26.568] DDS authentication URL: https://api.auki.network/service/domains-access-token
+2025-06-03T00:06:26.783Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-03T00:06:27.140Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+[2025-06-03 08:06:27.214] DDS authentication response code: 200
+[2025-06-03 08:06:27.225] DDS authentication response: {"access_token":"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmciOiJjYmFjNDBlZi03NDUyLTQwOGUtODE3Yi1hZmQ0ZTkxM2FkMGMiLCJ0eXBlIjoidXNlci1hY2Nlc3MiLCJpc3MiOiJhcGkiLCJzdWIiOiIzZTAzZTI5OC1mNDcxLTQ5ODYtOWIxMC04Mzk5ZjM1MzA2MjAiLCJhdWQiOlsiZG9tYWluLXNlcnZpY2UiXSwiZXhwIjoxNzQ4OTEyNzg3LCJpYXQiOjE3NDg5MDkxODcsImp0aSI6IjgxMWM1ZGIzLTQ4MzEtNGNiZC05MmU1LTAwYWNhOGU2MzQ0MCJ9.so0i4TJcmI4Dpbih7NG2lohQ-LkN0BWbSFFZ0E6l0HwA6dSHRvm8kH2KIWzqdr4XieYp_dE9eyNSq3rx3eefwg"}
+[2025-06-03 08:06:27.238] DDS token received (first 10 chars): eyJhbGciOi...
+[2025-06-03 08:06:27.249] Domain authentication URL: https://dds.auki.network/api/v1/domains/8093f9bf-c374-4162-ab74-ab61949627f1/auth
+[2025-06-03 08:06:28.036] Domain authentication response code: 200
+[2025-06-03 08:06:28.046] Domain authentication response: {"id":"8093f9bf-c374-4162-ab74-ab61949627f1","name":"AUKI Demo Space","redirect_url":null,"organization_id":"cbac40ef-7452-408e-817b-afd4e913ad0c","domain_server_id":"c1349ff6-9a9f-4d46-a6bc-ce43446dc...
+[2025-06-03 08:06:28.055] Updated domain info after token validation
+[2025-06-03 08:06:28.062] Token validation successful via re-authentication
+2025-06-03T00:06:28.066Z: Token validation successful: {"message":"Token is valid","valid":true}
+2025-06-03T00:06:30.628Z: Polling for robot call data...
+2025-06-03T00:06:32.138Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:06:35.628Z: Polling for robot call data...
+2025-06-03T00:06:36.571Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:06:40.629Z: Polling for robot call data...
+2025-06-03T00:06:41.260Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:06:45.630Z: Polling for robot call data...
+2025-06-03T00:06:46.577Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:06:50.630Z: Polling for robot call data...
+2025-06-03T00:06:51.637Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:06:55.633Z: Polling for robot call data...
+2025-06-03T00:06:55.717Z: [BATTERY] Battery status update event received
+2025-06-03T00:06:56.756Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-03T00:06:57.018Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:00.634Z: Polling for robot call data...
+2025-06-03T00:07:02.035Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:05.635Z: Polling for robot call data...
+2025-06-03T00:07:07.053Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:10.636Z: Polling for robot call data...
+2025-06-03T00:07:12.068Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:15.637Z: Polling for robot call data...
+2025-06-03T00:07:16.721Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:20.638Z: Polling for robot call data...
+2025-06-03T00:07:22.047Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:25.641Z: Polling for robot call data...
+2025-06-03T00:07:25.752Z: [BATTERY] Battery status update event received
+2025-06-03T00:07:26.201Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:26.785Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-03T00:07:30.641Z: Polling for robot call data...
+2025-06-03T00:07:31.319Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:35.642Z: Polling for robot call data...
+2025-06-03T00:07:37.055Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:40.643Z: Polling for robot call data...
+2025-06-03T00:07:41.598Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:45.644Z: Polling for robot call data...
+2025-06-03T00:07:47.088Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:50.645Z: Polling for robot call data...
+2025-06-03T00:07:51.635Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:55.646Z: Polling for robot call data...
+2025-06-03T00:07:55.793Z: [BATTERY] Battery status update event received
+2025-06-03T00:07:56.232Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:07:56.824Z: Error checking power status: Error: Error getting power status: timeout
+2025-06-03T00:08:00.648Z: Polling for robot call data...
+2025-06-03T00:08:01.730Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:08:05.649Z: Polling for robot call data...
+2025-06-03T00:08:07.051Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:08:10.650Z: Polling for robot call data...
+2025-06-03T00:08:11.591Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}
+2025-06-03T00:08:15.651Z: Polling for robot call data...
+2025-06-03T00:08:16.545Z: Received robot call data: {"data":"{\"id\":null}","metadata":{"created_at":"2025-04-11T03:40:58.60862Z","data_type":"robot_pose_json","name":"robot_call","id":"6af3308f-a5c4-431b-9f89-ad20d1f32c9c"}}

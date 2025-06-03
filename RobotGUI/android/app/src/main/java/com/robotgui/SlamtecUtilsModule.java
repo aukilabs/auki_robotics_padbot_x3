@@ -2368,6 +2368,15 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 
                 logToFile("Input file exists: " + inputFile.exists() + ", size: " + inputFile.length() + " bytes");
                 
+                // Clear existing map first
+                try {
+                    platform.clearMap();
+                    logToFile("Successfully cleared existing map before loading new map");
+                } catch (Exception e) {
+                    logToFile("Warning: Failed to clear existing map: " + e.getMessage());
+                    // Continue with map loading even if clear fails
+                }
+
                 // Use the SDK's CompositeMapHelper to load the map
                 try {
                     CompositeMapHelper mapHelper = new CompositeMapHelper();
@@ -2520,19 +2529,6 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 mainHandler.post(() -> promise.resolve(true));
             } catch (Exception e) {
                 mainHandler.post(() -> promise.reject("POSE_ERROR", "Error setting pose: " + e.getMessage()));
-            }
-        });
-    }
-
-    @ReactMethod
-    public void clearMapSdk(Promise promise) {
-        executorService.execute(() -> {
-            try {
-                connectPlatformIfNeeded();
-                platform.clearMap();
-                mainHandler.post(() -> promise.resolve(true));
-            } catch (Exception e) {
-                mainHandler.post(() -> promise.reject("MAP_ERROR", "Error clearing map: " + e.getMessage()));
             }
         });
     }
