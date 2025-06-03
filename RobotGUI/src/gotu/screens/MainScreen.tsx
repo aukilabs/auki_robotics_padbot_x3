@@ -172,7 +172,7 @@ globalAny.startPromotion = async () => {
   
   // Reset the remountFromConfig flag to ensure promotion starts even when coming from config screen
   remountFromConfig = false;
-  
+  /*
   // Set robot speed to patrol speed immediately
   try {
     await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.patrol.toString());
@@ -180,7 +180,7 @@ globalAny.startPromotion = async () => {
   } catch (error: any) {
     await LogUtils.writeDebugToFile(`Failed to set patrol speed: ${error.message}`);
   }
-  
+  */
   // If the MainScreen is mounted, we can start the promotion immediately
   if (promotionMounted) {
     await LogUtils.writeDebugToFile('MainScreen is mounted, starting promotion immediately');
@@ -409,7 +409,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         
         // Set navigation status to PATROL immediately to show the promotion screen
         setNavigationStatus(NavigationStatus.PATROL);
-        
+        /*
         // Set robot speed to patrol speed
         try {
           await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.patrol.toString());
@@ -417,7 +417,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         } catch (error: any) {
           await LogUtils.writeDebugToFile(`Failed to set patrol speed: ${error.message}`);
         }
-        
+        */
         // Start navigation with a small delay to ensure UI has updated
         setTimeout(() => {
           if (isMountedRef.current && !navigationCancelledRef.current) {
@@ -1562,7 +1562,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         const poseData = {
           name: "PadBot",
           device_id: identifiers.deviceId || "unknown_device_id",
-          device_type: "padbot-robot-w3",
+          device_type: "padbot-robot-x3",
           timestamp: timestampNano.toString(),
           pose: {
             px: transformedPose.x,
