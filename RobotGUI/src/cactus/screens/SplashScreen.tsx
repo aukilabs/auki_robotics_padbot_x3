@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { LogUtils } from '../utils/logging';
 import DeviceStorage from '../../utils/deviceStorage';
+import PadbotUtils from '../../gotu/utils/PadbotUtils';
 
 interface SplashScreenProps {
   onFinish: (products: any[], options?: { goToConfig?: boolean }) => void;
@@ -29,8 +30,8 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
 
     const checkDockStatus = async () => {
       try {
-        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-        if (powerStatus.dockingStatus !== 'on_dock') {
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        if (!batteryStatus.charging) {
           setShowDockDialog(true);
           setIsDocked(false);
           return false;

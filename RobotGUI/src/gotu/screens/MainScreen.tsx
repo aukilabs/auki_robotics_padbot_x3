@@ -27,14 +27,15 @@ import {
   resetInactivityTimer 
 } from '../utils/inactivityTimer';
 import DeviceStorage from '../../utils/deviceStorage';
+import PadbotUtils from '../utils/PadbotUtils';
 
 // Access the global object in a way that works in React Native
 const globalAny: any = global;
 
 // Speed settings from config
 const SPEEDS = {
-  patrol: 0.3,      // Default patrol speed if config not available
-  productSearch: 0.7, // Default product search speed if config not available
+  patrol: 0.2,      // Default patrol speed if config not available
+  productSearch: 0.5, // Default product search speed if config not available
   default: 0.5      // Default speed for other operations
 };
 
@@ -172,15 +173,15 @@ globalAny.startPromotion = async () => {
   
   // Reset the remountFromConfig flag to ensure promotion starts even when coming from config screen
   remountFromConfig = false;
-  /*
+  
   // Set robot speed to patrol speed immediately
   try {
-    await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.patrol.toString());
+    await NativeModules.SlamtecUtils.setRobotSpeedSdk(SPEEDS.patrol);
     await LogUtils.writeDebugToFile(`Set robot speed to patrol mode: ${SPEEDS.patrol} m/s`);
   } catch (error: any) {
     await LogUtils.writeDebugToFile(`Failed to set patrol speed: ${error.message}`);
   }
-  */
+  
   // If the MainScreen is mounted, we can start the promotion immediately
   if (promotionMounted) {
     await LogUtils.writeDebugToFile('MainScreen is mounted, starting promotion immediately');
@@ -270,17 +271,17 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   const handleBatteryStatusUpdate = async (event: any) => {
     await LogUtils.writeDebugToFile(`[BATTERY] Battery status update event received`);
 
-    // Get power status first as it's our source of truth
+    // Get battery status using PadbotUtils
     try {
-      const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-      await LogUtils.writeDebugToFile(`[BATTERY] Power status response: ${JSON.stringify(powerStatus)}`);
+      const batteryStatus = await PadbotUtils.getBatteryStatus();
+      await LogUtils.writeDebugToFile(`[BATTERY] Battery status response: ${JSON.stringify(batteryStatus)}`);
       
-      // Set battery level from power status immediately
-      setBatteryLevel(powerStatus.batteryPercentage);
-      await LogUtils.writeDebugToFile(`[BATTERY] Battery level updated to: ${powerStatus.batteryPercentage}%`);
+      // Set battery level from battery status
+      setBatteryLevel(batteryStatus.percentage);
+      await LogUtils.writeDebugToFile(`[BATTERY] Battery level updated to: ${batteryStatus.percentage}%`);
       
-      // Only proceed if not on dock AND battery is low
-      if (powerStatus.dockingStatus !== 'on_dock' && powerStatus.batteryPercentage <= 20 && !isReturningToChargerRef.current) {
+      // Only proceed if we have a valid battery percentage (>0), not charging, and battery is low
+      if (batteryStatus.percentage > 0 && !batteryStatus.charging && batteryStatus.percentage <= 20 && !isReturningToChargerRef.current) {
         await LogUtils.writeDebugToFile('Initiating return to charger due to low battery');
         
         // Cancel any ongoing patrol
@@ -302,8 +303,8 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         handleReturnToList();
       }
     } catch (error) {
-      console.error('Error checking power status:', error);
-      LogUtils.writeDebugToFile('Error checking power status: ' + error);
+      console.error('Error checking battery status:', error);
+      LogUtils.writeDebugToFile('Error checking battery status: ' + error);
     }
   };
 
@@ -409,15 +410,15 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         
         // Set navigation status to PATROL immediately to show the promotion screen
         setNavigationStatus(NavigationStatus.PATROL);
-        /*
+        
         // Set robot speed to patrol speed
         try {
-          await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.patrol.toString());
+          await NativeModules.SlamtecUtils.setRobotSpeedSdk(SPEEDS.patrol);
           await LogUtils.writeDebugToFile(`Set robot speed to patrol mode: ${SPEEDS.patrol} m/s`);
         } catch (error: any) {
           await LogUtils.writeDebugToFile(`Failed to set patrol speed: ${error.message}`);
         }
-        */
+        
         // Start navigation with a small delay to ensure UI has updated
         setTimeout(() => {
           if (isMountedRef.current && !navigationCancelledRef.current) {
@@ -582,7 +583,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       // Set robot speed to patrol speed
       (async () => {
         try {
-          await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.patrol.toString());
+          await NativeModules.SlamtecUtils.setRobotSpeedSdk(SPEEDS.patrol);
           await LogUtils.writeDebugToFile(`Set robot speed to patrol mode: ${SPEEDS.patrol} m/s when mounting`);
         } catch (error: any) {
           await LogUtils.writeDebugToFile(`Failed to set patrol speed when mounting: ${error.message}`);
@@ -820,15 +821,15 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     await LogUtils.writeDebugToFile(`Starting navigation to: ${product.name}`);
     setSelectedProduct(product);
     setNavigationStatus(NavigationStatus.NAVIGATING);
-    /*
+    
     // Set robot speed to product search speed (faster)
     try {
-      await NativeModules.SlamtecUtils.setMaxLineSpeed(SPEEDS.productSearch.toString());
+      await NativeModules.SlamtecUtils.setRobotSpeedSdk(SPEEDS.productSearch);
       await LogUtils.writeDebugToFile(`Set robot speed to product search mode: ${SPEEDS.productSearch} m/s`);
     } catch (error: any) {
       await LogUtils.writeDebugToFile(`Failed to set product search speed: ${error.message}`);
     }
-    */
+    
     const attemptNavigation = async (retryCount = 0) => {
       try {
         // Validate token before attempting navigation
@@ -1095,13 +1096,16 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         await navigateHome();
         await LogUtils.writeDebugToFile('Initiating return to charger');
 
-        // Check if robot is already on dock
-        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-        if (powerStatus.dockingStatus === 'on_dock') {
+        // Check if robot is already charging
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        if (batteryStatus.charging) {
           isReturningToChargerRef.current = false;
           setIsReturningToCharger(false);
           setNavigationStatus(NavigationStatus.IDLE);
-          await LogUtils.writeDebugToFile('Robot already on dock, resetting return to charger state');
+          await LogUtils.writeDebugToFile('Robot already charging, resetting return to charger state');
+          await stopPosePolling();
+          posePollingInProgress = false;
+          return;
         }
       }
       
@@ -1148,17 +1152,19 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         setNavigationStatus(NavigationStatus.NAVIGATING);
 
         // Start going home
-        //await NativeModules.SlamtecUtils.goHome();
         await navigateHome();
         await LogUtils.writeDebugToFile('Initiating return to charger in error handler');
 
-        // Check if robot is already on dock
-        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-        if (powerStatus.dockingStatus === 'on_dock') {
+        // Check if robot is already charging
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        if (batteryStatus.charging) {
           isReturningToChargerRef.current = false;
           setIsReturningToCharger(false);
           setNavigationStatus(NavigationStatus.IDLE);
-          await LogUtils.writeDebugToFile('Robot already on dock, resetting return to charger state');
+          await LogUtils.writeDebugToFile('Robot already charging, resetting return to charger state');
+          await stopPosePolling();
+          posePollingInProgress = false;
+          return;
         }
       }
     }
@@ -1524,8 +1530,8 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
 
       // Check if robot is on dock while returning to charger
       if (isReturningToCharger) {
-        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-        if (powerStatus.dockingStatus === 'on_dock') {
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        if (batteryStatus.charging) {
           setIsReturningToCharger(false);
           setNavigationStatus(NavigationStatus.IDLE);
           await LogUtils.writeDebugToFile('Robot docked successfully, resetting return to charger state');
@@ -2080,38 +2086,38 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
   let poseUploadInProgress = false;
 
   const BatteryIndicator = () => {
-    const [powerStatus, setPowerStatus] = useState<any>(null);
+    const [batteryStatus, setBatteryStatus] = useState<any>(null);
 
     useEffect(() => {
-      const updatePowerStatus = async () => {
+      const updateBatteryStatus = async () => {
         try {
-          const status = await NativeModules.SlamtecUtils.getPowerStatus();
-          setPowerStatus(status);
+          const status = await PadbotUtils.getBatteryStatus();
+          setBatteryStatus(status);
         } catch (error) {
-          console.error('Error getting power status:', error);
+          console.error('Error getting battery status:', error);
         }
       };
 
       // Update immediately
-      updatePowerStatus();
+      updateBatteryStatus();
 
       // Set up interval to update every 30 seconds
-      const interval = setInterval(updatePowerStatus, 30000);
+      const interval = setInterval(updateBatteryStatus, 30000);
 
       return () => clearInterval(interval);
     }, []);
 
-    if (!powerStatus) return null;
+    if (!batteryStatus) return null;
 
     return (
       <View style={styles.batteryContainer}>
         <View style={[
           styles.batteryIndicator,
-          powerStatus.batteryPercentage <= 20 ? styles.batteryLow :
-          powerStatus.batteryPercentage <= 50 ? styles.batteryMedium :
+          batteryStatus.percentage <= 20 ? styles.batteryLow :
+          batteryStatus.percentage <= 50 ? styles.batteryMedium :
           styles.batteryHigh
         ]}>
-          <Text style={styles.batteryText}>{Math.round(powerStatus.batteryPercentage)}%</Text>
+          <Text style={styles.batteryText}>{Math.round(batteryStatus.percentage)}%</Text>
         </View>
       </View>
     );
@@ -2126,8 +2132,8 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     const initializeContent = async () => {
       try {
         // Wait for initial battery status
-        const powerStatus = await NativeModules.SlamtecUtils.getPowerStatus();
-        if (powerStatus) {
+        const batteryStatus = await PadbotUtils.getBatteryStatus();
+        if (batteryStatus) {
           // Add delay before setting header ready
           setTimeout(() => {
             setIsHeaderReady(true);
