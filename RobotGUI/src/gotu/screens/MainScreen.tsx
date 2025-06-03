@@ -138,6 +138,22 @@ enum NavigationStatus {
   PATROL  // Add PATROL as a new status
 }
 
+// Add this function before the MainScreen component
+const navigateHome = async () => {
+  try {
+    await LogUtils.writeDebugToFile('Starting home navigation with global position');
+    await NativeModules.SlamtecUtils.navigateHomeWithSdk(
+      globalAny.homePosition.x,
+      globalAny.homePosition.y,
+      globalAny.homePosition.yaw
+    );
+    await LogUtils.writeDebugToFile('Home navigation completed');
+  } catch (error: any) {
+    await LogUtils.writeDebugToFile(`Error during home navigation: ${error.message}`);
+    throw error;
+  }
+};
+
 // Define a global function that will persist even when the component is unmounted
 globalAny.startPromotion = async () => {
   await LogUtils.writeDebugToFile('Promotion activated globally');
@@ -1068,8 +1084,8 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         // Keep navigation status as NAVIGATING while returning to charger
         setNavigationStatus(NavigationStatus.NAVIGATING);
 
-        // Start going home
-        await NativeModules.SlamtecUtils.goHome();
+        // Start going home using the wrapper function
+        await navigateHome();
         await LogUtils.writeDebugToFile('Initiating return to charger');
 
         // Check if robot is already on dock

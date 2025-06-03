@@ -280,7 +280,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
               
               // Calculate poses
               const initialPose = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.2);
-              const homePoint = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.4);
+              const homePoint = await NativeModules.SlamtecUtils.calculatePose(homedock, 0.5);
               
               // Store poses globally and log once
               globalAny.initialPose = initialPose;

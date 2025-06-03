@@ -15,6 +15,7 @@ import cn.inbot.basiclib.event.ReceiveBatteryInfoEvent;
 import cn.inbot.basiclib.event.ReceiveAutoChargingStatusEvent;
 import cn.inbot.basiclib.util.EventBusUtils;
 import cn.inbot.basiclib.constant.AutoChargeStatus;
+import com.robotgui.PadbotUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -197,7 +198,8 @@ public class PadbotModule extends ReactContextBaseJavaModule {
             Log.d(TAG, "Received charging status event: " + event.getStatus());
             
             // Update charging state based on status
-            isCharging = event.getStatus() == AutoChargeStatus.CHARGING;
+            boolean isCharging = event.getStatus() == AutoChargeStatus.CHARGING;
+            PadbotUtils.setCharging(isCharging);
             
             // Send simple event to React Native
             WritableMap params = Arguments.createMap();

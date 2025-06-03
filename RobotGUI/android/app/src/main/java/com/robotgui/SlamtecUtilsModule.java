@@ -26,6 +26,7 @@ import com.slamtec.slamware.robot.Location;
 import com.slamtec.slamware.robot.MoveOption;
 import com.slamtec.slamware.action.IMoveAction;
 import cn.inbot.basiclib.RobotControlManager;
+import com.robotgui.PadbotUtils;
 
 public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     private static final String TAG = "SlamtecUtilsModule";
@@ -2129,7 +2130,7 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 int maxRetries = 120; // 60 seconds max (500ms interval)
                 boolean hasStartedMoving = false;
                 boolean hasReachedTarget = false;
-                float targetDistanceThreshold = 0.5f; // Consider target reached if within 0.5 meters
+                float targetDistanceThreshold = 0.1f; // Consider target reached if within 0.5 meters
                 
                 // Store initial position to detect movement
                 float initialX = 0;
@@ -2287,8 +2288,64 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                                 Log.d(TAG, "Home navigation completed successfully (no current action and at target)");
                                 logToFile("Home navigation completed successfully (no current action and at target)");
                                 
-                                // We don't need auto-charging in the regular navigate method
-                                // Only navigateHomeWithSdk should trigger auto-charging
+                                // Start auto-charging when we reach the target
+                                try {
+                                    Log.d(TAG, "Starting auto-charging...");
+                                    logToFile("Starting auto-charging...");
+                                    RobotControlManager.getInstance().startAutoCharging();
+                                    
+                                    // Monitor charging status for 60 seconds
+                                    boolean isCharging = false;
+                                    int chargingCheckCount = 0;
+                                    int maxChargingChecks = 120; // 60 seconds (500ms interval)
+                                    
+                                    while (!isCharging && chargingCheckCount < maxChargingChecks) {
+                                        // Check charging status through React Native bridge
+                                        WritableMap params = Arguments.createMap();
+                                        params.putString("type", "checkCharging");
+                                        getReactApplicationContext()
+                                            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                            .emit("checkCharging", params);
+                                        
+                                        // Wait for response
+                                        Thread.sleep(500);
+                                        chargingCheckCount++;
+                                        
+                                        // Check if charging started
+                                        if (PadbotUtils.isCharging()) {
+                                            isCharging = true;
+                                            Log.d(TAG, "Charging started successfully");
+                                            logToFile("Charging started successfully");
+                                        }
+                                    }
+                                    
+                                    if (!isCharging) {
+                                        // Stop auto-charging if not charging after timeout
+                                        Log.e(TAG, "Charging did not start within 60 seconds");
+                                        logToFile("Charging did not start within 60 seconds");
+                                        RobotControlManager.getInstance().stopAutoCharging();
+                                        
+                                        // Send error event to React Native
+                                        WritableMap errorParams = Arguments.createMap();
+                                        errorParams.putString("type", "chargingError");
+                                        errorParams.putString("message", "Failed to start charging after reaching home position");
+                                        getReactApplicationContext()
+                                            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                            .emit("chargingError", errorParams);
+                                    }
+                                } catch (Exception e) {
+                                    String errorMsg = "Error during auto-charging: " + e.getMessage();
+                                    Log.e(TAG, errorMsg, e);
+                                    logToFile(errorMsg);
+                                    
+                                    // Send error event to React Native
+                                    WritableMap errorParams = Arguments.createMap();
+                                    errorParams.putString("type", "chargingError");
+                                    errorParams.putString("message", errorMsg);
+                                    getReactApplicationContext()
+                                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                        .emit("chargingError", errorParams);
+                                }
                             } else if (hasStartedMoving) {
                                 completed = true;
                                 Log.d(TAG, "Home navigation completed (no current action, moved but target not reached)");
@@ -2302,6 +2359,15 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                                 if (retryCount > 20) { // After 10 seconds, assume something is wrong
                                     Log.e(TAG, "No movement detected after 10 seconds with no current action. Navigation may have failed.");
                                     logToFile("No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                    
+                                    // Send error event to React Native
+                                    WritableMap errorParams = Arguments.createMap();
+                                    errorParams.putString("type", "navigationError");
+                                    errorParams.putString("message", "No movement detected after 10 seconds");
+                                    getReactApplicationContext()
+                                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                        .emit("navigationError", errorParams);
+                                    
                                     completed = true; // End the loop
                                 }
                             }
@@ -2333,18 +2399,6 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 Log.e(TAG, errorMsg, e);
                 logToFile(errorMsg);
                 mainHandler.post(() -> promise.reject("HOME_NAVIGATION_ERROR", errorMsg));
-            } finally {
-                // Ensure we disconnect from platform
-                if (platform != null) {
-                    try {
-                        platform.disconnect();
-                        Log.d(TAG, "Disconnected from platform after home navigation");
-                        logToFile("Disconnected from platform after home navigation");
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error disconnecting from platform after home navigation: " + e.getMessage(), e);
-                        logToFile("Error disconnecting from platform after home navigation: " + e.getMessage());
-                    }
-                }
             }
         });
     }

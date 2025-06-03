@@ -15,6 +15,29 @@ import BatteryStatus from '../components/BatteryStatus';
 // Access the global object in a way that works in React Native
 const globalAny: any = global;
 
+// Add navigateHome wrapper function
+const navigateHome = async () => {
+  try {
+    // Access the homePoint from the global object
+    const homePoint = globalAny.homePoint;
+    if (!homePoint) {
+      throw new Error('Home point not found in global object');
+    }
+
+    await LogUtils.writeDebugToFile(`Starting home navigation with global position: x=${homePoint[0]}, y=${homePoint[1]}, yaw=${homePoint[3]}`);
+    
+    await NativeModules.SlamtecUtils.navigateHomeWithSdk(
+      homePoint[0], // x
+      homePoint[1], // y
+      homePoint[3]  // yaw
+    );
+    await LogUtils.writeDebugToFile('Home navigation completed');
+  } catch (error: any) {
+    await LogUtils.writeDebugToFile(`Error during home navigation: ${error.message}`);
+    throw error;
+  }
+};
+
 interface ConfigScreenProps {
   onClose: () => void;
   restartApp: () => void;
@@ -347,7 +370,8 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
                   console.log('Going home...');
                   
                   // Call the goHome function directly without showing any alerts
-                  await NativeModules.SlamtecUtils.goHome();
+                  //await NativeModules.SlamtecUtils.goHome();
+                  await navigateHome();
                   
                   // Close the config screen after initiating go home
                   onClose();
