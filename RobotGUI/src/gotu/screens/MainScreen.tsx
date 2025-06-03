@@ -2013,6 +2013,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     setIsPatrolling(false);
     promotionCancelled = true;
     globalAny.promotionActive = false;
+    globalAny.startPromotion = null;  // Clear the global startPromotion function
     await LogUtils.writeDebugToFile(`Waypoint sequence cancelled (reason: ${reason})`);
     
     LogUtils.writeDebugToFile('Patrol cancelled - Flags updated');
@@ -2209,7 +2210,11 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
             <TouchableOpacity 
               style={styles.configButton}
               onPress={undefined}
-              onLongPress={() => {
+              onLongPress={async () => {
+                // Cancel patrol if active
+                if (isPatrolling) {
+                  await cancelPatrol('config_press');
+                }
                 clearInactivityTimer();
                 LogUtils.writeDebugToFile('Config screen opened, cleared inactivity timer');
                 navigatingToConfig = true;
@@ -2249,6 +2254,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    zIndex: 2, // Ensure header is above content
   },
   headerLogo: {
     width: 200,
@@ -2260,6 +2266,7 @@ const styles = StyleSheet.create({
     padding: 5,
     width: 40,
     height: 40,
+    zIndex: 4, // Ensure config button is above everything
   },
   configButton: {
     padding: 8,
@@ -2269,6 +2276,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 4, // Ensure config button is above everything
   },
   configButtonText: {
     fontSize: 30,
@@ -2282,6 +2290,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flex: 1,
     padding: 16,
+    zIndex: 1, // Add explicit z-index
   },
   searchInput: {
     backgroundColor: '#FFFFFF',
@@ -2543,12 +2552,14 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     opacity: 0, // Start invisible
+    zIndex: 1, // Add explicit z-index
   },
   batteryOverlay: {
     position: 'absolute',
     top: 20,
-    left: 20, // Changed from right to left
-    zIndex: 1000, // Ensure it's above other content
+    right: 100,
+    zIndex: 3,
+    pointerEvents: 'none',
   },
 });
 
