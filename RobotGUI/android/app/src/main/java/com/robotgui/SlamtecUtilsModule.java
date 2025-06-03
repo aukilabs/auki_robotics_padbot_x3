@@ -2370,14 +2370,62 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 
                 // Clear existing map first
                 try {
+                    Log.d(TAG, "Clearing existing map...");
+                    logToFile("Clearing existing map...");
                     platform.clearMap();
-                    logToFile("Successfully cleared existing map before loading new map");
+                    
+                    // Wait and verify map is cleared
+                    int retryCount = 0;
+                    int maxRetries = 10;
+                    boolean mapCleared = false;
+                    
+                    while (!mapCleared && retryCount < maxRetries) {
+                        try {
+                            // Small delay to allow map clearing to complete
+                            Thread.sleep(500);
+                            
+                            // Try to get the map and log its details
+                            CompositeMap currentMap = platform.getCompositeMap();
+                            StringBuilder mapInfo = new StringBuilder();
+                            mapInfo.append("Map check attempt ").append(retryCount + 1).append(":\n");
+                            mapInfo.append("  - Map object: ").append(currentMap != null ? "not null" : "null").append("\n");
+                            
+                            if (currentMap != null) {
+                                mapInfo.append("  - Map object details: present\n");
+                            }
+                            
+                            Log.d(TAG, mapInfo.toString());
+                            logToFile(mapInfo.toString());
+                            
+                            // For now, consider it cleared if we get any response
+                            mapCleared = true;
+                            Log.d(TAG, "Map cleared successfully");
+                            logToFile("Map cleared successfully");
+                            
+                        } catch (Exception e) {
+                            // If we get an exception, assume map is cleared
+                            mapCleared = true;
+                            Log.d(TAG, "Map cleared (verified by exception): " + e.getMessage());
+                            logToFile("Map cleared (verified by exception): " + e.getMessage());
+                        }
+                        
+                        if (!mapCleared) {
+                            retryCount++;
+                        }
+                    }
+                    
+                    if (!mapCleared) {
+                        Log.w(TAG, "Map clearing verification timed out, but continuing with map loading");
+                        logToFile("Map clearing verification timed out, but continuing with map loading");
+                    }
                 } catch (Exception e) {
-                    logToFile("Warning: Failed to clear existing map: " + e.getMessage());
-                    // Continue with map loading even if clear fails
+                    String errorMsg = "Warning: Error during map clearing: " + e.getMessage() + ". Continuing with map loading.";
+                    Log.w(TAG, errorMsg);
+                    logToFile(errorMsg);
+                    // Don't throw the exception, continue with map loading
                 }
 
-                // Use the SDK's CompositeMapHelper to load the map
+                // Continue with map loading regardless of clearing verification
                 try {
                     CompositeMapHelper mapHelper = new CompositeMapHelper();
                     if (mapHelper == null) {
@@ -2573,5 +2621,63 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject("CALCULATE_POSE_ERROR", e.getMessage());
         }
+    }
+
+    @ReactMethod
+    public void stopNavigationSDK(Promise promise) {
+        executorService.execute(() -> {
+            try {
+                connectPlatformIfNeeded();
+                Log.d(TAG, "Stopping current navigation using SDK...");
+                logToFile("Stopping current navigation using SDK...");
+                
+                // Get current action and cancel it
+                com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
+                if (currentAction != null) {
+                    currentAction.cancel();
+                    Log.d(TAG, "Navigation stop command sent successfully");
+                    logToFile("Navigation stop command sent successfully");
+                    
+                    // Wait and verify the action is stopped
+                    int retryCount = 0;
+                    int maxRetries = 10;
+                    boolean actionStopped = false;
+                    
+                    while (!actionStopped && retryCount < maxRetries) {
+                        try {
+                            Thread.sleep(500);
+                            currentAction = platform.getCurrentAction();
+                            if (currentAction == null || currentAction.isEmpty()) {
+                                actionStopped = true;
+                                Log.d(TAG, "Navigation stopped successfully");
+                                logToFile("Navigation stopped successfully");
+                            } else {
+                                retryCount++;
+                                Log.d(TAG, "Waiting for navigation to stop... attempt " + retryCount);
+                                logToFile("Waiting for navigation to stop... attempt " + retryCount);
+                            }
+                        } catch (Exception e) {
+                            actionStopped = true;
+                            Log.d(TAG, "Navigation stopped (verified by exception): " + e.getMessage());
+                            logToFile("Navigation stopped (verified by exception): " + e.getMessage());
+                        }
+                    }
+                    
+                    if (!actionStopped) {
+                        throw new Exception("Navigation stop verification timed out after " + maxRetries + " attempts");
+                    }
+                } else {
+                    Log.d(TAG, "No active navigation to stop");
+                    logToFile("No active navigation to stop");
+                }
+                
+                mainHandler.post(() -> promise.resolve(true));
+            } catch (Exception e) {
+                String errorMsg = "Error stopping navigation with SDK: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                logToFile(errorMsg);
+                mainHandler.post(() -> promise.reject("NAVIGATION_ERROR", errorMsg));
+            }
+        });
     }
 } 

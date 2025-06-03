@@ -1049,7 +1049,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         await LogUtils.writeDebugToFile('Waypoint sequence cancelled');
         
         // Stop the robot's movement
-        await NativeModules.SlamtecUtils.stopNavigation();
+        await NativeModules.SlamtecUtils.stopNavigationSDK();
         await LogUtils.writeDebugToFile('Robot movement stopped');
         
         // Reset UI state
@@ -1701,7 +1701,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       
       try {
         // First stop the current navigation
-        await NativeModules.SlamtecUtils.stopNavigation();
+        await NativeModules.SlamtecUtils.stopNavigationSDK();
         await LogUtils.writeDebugToFile('Stopped current navigation for recovery');
         
         let recoveryStrategy = '';
