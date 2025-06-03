@@ -2107,21 +2107,33 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       return () => clearInterval(interval);
     }, []);
 
-    if (!batteryStatus) return null;
+    // Memoize the battery level style to prevent unnecessary recalculations
+    const batteryLevelStyle = React.useMemo(() => {
+      if (!batteryStatus || batteryStatus.percentage <= -1) return null;
+      
+      return batteryStatus.percentage <= 20 ? styles.batteryLow :
+             batteryStatus.percentage <= 50 ? styles.batteryMedium :
+             styles.batteryHigh;
+    }, [batteryStatus?.percentage]);
+
+    // Don't render anything if we don't have valid battery status
+    if (!batteryStatus || batteryStatus.percentage <= -1 || !batteryLevelStyle) return null;
 
     return (
       <View style={styles.batteryContainer}>
-        <View style={[
-          styles.batteryIndicator,
-          batteryStatus.percentage <= 20 ? styles.batteryLow :
-          batteryStatus.percentage <= 50 ? styles.batteryMedium :
-          styles.batteryHigh
-        ]}>
-          <Text style={styles.batteryText}>{Math.round(batteryStatus.percentage)}%</Text>
+        <View style={[styles.batteryIndicator, batteryLevelStyle]}>
+          <BatteryText percentage={batteryStatus.percentage} />
         </View>
       </View>
     );
   };
+
+  // Separate component for the battery percentage text
+  const BatteryText = React.memo(({ percentage }: { percentage: number }) => {
+    return (
+      <Text style={styles.batteryText}>{Math.round(percentage)}%</Text>
+    );
+  });
 
   // Add loading state
   const [isContentReady, setIsContentReady] = useState(false);
@@ -2204,15 +2216,15 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
                 onConfigPress();
               }}
               delayLongPress={3000}
-            >
-              {/* Config button is now invisible but still functional with long press */}
+              >
+              <Text style={styles.configButtonText}>⚙️</Text>
             </TouchableOpacity>
           </View>
         </View>
         
         {renderContent()}
         
-        {/* Battery indicator moved to top layer */}
+        {/* Battery indicator moved to top layer and left side */}
         <View style={styles.batteryOverlay}>
           <BatteryIndicator />
         </View>
@@ -2253,10 +2265,14 @@ const styles = StyleSheet.create({
     padding: 8,
     width: 60,
     height: 60,
-    backgroundColor: 'transparent', // Make button transparent
+    backgroundColor: 'transparent',
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  configButtonText: {
+    fontSize: 30,
+    color: 'transparent',
   },
   headerRight: {
     flexDirection: 'row',
@@ -2531,7 +2547,7 @@ const styles = StyleSheet.create({
   batteryOverlay: {
     position: 'absolute',
     top: 20,
-    right: 20,
+    left: 20, // Changed from right to left
     zIndex: 1000, // Ensure it's above other content
   },
 });
