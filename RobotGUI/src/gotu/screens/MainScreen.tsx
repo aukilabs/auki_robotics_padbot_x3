@@ -141,11 +141,18 @@ enum NavigationStatus {
 // Add this function before the MainScreen component
 const navigateHome = async () => {
   try {
-    await LogUtils.writeDebugToFile('Starting home navigation with global position');
+    // Access the homePoint from the global object
+    const homePoint = globalAny.homePoint;
+    if (!homePoint) {
+      throw new Error('Home point not found in global object');
+    }
+
+    await LogUtils.writeDebugToFile(`Starting home navigation with global position: x=${homePoint[0]}, y=${homePoint[1]}, yaw=${homePoint[3]}`);
+    
     await NativeModules.SlamtecUtils.navigateHomeWithSdk(
-      globalAny.homePosition.x,
-      globalAny.homePosition.y,
-      globalAny.homePosition.yaw
+      homePoint[0], // x
+      homePoint[1], // y
+      homePoint[3]  // yaw
     );
     await LogUtils.writeDebugToFile('Home navigation completed');
   } catch (error: any) {
@@ -1141,7 +1148,8 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         setNavigationStatus(NavigationStatus.NAVIGATING);
 
         // Start going home
-        await NativeModules.SlamtecUtils.goHome();
+        //await NativeModules.SlamtecUtils.goHome();
+        await navigateHome();
         await LogUtils.writeDebugToFile('Initiating return to charger in error handler');
 
         // Check if robot is already on dock
