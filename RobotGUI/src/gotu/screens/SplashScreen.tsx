@@ -533,7 +533,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
             />
           </View>
           <Text style={styles.welcomeText}>
-            Welcome to{'\n'}Gotu
+            Welcome to Gotu
           </Text>
           <Text style={styles.loadingText}>{loadingText}</Text>
         </View>

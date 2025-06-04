@@ -1994,7 +1994,7 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
     setIsPatrolling(false);
     promotionCancelled = true;
     globalAny.promotionActive = false;
-    globalAny.startPromotion = null;  // Clear the global startPromotion function
+    // Don't clear startPromotion function as it's needed for future patrol starts
     await LogUtils.writeDebugToFile(`Waypoint sequence cancelled (reason: ${reason})`);
     
     LogUtils.writeDebugToFile('Patrol cancelled - Flags updated');
@@ -2190,16 +2190,18 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
           <View style={styles.headerRight}>
             <TouchableOpacity 
               style={styles.configButton}
-              onPress={undefined}
-              onLongPress={async () => {
-                // Cancel patrol if active
-                if (isPatrolling) {
+              onPress={async () => {
+                try {
+                  // Always cancel patrol to ensure clean state
                   await cancelPatrol('config_press');
+                  await LogUtils.writeDebugToFile('Patrol cancelled before opening config');
+                  clearInactivityTimer();
+                  LogUtils.writeDebugToFile('Config screen opened, cleared inactivity timer');
+                  navigatingToConfig = true;
+                  onConfigPress();
+                } catch (error) {
+                  LogUtils.writeDebugToFile(`Error in config button press: ${error}`);
                 }
-                clearInactivityTimer();
-                LogUtils.writeDebugToFile('Config screen opened, cleared inactivity timer');
-                navigatingToConfig = true;
-                onConfigPress();
               }}
               delayLongPress={3000}
               >
@@ -2258,10 +2260,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 4, // Ensure config button is above everything
+    opacity: 0, // Start invisible
   },
   configButtonText: {
     fontSize: 30,
-    color: 'transparent',
+    //color: 'transparent',
   },
   headerRight: {
     flexDirection: 'row',
