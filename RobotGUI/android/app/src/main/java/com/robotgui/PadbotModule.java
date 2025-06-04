@@ -136,14 +136,13 @@ public class PadbotModule extends ReactContextBaseJavaModule {
             
             // Extract battery information
             int powerPercentage = event.getPercentage();
-            // The Padbot API may or may not have isCharging() method, adjust as needed
-            boolean isCharging = false; // Default to false if method doesn't exist
-            // If the isCharging method exists, uncomment the line below:
-            // isCharging = event.isCharging(); 
+            // Use cached charging state
+            boolean isCharging = lastChargingState;
             
             // Cache the values
             lastBatteryPercentage = powerPercentage;
-            lastChargingState = isCharging;
+            // lastChargingState is updated by ReceiveAutoChargingStatusEvent
+            PadbotUtils.setCharging(isCharging); // Update global charging state
             
             // Create event data to send to React Native
             WritableMap params = Arguments.createMap();

@@ -1129,7 +1129,7 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
         double x = homedock[0];
         double y = homedock[1];
         double z = 0; //homedock[2];
-        double yaw = -homedock[3];
+        double yaw = homedock[3];
         double pitch = 0;
         double roll = 0;
         

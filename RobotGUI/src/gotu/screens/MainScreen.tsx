@@ -19,6 +19,7 @@ import {
   AppStateStatus,
   Keyboard,
   Modal,
+  EmitterSubscription,
 } from 'react-native';
 import { LogUtils } from '../utils/logging';
 import { 
@@ -280,8 +281,31 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
       setBatteryLevel(batteryStatus.percentage);
       await LogUtils.writeDebugToFile(`[BATTERY] Battery level updated to: ${batteryStatus.percentage}%`);
       
-      // Only proceed if we have a valid battery percentage (>0), not charging, and battery is low
-      if (batteryStatus.percentage > 0 && !batteryStatus.charging && batteryStatus.percentage <= 20 && !isReturningToChargerRef.current) {
+      // Check if robot is charging
+      const isCharging = await PadbotUtils.isCharging();
+      await LogUtils.writeDebugToFile(`[BATTERY] Robot charging state: ${isCharging}`);
+      
+      // If we're returning to charger and the robot is now charging, reset the state
+      if (isReturningToChargerRef.current && isCharging) {
+        await LogUtils.writeDebugToFile('Robot is now charging, resetting return to charger state');
+        isReturningToChargerRef.current = false;
+        setIsReturningToCharger(false);
+        return;
+      }
+      
+      // Only proceed with return to charger if:
+      // 1. We have a valid battery percentage (>0)
+      // 2. Not currently charging
+      // 3. Battery is low (<= 20%)
+      // 4. Not already returning to charger
+      // 5. Not currently navigating or arrived
+      if (batteryStatus.percentage > 0 && 
+          !isCharging && 
+          batteryStatus.percentage <= 20 && 
+          !isReturningToChargerRef.current &&
+          currentNavigationStatusRef.current !== NavigationStatus.NAVIGATING &&
+          currentNavigationStatusRef.current !== NavigationStatus.ARRIVED) {
+        
         await LogUtils.writeDebugToFile('Initiating return to charger due to low battery');
         
         // Cancel any ongoing patrol
@@ -303,65 +327,22 @@ const MainScreen = ({ onClose, onConfigPress, initialProducts }: MainScreenProps
         handleReturnToList();
       }
     } catch (error) {
-      console.error('Error checking battery status:', error);
-      LogUtils.writeDebugToFile('Error checking battery status: ' + error);
+      await LogUtils.writeDebugToFile(`[BATTERY] Error in battery status update: ${error}`);
     }
   };
 
   // Add effect to start battery monitoring
   useEffect(() => {
-    const initializeBatteryMonitoring = async () => {
-      // Skip if already initialized
-      if (batteryMonitoringInitializedRef.current) {
-        await LogUtils.writeDebugToFile('Battery monitoring already initialized, skipping');
-        return;
-      }
-
-      try {
-        // Check if BatteryMonitor module exists
-        if (!NativeModules.BatteryMonitor) {
-          await LogUtils.writeDebugToFile('BatteryMonitor module not found');
-          return;
-        }
-
-        // Start battery monitoring
-        await LogUtils.writeDebugToFile('Starting battery monitoring...');
-        NativeModules.BatteryMonitor.startMonitoring();
-        
-        // Add event listener for battery updates
-        const eventEmitter = new NativeEventEmitter(NativeModules.BatteryMonitor);
-        const subscription = eventEmitter.addListener('BatteryStatusUpdate', handleBatteryStatusUpdate);
-        
-        await LogUtils.writeDebugToFile('Battery monitoring initialized successfully');
-        batteryMonitoringInitializedRef.current = true;
-        
-        // Return cleanup function
-        return () => {
-          // Clean up
-          if (NativeModules.BatteryMonitor) {
-            NativeModules.BatteryMonitor.stopMonitoring();
-          }
-          subscription.remove();
-          LogUtils.writeDebugToFile('Battery monitoring stopped');
-          batteryMonitoringInitializedRef.current = false;
-        };
-      } catch (error: any) {
-        await LogUtils.writeDebugToFile(`Error initializing battery monitoring: ${error.message}`);
-      }
-    };
-
-    // Call initializeBatteryMonitoring and store the cleanup function
-    const cleanup = initializeBatteryMonitoring();
+    const batterySubscription = PadbotUtils.addBatteryListener(handleBatteryStatusUpdate) as { remove: () => void };
     
-    // Return cleanup function from useEffect
+    // Start battery monitoring immediately
+    NativeModules.BatteryMonitor.startMonitoring();
+    
     return () => {
-      if (cleanup) {
-        cleanup.then(cleanupFn => {
-          if (cleanupFn) cleanupFn();
-        });
-      }
+      batterySubscription.remove();
+      NativeModules.BatteryMonitor.stopMonitoring();
     };
-  }, []);
+  }, []); // Empty dependency array to ensure it only runs once on mount
   
   // Function to clear the inactivity timer
   const clearInactivityTimer = () => {
