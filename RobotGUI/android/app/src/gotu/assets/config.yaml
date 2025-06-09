@@ -35,7 +35,8 @@ speeds:
   default: "0.5"
 
 gotu:
-  endpoint: "https://conference-backend-0.aukiverse.com/api/collections/Node/records?page=1&perPage=500&skipTotal=1&filter=Domain%3D%228093f9bf-c374-4162-ab74-ab61949627f1%22&fields=Name,Description,Pose,Image,id"
+  #endpoint: "https://conference-backend-0.aukiverse.com/api/collections/Node/records?page=1&perPage=500&skipTotal=1&filter=Domain%3D%228093f9bf-c374-4162-ab74-ab61949627f1%22&fields=Name,Description,Pose,Image,id"
+  endpoint: "https://conference-backend-0.aukiverse.com/api/collections/Node/records?page=1&perPage=500&skipTotal=1&filter=Domain%3D%220787d5fa-93d5-4661-a047-36171afeb592%22&fields=Name,Description,Pose,Image,id"
   image_download_endpoint: "https://conference-backend-0.aukiverse.com/api/files/gkzgdbw8bnw0bs7/{id}/{Image}"
 
 series_move_to:
