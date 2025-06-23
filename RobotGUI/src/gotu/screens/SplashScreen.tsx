@@ -308,6 +308,22 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           }
         }
         
+        // Initialization completed successfully - transition to ConfigScreen
+        if (isMounted) {
+          await LogUtils.writeDebugToFile('Initialization completed successfully, transitioning to ConfigScreen');
+          setLoadingText('Initialization complete!');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 500,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }).start(() => {
+            onFinish({ goToConfig: true });
+          });
+        }
+        
       } catch (error: any) {
         if (isMounted) {
           const errorMessage = error.message || 'Error during initialization';
@@ -400,13 +416,13 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
         <View style={styles.contentContainer}>
           <View style={styles.logoContainer}>
             <Image 
-              source={require('../assets/AppIcon_Gotu.png')}
+              source={require('../assets/Auki Logo Black.png')}
               style={styles.logo}
               resizeMode="contain"
             />
           </View>
           <Text style={styles.welcomeText}>
-            Welcome to Gotu
+            Welcome to Auki Robotics
           </Text>
           <Text style={styles.loadingText}>{loadingText}</Text>
         </View>
@@ -459,7 +475,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   loadingText: {
-    color: '#2670F8',
+    color: '#101010',
     fontSize: 24,
     textAlign: 'center',
   },
