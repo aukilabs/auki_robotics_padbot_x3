@@ -1,0 +1,28 @@
+{
+  "patrol_points": [
+    {
+      "name": "Patrol Point 1",
+      "x": 55,
+      "y": -68,
+      "yaw": 3.14
+    },
+    {
+      "name": "Patrol Point 2",
+      "x": 55,
+      "y": -82,
+      "yaw": -1.57
+    },
+    {
+      "name": "Patrol Point 3",
+      "x": 64,
+      "y": -82,
+      "yaw": 0
+    },
+    {
+      "name": "Patrol Point 4",
+      "x": 64,
+      "y": -68,
+      "yaw": 1.57
+    }
+  ]
+} 

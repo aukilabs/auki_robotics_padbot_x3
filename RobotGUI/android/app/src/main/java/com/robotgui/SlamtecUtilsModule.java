@@ -1826,38 +1826,142 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
     public void navigateWithSdk(double x, double y, double yaw, Promise promise) {
         executorService.execute(() -> {
             try {
+                Log.d(TAG, "=== STARTING SDK NAVIGATION ===");
                 Log.d(TAG, "Navigating with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
+                logToFile("=== STARTING SDK NAVIGATION ===");
                 logToFile("Navigating with SDK to x=" + x + ", y=" + y + ", yaw=" + yaw);
                 
                 // Use existing platform connection
+                Log.d(TAG, "Attempting to connect platform...");
+                logToFile("Attempting to connect platform...");
                 connectPlatformIfNeeded();
                 
                 if (platform != null) {
+                    Log.d(TAG, "Platform connection successful");
+                    logToFile("Platform connection successful");
+                    
+                    // Check platform health before moving
+                    try {
+                        Log.d(TAG, "Checking platform health...");
+                        logToFile("Checking platform health...");
+                        HealthInfo health = platform.getRobotHealth();
+                        Log.d(TAG, "Platform health - Error: " + health.isError() + ", Warning: " + health.isWarning() + ", Fatal: " + health.isFatal());
+                        logToFile("Platform health - Error: " + health.isError() + ", Warning: " + health.isWarning() + ", Fatal: " + health.isFatal());
+                        
+                        if (health.isFatal()) {
+                            throw new Exception("Robot has fatal health issues, cannot navigate");
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Health check failed: " + e.getMessage());
+                        logToFile("Health check failed: " + e.getMessage());
+                        // Continue anyway, health check failure doesn't necessarily mean we can't move
+                    }
+                    
+                    // Get current robot status
+                    try {
+                        Log.d(TAG, "Getting current robot pose...");
+                        logToFile("Getting current robot pose...");
+                        com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
+                        Log.d(TAG, "Current robot pose: [" + currentPose.getX() + ", " + currentPose.getY() + ", " + currentPose.getZ() + ", yaw=" + currentPose.getYaw() + ", pitch=" + currentPose.getPitch() + ", roll=" + currentPose.getRoll() + "]");
+                        logToFile("Current robot pose: [" + currentPose.getX() + ", " + currentPose.getY() + ", " + currentPose.getZ() + ", yaw=" + currentPose.getYaw() + ", pitch=" + currentPose.getPitch() + ", roll=" + currentPose.getRoll() + "]");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to get current pose: " + e.getMessage());
+                        logToFile("Failed to get current pose: " + e.getMessage());
+                    }
+                    
+                    // Check if there's already an active action
+                    try {
+                        Log.d(TAG, "Checking for existing actions...");
+                        logToFile("Checking for existing actions...");
+                        com.slamtec.slamware.action.IMoveAction existingAction = platform.getCurrentAction();
+                        if (existingAction != null && !existingAction.isEmpty()) {
+                            Log.d(TAG, "Found existing action: " + existingAction.getActionName() + " (ID: " + existingAction.getActionId() + ")");
+                            logToFile("Found existing action: " + existingAction.getActionName() + " (ID: " + existingAction.getActionId() + ")");
+                            Log.d(TAG, "Cancelling existing action...");
+                            logToFile("Cancelling existing action...");
+                            existingAction.cancel();
+                            Thread.sleep(1000); // Wait for cancellation
+                        } else {
+                            Log.d(TAG, "No existing actions found");
+                            logToFile("No existing actions found");
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error checking existing actions: " + e.getMessage());
+                        logToFile("Error checking existing actions: " + e.getMessage());
+                    }
+                    
                     // Create a location array for the target
+                    Log.d(TAG, "Creating location array...");
+                    logToFile("Creating location array...");
                     com.slamtec.slamware.robot.Location[] locations = new com.slamtec.slamware.robot.Location[1];
                     locations[0] = new com.slamtec.slamware.robot.Location();
                     locations[0].setX((float)x);
                     locations[0].setY((float)y);
+                    Log.d(TAG, "Location created: [" + locations[0].getX() + ", " + locations[0].getY() + "]");
+                    logToFile("Location created: [" + locations[0].getX() + ", " + locations[0].getY() + "]");
                     
                     // Create move options with specific settings
+                    Log.d(TAG, "Creating move options...");
+                    logToFile("Creating move options...");
                     com.slamtec.slamware.robot.MoveOption moveOption = new com.slamtec.slamware.robot.MoveOption();
+                    
                     // Make robot movement precise/accurate
                     moveOption.setPrecise(true);
+                    Log.d(TAG, "Set precise: true");
+                    logToFile("Set precise: true");
+                    
                     // Enable path search/planning functionality
                     moveOption.setMilestone(true);
+                    Log.d(TAG, "Set milestone: true");
+                    logToFile("Set milestone: true");
+                    
                     // Make robot rotate to the target yaw when it stops
                     moveOption.setWithYaw(true);
+                    Log.d(TAG, "Set withYaw: true");
+                    logToFile("Set withYaw: true");
+                    
                     // Don't use virtual tracks
                     moveOption.setKeyPoints(false);
+                    Log.d(TAG, "Set keyPoints: false");
+                    logToFile("Set keyPoints: false");
+                    
+                    Log.d(TAG, "Move options configured successfully");
+                    logToFile("Move options configured successfully");
                     
                     // Execute the move
-                    Log.d(TAG, "Calling platform.moveTo with options: precise=true, milestone=true, withYaw=true, keyPoints=false");
-                    com.slamtec.slamware.action.IMoveAction action = platform.moveTo(locations, moveOption, (float)yaw);
+                    Log.d(TAG, "Calling platform.moveTo with target yaw: " + yaw);
+                    logToFile("Calling platform.moveTo with target yaw: " + yaw);
+                    
+                    com.slamtec.slamware.action.IMoveAction action = null;
+                    try {
+                        action = platform.moveTo(locations, moveOption, (float)yaw);
+                        Log.d(TAG, "platform.moveTo call completed successfully");
+                        logToFile("platform.moveTo call completed successfully");
+                        
+                        if (action != null) {
+                            Log.d(TAG, "Action created - ID: " + action.getActionId() + ", Name: " + action.getActionName());
+                            logToFile("Action created - ID: " + action.getActionId() + ", Name: " + action.getActionName());
+                            Log.d(TAG, "Action isEmpty: " + action.isEmpty());
+                            logToFile("Action isEmpty: " + action.isEmpty());
+                        } else {
+                            Log.e(TAG, "Action is null after moveTo call!");
+                            logToFile("Action is null after moveTo call!");
+                            throw new Exception("MoveTo returned null action");
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Exception during platform.moveTo: " + e.getMessage());
+                        logToFile("Exception during platform.moveTo: " + e.getMessage());
+                        throw e;
+                    }
                     
                     // Wait for a short time to let action start
+                    Log.d(TAG, "Waiting 5 seconds for action to start...");
+                    logToFile("Waiting 5 seconds for action to start...");
                     Thread.sleep(5000);
                     
                     // Monitor action until completion
+                    Log.d(TAG, "Starting action monitoring loop...");
+                    logToFile("Starting action monitoring loop...");
                     boolean completed = false;
                     int retryCount = 0;
                     int maxRetries = 120; // 60 seconds max (500ms interval)
@@ -1865,12 +1969,17 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                     boolean hasReachedTarget = false;
                     float targetDistanceThreshold = 0.5f; // Consider target reached if within 0.5 meters
                     
+                    Log.d(TAG, "Target distance threshold: " + targetDistanceThreshold + " meters");
+                    logToFile("Target distance threshold: " + targetDistanceThreshold + " meters");
+                    
                     // Store initial position to detect movement
                     float initialX = 0;
                     float initialY = 0;
                     boolean haveInitialPosition = false;
                     
                     try {
+                        Log.d(TAG, "Getting initial position for movement detection...");
+                        logToFile("Getting initial position for movement detection...");
                         com.slamtec.slamware.robot.Pose initialPose = platform.getPose();
                         initialX = initialPose.getX();
                         initialY = initialPose.getY();
@@ -1883,96 +1992,119 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                     }
                     
                     while (!completed && retryCount < maxRetries) {
+                        Log.d(TAG, "=== MONITORING LOOP ITERATION " + (retryCount + 1) + " / " + maxRetries + " ===");
+                        
                         // Check current action status
                         try {
+                            Log.d(TAG, "Getting current action from platform...");
                             com.slamtec.slamware.action.IMoveAction currentAction = platform.getCurrentAction();
+                            Log.d(TAG, "getCurrentAction() returned: " + (currentAction != null ? "not null" : "null"));
                             
                             // Log current action status
                             if (currentAction != null) {
                                 try {
                                     StringBuilder actionLog = new StringBuilder();
-                                    actionLog.append("Current Action Status:\n");
+                                    actionLog.append("=== Current Action Status (Iteration ").append(retryCount + 1).append(") ===\n");
                                     
                                     // IAction interface properties
                                     try {
-                                        actionLog.append("  - Action Name: ").append(currentAction.getActionName()).append("\n");
+                                        String actionName = currentAction.getActionName();
+                                        actionLog.append("  - Action Name: ").append(actionName).append("\n");
+                                        Log.d(TAG, "Action Name: " + actionName);
                                     } catch (Exception e) {
                                         actionLog.append("  - Action Name: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting action name: " + e.getMessage());
                                     }
                                     
                                     try {
-                                        actionLog.append("  - Action ID: ").append(currentAction.getActionId()).append("\n");
+                                        int actionId = currentAction.getActionId();
+                                        actionLog.append("  - Action ID: ").append(actionId).append("\n");
+                                        Log.d(TAG, "Action ID: " + actionId);
                                     } catch (Exception e) {
                                         actionLog.append("  - Action ID: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting action ID: " + e.getMessage());
                                     }
                                     
                                     try {
-                                        actionLog.append("  - Is Empty: ").append(currentAction.isEmpty()).append("\n");
+                                        boolean isEmpty = currentAction.isEmpty();
+                                        actionLog.append("  - Is Empty: ").append(isEmpty).append("\n");
+                                        Log.d(TAG, "Action isEmpty: " + isEmpty);
                                     } catch (Exception e) {
                                         actionLog.append("  - Is Empty: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error checking if action is empty: " + e.getMessage());
                                     }
                                     
                                     try {
-                                        actionLog.append("  - Progress: ").append(currentAction.getProgress()).append("\n");
+                                        double progress = currentAction.getProgress();
+                                        actionLog.append("  - Progress: ").append(progress).append("\n");
+                                        Log.d(TAG, "Action progress: " + progress);
                                     } catch (Exception e) {
                                         actionLog.append("  - Progress: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting action progress: " + e.getMessage());
                                     }
                                     
                                     try {
-                                        actionLog.append("  - Status: ").append(currentAction.getStatus()).append("\n");
+                                        Object status = currentAction.getStatus();
+                                        actionLog.append("  - Status: ").append(status).append("\n");
+                                        Log.d(TAG, "Action status: " + status);
                                     } catch (Exception e) {
                                         actionLog.append("  - Status: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting action status: " + e.getMessage());
                                     }
                                     
                                     try {
-                                        actionLog.append("  - Reason: ").append(currentAction.getReason()).append("\n");
+                                        Object reason = currentAction.getReason();
+                                        actionLog.append("  - Reason: ").append(reason).append("\n");
+                                        Log.d(TAG, "Action reason: " + reason);
                                     } catch (Exception e) {
                                         actionLog.append("  - Reason: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting action reason: " + e.getMessage());
                                     }
                                     
                                     // IMoveAction specific properties
                                     try {
-                                        actionLog.append("  - Remaining Path: ").append(currentAction.getRemainingPath()).append("\n");
+                                        Object remainingPath = currentAction.getRemainingPath();
+                                        actionLog.append("  - Remaining Path: ").append(remainingPath).append("\n");
+                                        Log.d(TAG, "Remaining path: " + remainingPath);
                                     } catch (Exception e) {
                                         actionLog.append("  - Remaining Path: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting remaining path: " + e.getMessage());
                                     }
                                     
                                     try {
-                                        actionLog.append("  - Remaining Milestones: ").append(currentAction.getRemainingMilestones()).append("\n");
+                                        Object remainingMilestones = currentAction.getRemainingMilestones();
+                                        actionLog.append("  - Remaining Milestones: ").append(remainingMilestones).append("\n");
+                                        Log.d(TAG, "Remaining milestones: " + remainingMilestones);
                                     } catch (Exception e) {
                                         actionLog.append("  - Remaining Milestones: Error - ").append(e.getMessage()).append("\n");
+                                        Log.e(TAG, "Error getting remaining milestones: " + e.getMessage());
                                     }
+                                    
+                                    // Always log to file for detailed debugging
+                                    logToFile(actionLog.toString());
                                     
                                     // Log to Android debug
                                     Log.d(TAG, actionLog.toString());
-                                    
-                                    // Log to file (less frequently to avoid huge logs)
-                                    if (retryCount % 10 == 0) {
-                                        logToFile(actionLog.toString());
-                                    }
                                 } catch (Exception e) {
                                     Log.e(TAG, "Error getting action details: " + e.getMessage());
+                                    logToFile("Error getting action details: " + e.getMessage());
                                 }
                             } else {
-                                Log.d(TAG, "No current action (null)");
-                                if (retryCount % 10 == 0) {
-                                    logToFile("No current action (null)");
-                                }
+                                Log.d(TAG, "No current action (null) - iteration " + (retryCount + 1));
+                                logToFile("No current action (null) - iteration " + (retryCount + 1));
                             }
                             
                             // Check current position to detect movement and target arrival
                             try {
+                                Log.d(TAG, "Getting current robot pose...");
                                 com.slamtec.slamware.robot.Pose currentPose = platform.getPose();
                                 float currentX = currentPose.getX();
                                 float currentY = currentPose.getY();
+                                float currentYaw = currentPose.getYaw();
                                 
                                 // Log position
-                                Log.d(TAG, "Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
-                                
-                                // Only log to file occasionally to avoid huge log files
-                                if (retryCount % 10 == 0) {
-                                    logToFile("Current position: [" + currentX + ", " + currentY + ", yaw=" + currentPose.getYaw() + "]");
-                                }
+                                Log.d(TAG, "Current position: [" + currentX + ", " + currentY + ", yaw=" + currentYaw + "]");
+                                logToFile("Current position: [" + currentX + ", " + currentY + ", yaw=" + currentYaw + "]");
                                 
                                 // Check if we've started moving (changed position significantly)
                                 if (haveInitialPosition && !hasStartedMoving) {
@@ -1980,11 +2112,22 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                                     float dy = currentY - initialY;
                                     float distanceMoved = (float)Math.sqrt(dx*dx + dy*dy);
                                     
+                                    Log.d(TAG, "Movement check - dx: " + dx + ", dy: " + dy + ", distance: " + distanceMoved);
+                                    logToFile("Movement check - dx: " + dx + ", dy: " + dy + ", distance: " + distanceMoved);
+                                    
                                     if (distanceMoved > 0.05) { // 5cm movement threshold
                                         hasStartedMoving = true;
-                                        Log.d(TAG, "Robot has started moving! Distance moved: " + distanceMoved);
-                                        logToFile("Robot has started moving! Distance moved: " + distanceMoved);
+                                        Log.d(TAG, "*** ROBOT HAS STARTED MOVING! Distance moved: " + distanceMoved + " ***");
+                                        logToFile("*** ROBOT HAS STARTED MOVING! Distance moved: " + distanceMoved + " ***");
+                                    } else {
+                                        Log.d(TAG, "Robot has not moved significantly yet (distance: " + distanceMoved + " < 0.05m threshold)");
+                                        logToFile("Robot has not moved significantly yet (distance: " + distanceMoved + " < 0.05m threshold)");
                                     }
+                                } else if (!haveInitialPosition) {
+                                    Log.d(TAG, "No initial position available for movement detection");
+                                    logToFile("No initial position available for movement detection");
+                                } else if (hasStartedMoving) {
+                                    Log.d(TAG, "Robot movement already detected");
                                 }
                                 
                                 // Calculate distance to target
@@ -1992,70 +2135,87 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                                 float dy = currentY - (float)y;
                                 float distanceToTarget = (float)Math.sqrt(dx*dx + dy*dy);
                                 
-                                if (retryCount % 10 == 0) {
-                                    Log.d(TAG, "Distance to target: " + distanceToTarget + " meters");
-                                }
+                                Log.d(TAG, "Target distance calculation - dx: " + dx + ", dy: " + dy + ", distance: " + distanceToTarget + " meters");
+                                logToFile("Target distance calculation - dx: " + dx + ", dy: " + dy + ", distance: " + distanceToTarget + " meters");
                                 
                                 // Check if we've reached the target
                                 if (distanceToTarget <= targetDistanceThreshold) {
-                                    hasReachedTarget = true;
-                                    Log.d(TAG, "Target reached! Distance: " + distanceToTarget);
-                                    logToFile("Target reached! Distance: " + distanceToTarget);
+                                    if (!hasReachedTarget) {
+                                        hasReachedTarget = true;
+                                        Log.d(TAG, "*** TARGET REACHED! Distance: " + distanceToTarget + " ***");
+                                        logToFile("*** TARGET REACHED! Distance: " + distanceToTarget + " ***");
+                                    }
                                     
                                     // If we've reached the target and action is complete or we're just waiting, 
                                     // consider navigation complete
                                     if (currentAction == null) {
                                         completed = true;
-                                        Log.d(TAG, "Navigation complete - at target with no current action");
-                                        logToFile("Navigation complete - at target with no current action");
+                                        Log.d(TAG, "*** NAVIGATION COMPLETE - at target with no current action ***");
+                                        logToFile("*** NAVIGATION COMPLETE - at target with no current action ***");
+                                    } else {
+                                        Log.d(TAG, "At target but action still active, continuing to monitor...");
+                                        logToFile("At target but action still active, continuing to monitor...");
                                     }
+                                } else {
+                                    Log.d(TAG, "Not at target yet (distance: " + distanceToTarget + " > " + targetDistanceThreshold + "m threshold)");
+                                    logToFile("Not at target yet (distance: " + distanceToTarget + " > " + targetDistanceThreshold + "m threshold)");
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG, "Error getting position update: " + e.getMessage());
+                                logToFile("Error getting position update: " + e.getMessage());
                             }
                             
                             if (currentAction == null) {
+                                Log.d(TAG, "No current action detected - analyzing completion status...");
+                                logToFile("No current action detected - analyzing completion status...");
+                                
                                 // No current action means movement is complete
                                 if (hasReachedTarget) {
                                     completed = true;
-                                    Log.d(TAG, "Navigation completed successfully (no current action and at target)");
-                                    logToFile("Navigation completed successfully (no current action and at target)");
+                                    Log.d(TAG, "*** NAVIGATION COMPLETED SUCCESSFULLY (no current action and at target) ***");
+                                    logToFile("*** NAVIGATION COMPLETED SUCCESSFULLY (no current action and at target) ***");
                                 } else if (hasStartedMoving) {
                                     completed = true;
-                                    Log.d(TAG, "Navigation completed (no current action, moved but target not reached)");
-                                    logToFile("Navigation completed (no current action, moved but target not reached)");
+                                    Log.d(TAG, "*** NAVIGATION COMPLETED (no current action, moved but target not reached) ***");
+                                    logToFile("*** NAVIGATION COMPLETED (no current action, moved but target not reached) ***");
                                 } else {
                                     // If we have no current action but haven't moved, something is wrong
                                     // Wait a bit more in case robot is just starting
                                     retryCount++;
-                                    Log.d(TAG, "No current action but no movement detected. Check #" + retryCount);
+                                    Log.d(TAG, "WAITING: No current action but no movement detected. Check #" + retryCount + " (will fail after 20 checks)");
+                                    logToFile("WAITING: No current action but no movement detected. Check #" + retryCount + " (will fail after 20 checks)");
                                     
                                     if (retryCount > 20) { // After 10 seconds, assume something is wrong
-                                        Log.e(TAG, "No movement detected after 10 seconds with no current action. Navigation may have failed.");
-                                        logToFile("No movement detected after 10 seconds with no current action. Navigation may have failed.");
+                                        Log.e(TAG, "*** NAVIGATION FAILED: No movement detected after 10 seconds with no current action ***");
+                                        logToFile("*** NAVIGATION FAILED: No movement detected after 10 seconds with no current action ***");
                                         completed = true; // End the loop
                                     }
                                 }
                             } else {
                                 // Still moving, log status and wait
                                 retryCount++;
-                                Log.d(TAG, "Robot still moving, check #" + retryCount + " of " + maxRetries);
+                                Log.d(TAG, "CONTINUING: Robot still has active action, check #" + retryCount + " of " + maxRetries);
+                                logToFile("CONTINUING: Robot still has active action, check #" + retryCount + " of " + maxRetries);
                                 Thread.sleep(500);
                             }
                         } catch (Exception e) {
-                            Log.e(TAG, "Error checking action status: " + e.getMessage(), e);
-                            logToFile("Error checking action status: " + e.getMessage());
+                            Log.e(TAG, "*** EXCEPTION in action monitoring: " + e.getMessage());
+                            logToFile("*** EXCEPTION in action monitoring: " + e.getMessage());
+                            e.printStackTrace();
                             // Assume completed if we can't check status
                             completed = true;
                         }
                     }
                     
                     if (retryCount >= maxRetries) {
-                        Log.d(TAG, "Navigation timeout - assuming success after " + maxRetries + " checks");
+                        Log.d(TAG, "*** NAVIGATION TIMEOUT - assuming success after " + maxRetries + " checks ***");
+                        logToFile("*** NAVIGATION TIMEOUT - assuming success after " + maxRetries + " checks ***");
                     }
                     
-                    Log.d(TAG, "Navigation completed");
-                    logToFile("Navigation completed");
+                    Log.d(TAG, "=== NAVIGATION SDK PROCESS COMPLETED ===");
+                    Log.d(TAG, "Final status - hasStartedMoving: " + hasStartedMoving + ", hasReachedTarget: " + hasReachedTarget);
+                    logToFile("=== NAVIGATION SDK PROCESS COMPLETED ===");
+                    logToFile("Final status - hasStartedMoving: " + hasStartedMoving + ", hasReachedTarget: " + hasReachedTarget);
                     
                     // Return success
                     mainHandler.post(() -> promise.resolve(true));
