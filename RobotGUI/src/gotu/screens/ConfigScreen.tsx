@@ -39,7 +39,6 @@ const navigateHome = async () => {
 };
 
 interface ConfigScreenProps {
-  onClose: () => void;
   restartApp: () => void;
 }
 
@@ -48,7 +47,7 @@ interface ConnectionStatus {
   message: string;
 }
 
-function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Element {
+function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
   const [sdkConnectionStatus, setSdkConnectionStatus] = useState<ConnectionStatus>({
     isConnected: false,
     message: 'Checking SDK connection...',
@@ -218,11 +217,6 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          <Text style={styles.closeButtonText}>✕</Text>
-        </TouchableOpacity>
-      </View>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -334,13 +328,13 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
               style={[styles.button, styles.promotionButton]}
               onPress={async () => {
                 try {
-                  // @ts-ignore - startPromotion is added to window in MainScreen
+                  // @ts-ignore - startPromotion is added to global object
                   if (typeof globalAny.startPromotion === 'function') {
                     // First activate the promotion globally
                     await globalAny.startPromotion();
                     
                     // Then close the config screen
-                    onClose();
+                    restartApp();
                   } else {
                     Alert.alert(
                       'Feature Not Available',
@@ -374,7 +368,7 @@ function ConfigScreen({ onClose, restartApp }: ConfigScreenProps): React.JSX.Ele
                   await navigateHome();
                   
                   // Close the config screen after initiating go home
-                  onClose();
+                  restartApp();
                 } catch (error: any) {
                   console.error('Error going home:', error);
                   Alert.alert(
@@ -654,19 +648,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-  },
-  closeButton: {
-    padding: 5,
-  },
-  closeButtonText: {
-    fontSize: 24,
-    color: '#000',
   },
   scrollView: {
     flex: 1,
