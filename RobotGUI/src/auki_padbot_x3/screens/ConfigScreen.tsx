@@ -9,7 +9,7 @@ import {
   ScrollView,
   NativeModules,
 } from 'react-native';
-import { LogUtils } from '../utils/LogUtils';
+import { LogUtils } from '../utils/logging';
 import BatteryStatus from '../components/BatteryStatus';
 import RobotConnectionStatus from '../components/RobotConnectionStatus';
 import RobotStatus from '../components/RobotStatus';
