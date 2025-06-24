@@ -22,7 +22,6 @@ const BatteryStatus: React.FC = () => {
     charging: false,
     isInitialValue: true
   });
-  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isRobotCharging, setIsRobotCharging] = useState<boolean>(false);
 
   useEffect(() => {
@@ -51,10 +50,6 @@ const BatteryStatus: React.FC = () => {
       });
     });
 
-    const connectionSubscription = PadbotUtils.addConnectionListener((status: ConnectionStatus) => {
-      setIsConnected(status.connected);
-    });
-    
     // Add charging status listener
     const chargingSubscription = PadbotUtils.addChargingListener((info: ChargingInfo) => {
       setIsRobotCharging(info.isCharging);
@@ -63,7 +58,6 @@ const BatteryStatus: React.FC = () => {
     // Clean up listeners on unmount
     return () => {
       batterySubscription.remove();
-      connectionSubscription.remove();
       chargingSubscription.remove();
       PadbotUtils.cleanup();
     };
@@ -91,31 +85,16 @@ const BatteryStatus: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.statusRow}>
-        <Text style={styles.label}>Battery:</Text>
-        <Text style={[styles.value, { color: getBatteryColor() }]}>
-          {getBatteryDisplay()}
-        </Text>
-      </View>
-      
-      <View style={styles.statusRow}>
-        <Text style={styles.label}>Robot Connection:</Text>
-        <Text style={[styles.value, { color: isConnected ? '#4CD964' : '#FF3B30' }]}>
-          {isConnected ? 'Connected' : 'Disconnected'}
-        </Text>
-      </View>
+    <View style={styles.statusRow}>
+      <Text style={styles.label}>Battery:</Text>
+      <Text style={[styles.value, { color: getBatteryColor() }]}>
+        {getBatteryDisplay()}
+      </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 5,
-    marginVertical: 5,
-  },
   statusRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

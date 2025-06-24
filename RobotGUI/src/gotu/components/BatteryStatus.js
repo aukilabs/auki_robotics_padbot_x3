@@ -84,38 +84,32 @@ const BatteryStatus = () => {
           {getBatteryDisplay()}
         </Text>
       </View>
-      
-      <View style={styles.statusRow}>
-        <Text style={styles.label}>Robot Connection:</Text>
-        <Text style={[styles.value, { color: isConnected ? '#4CD964' : '#FF3B30' }]}>
-          {isConnected ? 'Connected' : 'Disconnected'}
-        </Text>
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 5,
-    marginVertical: 5,
+    padding: 0,
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    marginVertical: 0,
   },
   statusRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 5,
+    alignItems: 'flex-start',
+    marginVertical: 2,
   },
   label: {
     fontSize: 16,
     fontWeight: '500',
     color: '#333',
+    textAlign: 'left',
   },
   value: {
     fontSize: 16,
     fontWeight: '600',
+    textAlign: 'left',
   },
 });
 

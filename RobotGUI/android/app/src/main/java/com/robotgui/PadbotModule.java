@@ -30,6 +30,7 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     private int lastBatteryPercentage = -1;
     private boolean lastChargingState = false;
     private boolean isCharging = false;
+    private boolean isConnected = false; // Track connection status
 
     public PadbotModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -165,6 +166,7 @@ public class PadbotModule extends ReactContextBaseJavaModule {
         
         try {
             robotBasicClient = RobotBasicClient.getInstance();
+            isConnected = true; // Set connection flag
             
             // Notify React Native
             WritableMap params = Arguments.createMap();
@@ -181,6 +183,8 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(OnRobotBasicClientDisconnectedEvent event) {
         Log.d(TAG, "Robot client disconnected");
+        
+        isConnected = false; // Set connection flag
         
         // Notify React Native
         WritableMap params = Arguments.createMap();
@@ -228,6 +232,51 @@ public class PadbotModule extends ReactContextBaseJavaModule {
     public void isCharging(Promise promise) {
         // Return the cached value from events
         promise.resolve(isCharging);
+    }
+    
+    @ReactMethod
+    public void getConnectionStatus(Promise promise) {
+        try {
+            WritableMap status = Arguments.createMap();
+            status.putBoolean("connected", isConnected);
+            status.putBoolean("initialized", isInitialized);
+            promise.resolve(status);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting connection status: " + e.getMessage(), e);
+            promise.reject("PADBOT_CONNECTION_ERROR", "Error getting connection status: " + e.getMessage());
+        }
+    }
+    
+    @ReactMethod
+    public void checkConnection(Promise promise) {
+        try {
+            Log.d(TAG, "Checking Padbot connection...");
+            
+            // Try to get the RobotBasicClient instance
+            RobotBasicClient client = RobotBasicClient.getInstance();
+            if (client != null) {
+                Log.d(TAG, "RobotBasicClient instance obtained successfully");
+                
+                WritableMap response = Arguments.createMap();
+                response.putBoolean("connected", true);
+                response.putString("status", "Padbot connection successful");
+                response.putBoolean("padbotApiAvailable", true);
+                
+                promise.resolve(response);
+            } else {
+                Log.e(TAG, "RobotBasicClient instance is null");
+                throw new Exception("RobotBasicClient instance is null");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Padbot connection check failed: " + e.getMessage(), e);
+            
+            WritableMap response = Arguments.createMap();
+            response.putBoolean("connected", false);
+            response.putString("status", "Cannot connect to Padbot: " + e.getMessage());
+            response.putBoolean("padbotApiAvailable", false);
+            
+            promise.resolve(response);
+        }
     }
     
     /**

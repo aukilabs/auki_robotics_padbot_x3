@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { LogUtils } from '../utils/LogUtils';
 import BatteryStatus from '../components/BatteryStatus';
+import RobotConnectionStatus from '../components/RobotConnectionStatus';
+import RobotStatus from '../components/RobotStatus';
 
 // Access the global object in a way that works in React Native
 const globalAny: any = global;
@@ -85,12 +87,22 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
 
   const checkSdkConnection = async () => {
     try {
+      console.log('[ConfigScreen] Checking SDK connection...');
       const details = await NativeModules.SlamtecUtils.checkConnectionSdk();
-      setSdkConnectionStatus({
+      console.log('[ConfigScreen] SDK connection details:', details);
+      console.log('[ConfigScreen] slamApiAvailable:', details.slamApiAvailable);
+      console.log('[ConfigScreen] status:', details.status);
+      
+      const newStatus = {
         isConnected: details.slamApiAvailable,
         message: details.status + ' (SDK)',
-      });
+      };
+      console.log('[ConfigScreen] Setting new status:', newStatus);
+      
+      setSdkConnectionStatus(newStatus);
+      console.log('[ConfigScreen] Status updated');
     } catch (error) {
+      console.log('[ConfigScreen] SDK connection error:', error);
       setSdkConnectionStatus({
         isConnected: false,
         message: 'SDK Connection error',
@@ -194,6 +206,9 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
     NativeModules.DomainUtils.saveHomedockQrId(formattedText);
   };
 
+  // Debug: Log current connection status
+  console.log('[ConfigScreen] Current sdkConnectionStatus:', sdkConnectionStatus);
+
   return (
     <ScrollView style={styles.container}>
       <ScrollView 
@@ -213,9 +228,9 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
 
           <View style={styles.statusContainer}>
             <Text style={styles.statusText}>Robot Status</Text>
-            <BatteryStatus />
+            <RobotStatus />
           </View>
-
+          
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Authentication</Text>
             
@@ -500,6 +515,13 @@ const styles = StyleSheet.create({
   navigateButton: {
     backgroundColor: '#2196F3',
     marginTop: 10,
+  },
+  statusSection: {
+    marginBottom: 30,
+  },
+  robotStatusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

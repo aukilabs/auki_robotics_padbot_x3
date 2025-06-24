@@ -68,6 +68,36 @@ class PadbotUtils {
   }
 
   /**
+   * Get the current connection status
+   * @returns {Promise<{connected: boolean, initialized: boolean}>}
+   */
+  static async getConnectionStatus() {
+    try {
+      return await PadbotModule.getConnectionStatus();
+    } catch (error) {
+      console.error('Error getting connection status:', error);
+      return { connected: false, initialized: false };
+    }
+  }
+
+  /**
+   * Check the Padbot connection by testing the actual connection
+   * @returns {Promise<{connected: boolean, status: string, padbotApiAvailable: boolean}>}
+   */
+  static async checkConnection() {
+    try {
+      return await PadbotModule.checkConnection();
+    } catch (error) {
+      console.error('Error checking Padbot connection:', error);
+      return { 
+        connected: false, 
+        status: 'Connection check failed: ' + error.message,
+        padbotApiAvailable: false 
+      };
+    }
+  }
+
+  /**
    * Add a listener for charging status updates
    * @param {Function} callback Function that receives {isCharging: boolean}
    * @returns {Object} Subscription
