@@ -60,6 +60,8 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
   const [hasStoredPassword, setHasStoredPassword] = useState(false);
   const [domainServerUrl, setDomainServerUrl] = useState('');
   const [restartEnabled, setRestartEnabled] = useState(false);
+  const [xCoordinate, setXCoordinate] = useState('');
+  const [yCoordinate, setYCoordinate] = useState('');
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -300,6 +302,65 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
             >
               <Text style={styles.buttonText}>Go Home</Text>
             </TouchableOpacity>
+            
+            <View style={styles.coordinateContainer}>
+              <Text style={styles.coordinateLabel}>X Coordinate:</Text>
+              <TextInput
+                style={styles.coordinateInput}
+                placeholder="0.0"
+                value={xCoordinate}
+                onChangeText={setXCoordinate}
+                keyboardType="numeric"
+                returnKeyType="done"
+              />
+            </View>
+            
+            <View style={styles.coordinateContainer}>
+              <Text style={styles.coordinateLabel}>Y Coordinate:</Text>
+              <TextInput
+                style={styles.coordinateInput}
+                placeholder="0.0"
+                value={yCoordinate}
+                onChangeText={setYCoordinate}
+                keyboardType="numeric"
+                returnKeyType="done"
+              />
+            </View>
+            
+            <TouchableOpacity 
+              style={[styles.button, styles.navigateButton]}
+              onPress={async () => {
+                try {
+                  // Validate coordinates
+                  const x = parseFloat(xCoordinate);
+                  const y = parseFloat(yCoordinate);
+                  
+                  if (isNaN(x) || isNaN(y)) {
+                    Alert.alert('Invalid Coordinates', 'Please enter valid numerical coordinates for X and Y.');
+                    return;
+                  }
+                  
+                  // Invert Y coordinate: negative becomes positive, positive becomes negative
+                  const invertedY = -y;
+                  
+                  console.log(`Navigating to x=${x}, y=${invertedY} (original y=${y}), yaw=0`);
+                  
+                  Alert.alert('Navigation Started', `Robot is navigating to coordinates (${x}, ${invertedY})`);
+
+                  // Call navigateWithSdk with x, inverted y, and yaw=0
+                  await NativeModules.SlamtecUtils.navigateWithSdk(x, invertedY, 0);
+                  
+                } catch (error: any) {
+                  console.error('Error navigating:', error);
+                  Alert.alert(
+                    'Navigation Failed',
+                    'Error: ' + (error.message || 'Unknown error')
+                  );
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Navigate to Coordinates</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -415,6 +476,30 @@ const styles = StyleSheet.create({
   },
   statusValue: {
     fontSize: 16,
+  },
+  coordinateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    justifyContent: 'space-between',
+  },
+  coordinateLabel: {
+    fontSize: 16,
+    marginRight: 10,
+    minWidth: 100,
+  },
+  coordinateInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    flex: 1,
+    textAlign: 'center',
+  },
+  navigateButton: {
+    backgroundColor: '#2196F3',
+    marginTop: 10,
   },
 });
 
