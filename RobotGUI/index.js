@@ -2,18 +2,18 @@ import {AppRegistry, NativeModules} from 'react-native';
 import {name as appName} from './app.json';
 
 // Import both app variants
-import GoTuApp from './src/gotu/app/App';
+import AukiPadbotX3App from './src/auki_padbot_x3/app/App';
 
 // Get the app variant from native code
 const getAppVariant = () => {
   try {
     // This requires adding a native module that exposes the app variant
-    const appVariant = NativeModules.AppInfo?.getAppVariant?.() || 'gotu';
+    const appVariant = NativeModules.AppInfo?.getAppVariant?.() || 'auki_padbot_x3';
     console.log('App variant:', appVariant);
     return appVariant;
   } catch (error) {
     console.error('Error getting app variant:', error);
-    return 'gotu';
+    return 'auki_padbot_x3';
   }
 };
 
@@ -21,10 +21,10 @@ const getAppVariant = () => {
 const getApp = () => {
   const variant = getAppVariant();
   switch (variant) {
-    case 'gotu':
-      return GoTuApp;
+    case 'auki_padbot_x3':
+      return AukiPadbotX3App;
     default:
-      return GoTuApp;
+      return AukiPadbotX3App;
   }
 };
 

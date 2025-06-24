@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, EmitterSubscription } from 'react-native';
 import PadbotUtils from '../utils/PadbotUtils';
 
 interface BatteryInfo {
@@ -43,7 +43,7 @@ const BatteryStatus: React.FC = () => {
     initializePadbot();
 
     // Set up listeners for battery and connection updates
-    const batterySubscription = PadbotUtils.addBatteryListener((info: BatteryInfo) => {
+    const batterySubscription: EmitterSubscription = PadbotUtils.addBatteryListener((info: BatteryInfo) => {
       setBatteryInfo({
         ...info,
         isInitialValue: false
@@ -51,7 +51,7 @@ const BatteryStatus: React.FC = () => {
     });
 
     // Add charging status listener
-    const chargingSubscription = PadbotUtils.addChargingListener((info: ChargingInfo) => {
+    const chargingSubscription: EmitterSubscription = PadbotUtils.addChargingListener((info: ChargingInfo) => {
       setIsRobotCharging(info.isCharging);
     });
 
@@ -86,7 +86,7 @@ const BatteryStatus: React.FC = () => {
 
   return (
     <View style={styles.statusRow}>
-      <Text style={styles.label}>Battery:</Text>
+      <Text style={styles.label}>Battery: </Text>
       <Text style={[styles.value, { color: getBatteryColor() }]}>
         {getBatteryDisplay()}
       </Text>

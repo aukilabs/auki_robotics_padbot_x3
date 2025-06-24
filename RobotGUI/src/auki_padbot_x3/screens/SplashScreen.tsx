@@ -175,7 +175,7 @@ const SplashScreen = ({ onFinish }: SplashScreenProps): React.JSX.Element => {
           await LogUtils.writeDebugToFile('Attempting authentication...');
         }
         
-        // Use the regular authentication system, not gotu credentials
+        // Use the regular authentication system, not auki_padbot_x3 credentials
         let authSuccess = false;
         let authAttempts = 0;
         const maxAuthAttempts = 3;

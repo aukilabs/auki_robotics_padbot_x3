@@ -1,7 +1,7 @@
 import { NativeModules } from 'react-native';
 
 // The FileUtils module will automatically handle app-specific directories
-// For GoTu, logs will be written to the "GoTu" directory in Downloads
+// For AukiPadbotX3, logs will be written to the "AukiPadbotX3" directory in Downloads
 const LOG_FILENAME = 'debug_log.txt';
 
 export const LogUtils = {

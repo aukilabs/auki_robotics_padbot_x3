@@ -61,7 +61,7 @@ public class FileUtilsModule extends ReactContextBaseJavaModule {
 
             // Get app variant and determine directory name
             String appVariant = reactContext.getResources().getString(R.string.app_variant);
-            String appDirName = appVariant.equals("gotu") ? "GoTu" : "CactusAssistant";
+            String appDirName = appVariant.equals("auki_padbot_x3") ? "AukiPadbotX3" : "CactusAssistant";
             
             // Create app-specific directory
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -97,7 +97,7 @@ public class FileUtilsModule extends ReactContextBaseJavaModule {
 
             // Get app variant and determine directory name
             String appVariant = reactContext.getResources().getString(R.string.app_variant);
-            String appDirName = appVariant.equals("gotu") ? "GoTu" : "CactusAssistant";
+            String appDirName = appVariant.equals("auki_padbot_x3") ? "AukiPadbotX3" : "CactusAssistant";
             
             // Create app-specific directory
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -128,7 +128,7 @@ public class FileUtilsModule extends ReactContextBaseJavaModule {
 
             // Get app variant and determine directory name
             String appVariant = reactContext.getResources().getString(R.string.app_variant);
-            String appDirName = appVariant.equals("gotu") ? "GoTu" : "CactusAssistant";
+            String appDirName = appVariant.equals("auki_padbot_x3") ? "AukiPadbotX3" : "CactusAssistant";
             
             // Get app-specific directory
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);

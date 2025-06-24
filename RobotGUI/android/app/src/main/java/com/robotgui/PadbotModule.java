@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class PadbotModule extends ReactContextBaseJavaModule {
     private static final String TAG = "PadbotModule";
-    private static final String FLAG = "GoTu";
+    private static final String FLAG = "AukiPadbotX3";
     
     private final ReactApplicationContext reactContext;
     private RobotBasicClient robotBasicClient;

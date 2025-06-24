@@ -23,39 +23,39 @@ import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GotuModule extends ReactContextBaseJavaModule {
-    private static final String TAG = "GotuModule";
+public class AukiPadbotX3Module extends ReactContextBaseJavaModule {
+    private static final String TAG = "AukiPadbotX3Module";
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private String endpoint;
     private boolean isInitialized = false;
     private final ReactApplicationContext reactContext;
 
-    public GotuModule(ReactApplicationContext reactContext) {
+    public AukiPadbotX3Module(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
-        Log.d(TAG, "GotuModule constructor called");
+        Log.d(TAG, "AukiPadbotX3Module constructor called");
     }
 
     @Override
     public String getName() {
-        return "GotuUtils";
+        return "AukiPadbotX3Utils";
     }
 
     private synchronized void ensureInitialized() {
         if (!isInitialized) {
             try {
-                Log.d(TAG, "Initializing GotuModule");
+                Log.d(TAG, "Initializing AukiPadbotX3Module");
                 ConfigManager configManager = ConfigManager.INSTANCE;
                 if (configManager != null) {
-                    this.endpoint = configManager.getNestedString("gotu.endpoint", "");
-                    Log.d(TAG, "GotuModule initialized with endpoint: " + endpoint);
+                    this.endpoint = configManager.getNestedString("auki_padbot_x3.endpoint", "");
+                    Log.d(TAG, "AukiPadbotX3Module initialized with endpoint: " + endpoint);
                     isInitialized = true;
                 } else {
                     Log.e(TAG, "ConfigManager is null during initialization");
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error in GotuModule initialization: " + e.getMessage());
+                Log.e(TAG, "Error in AukiPadbotX3Module initialization: " + e.getMessage());
             }
         }
     }
@@ -66,7 +66,7 @@ public class GotuModule extends ReactContextBaseJavaModule {
         ensureInitialized();
         
         if (!isInitialized) {
-            promise.reject("INIT_ERROR", "GotuModule not properly initialized");
+            promise.reject("INIT_ERROR", "AukiPadbotX3Module not properly initialized");
             return;
         }
         
@@ -140,7 +140,7 @@ public class GotuModule extends ReactContextBaseJavaModule {
                         }
                         
                         // For compatibility with existing code, use eslCode as a unique identifier
-                        processedItem.putString("eslCode", "GOTU_" + i);
+                        processedItem.putString("eslCode", "AUKI_PADBOT_X3_" + i);
                         processedItem.putMap("pose", poseMap);
                         
                         processedItems.pushMap(processedItem);

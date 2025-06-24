@@ -108,12 +108,12 @@ android {
     // Define product flavors for different apps
     flavorDimensions "app"
     productFlavors {
-        gotu {
+        auki_padbot_x3 {
             dimension "app"
-            applicationId "com.robotgui.gotu" 
-            versionNameSuffix ".gotu"
-            resValue "string", "app_name", "GoTu"
-            buildConfigField "String", "APP_VARIANT", "\"gotu\""
+            applicationId "com.robotgui.auki_padbot_x3" 
+            versionNameSuffix ".auki_padbot_x3"
+            resValue "string", "app_name", "Auki Padbot X3"
+            buildConfigField "String", "APP_VARIANT", "\"auki_padbot_x3\""
         }
     }
 
@@ -129,12 +129,12 @@ android {
         main {
             assets.srcDirs = ['src/main/assets']
         }
-        gotu {
+        auki_padbot_x3 {
             // Flavor-specific source folders
-            java.srcDirs = ['src/gotu/java']
-            res.srcDirs = ['src/gotu/res']
-            assets.srcDirs = ['src/gotu/assets']
-            // Any overridden resources for gotu
+            java.srcDirs = ['src/auki_padbot_x3/java']
+            res.srcDirs = ['src/auki_padbot_x3/res']
+            assets.srcDirs = ['src/auki_padbot_x3/assets']
+            // Any overridden resources for auki_padbot_x3
         }
     }
 }

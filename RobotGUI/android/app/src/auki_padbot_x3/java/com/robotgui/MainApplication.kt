@@ -24,7 +24,7 @@ class MainApplication : Application(), ReactApplication {
             val packages = PackageList(this).packages.toMutableList()
             packages.add(SlamtecUtilsPackage())
             packages.add(DomainUtilsPackage())
-            packages.add(GotuPackage())
+            packages.add(AukiPadbotX3Package())
             packages.add(FileUtilsPackage())
             packages.add(ConfigManagerPackage())
             packages.add(AppInfoPackage())

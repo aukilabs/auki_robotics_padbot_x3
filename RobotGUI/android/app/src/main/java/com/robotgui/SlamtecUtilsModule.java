@@ -381,7 +381,7 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                     
                     // Get the Downloads directory and app-specific directory
                     File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    File appDir = new File(downloadsDir, appVariant.equals("gotu") ? "GoTu" : "CactusAssistant");
+                    File appDir = new File(downloadsDir, appVariant.equals("auki_padbot_x3") ? "AukiPadbotX3" : "CactusAssistant");
                     if (!appDir.exists()) {
                         appDir.mkdirs();
                     }
@@ -2947,7 +2947,7 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
             
             // Get the Downloads directory and app-specific directory
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File appDir = new File(downloadsDir, appVariant.equals("gotu") ? "GoTu" : "CactusAssistant");
+            File appDir = new File(downloadsDir, appVariant.equals("auki_padbot_x3") ? "AukiPadbotX3" : "CactusAssistant");
             if (!appDir.exists()) {
                 appDir.mkdirs();
             }
@@ -3103,6 +3103,6 @@ public class SlamtecUtilsModule extends ReactContextBaseJavaModule {
                 logToFile(errorMsg);
                 mainHandler.post(() -> promise.reject("SPEED_ERROR", errorMsg));
             }
-        });
-    }   
+        });   
+    }
 } 

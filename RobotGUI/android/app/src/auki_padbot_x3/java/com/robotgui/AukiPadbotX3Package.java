@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GotuPackage implements ReactPackage {
+public class AukiPadbotX3Package implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
-        modules.add(new GotuModule(reactContext));
+        modules.add(new AukiPadbotX3Module(reactContext));
         return modules;
     }
 

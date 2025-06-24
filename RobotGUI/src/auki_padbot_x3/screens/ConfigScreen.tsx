@@ -218,7 +218,7 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
       >
         <View style={styles.content}>
           <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>Connection Status (SDK)</Text>
+            <Text style={styles.statusText}>Slamtec Status (SDK)</Text>
             <View style={[
               styles.statusIndicator,
               { backgroundColor: sdkConnectionStatus.isConnected ? '#4CAF50' : '#F44336' }
@@ -227,7 +227,7 @@ function ConfigScreen({ restartApp }: ConfigScreenProps): React.JSX.Element {
           </View>
 
           <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>Robot Status</Text>
+            <Text style={styles.statusText}>Padbot Status</Text>
             <RobotStatus />
           </View>
           

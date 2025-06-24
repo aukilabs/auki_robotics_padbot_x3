@@ -676,7 +676,7 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
 
                 // Save the STCM file to Downloads directory based on app variant
                 val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val appDirName = if (reactApplicationContext.resources.getString(R.string.app_variant) == "gotu") "GoTu" else "CactusAssistant"
+                val appDirName = if (reactApplicationContext.resources.getString(R.string.app_variant) == "auki_padbot_x3") "AukiPadbotX3" else "CactusAssistant"
                 val appDir = File(downloadsDir, appDirName)
                 if (!appDir.exists()) {
                     appDir.mkdirs()
@@ -854,7 +854,7 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
 
             // Save the STCM file to Downloads directory based on app variant
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val appDirName = if (reactApplicationContext.resources.getString(R.string.app_variant) == "gotu") "GoTu" else "CactusAssistant"
+            val appDirName = if (reactApplicationContext.resources.getString(R.string.app_variant) == "auki_padbot_x3") "AukiPadbotX3" else "CactusAssistant"
             val appDir = File(downloadsDir, appDirName)
             if (!appDir.exists()) {
                 appDir.mkdirs()
@@ -1493,7 +1493,7 @@ class DomainUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
     private fun logToFile(message: String) {
         try {
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val appDirName = if (reactApplicationContext.resources.getString(R.string.app_variant) == "gotu") "GoTu" else "CactusAssistant"
+            val appDirName = if (reactApplicationContext.resources.getString(R.string.app_variant) == "auki_padbot_x3") "AukiPadbotX3" else "CactusAssistant"
             val appDir = File(downloadsDir, appDirName)
             if (!appDir.exists()) {
                 appDir.mkdirs()
