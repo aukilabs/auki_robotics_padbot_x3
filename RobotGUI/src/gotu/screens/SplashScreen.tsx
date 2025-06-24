@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   topContainer: {
     alignItems: 'center',
     width: '80%',
-    marginBottom: 20,
+    marginBottom: 40,
   },
   logoContainer: {
     width: 200,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 20,
+    marginVertical: 40,
   },
   loadingText: {
     color: '#101010',
