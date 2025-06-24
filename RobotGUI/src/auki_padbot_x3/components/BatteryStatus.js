@@ -79,7 +79,7 @@ const BatteryStatus = () => {
   return (
     <View style={styles.container}>
       <View style={styles.statusRow}>
-        <Text style={styles.label}>Battery:</Text>
+        <Text style={styles.label}>Battery: </Text>
         <Text style={[styles.value, { color: getBatteryColor() }]}>
           {getBatteryDisplay()}
         </Text>
