@@ -1,0 +1,12 @@
+# Default configuration
+email: ""
+domain_id: ""
+slam_ip: "192.168.11.1"
+slam_port: 1445
+timeout_ms: 1000
+
+# Domain Configuration
+domain:
+  map_endpoint: "https://dsc.auki.network/spatial/crosssection"
+  raycast_endpoint: "https://dsc.auki.network/spatial/raycast"
+  navmesh_endpoint: "https://dsc.auki.network/spatial/restricttonavmesh"
